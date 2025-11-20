@@ -416,3 +416,73 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+#RooCode
+.rooignore
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+
+# IntelliJ / Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Flutter/Dart/Pub
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# Android
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/GeneratedPluginRegistrant.java
+
+# iOS
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/fonts/
+**/ios/Flutter/assets/
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# Windows
+thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Exceptions to above rules (Keep these!)
+!**/android/app/src/main/res/values/strings.xml
+!**/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json
+
+# ---------------------------------
+# SAFETY & SECRETS (Important for your App)
+# ---------------------------------
+# Ignore files that might contain API Keys later
+lib/config/api_keys.dart
+.env
+*.pem
