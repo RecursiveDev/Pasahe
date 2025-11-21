@@ -1,0 +1,17 @@
+{
+  "MRT-3": [
+    {"origin": "North Avenue", "destination": "Taft", "price": 28.00},
+    {"origin": "North Avenue", "destination": "Cubao", "price": 16.00},
+    {"origin": "Taft", "destination": "Ayala", "price": 13.00}
+  ],
+  "LRT-1": [
+    {"origin": "Baclaran", "destination": "Fernando Poe Jr.", "price": 35.00},
+    {"origin": "Baclaran", "destination": "Doroteo Jose", "price": 20.00},
+    {"origin": "Central", "destination": "Balintawak", "price": 25.00}
+  ],
+  "LRT-2": [
+    {"origin": "Antipolo", "destination": "Recto", "price": 25.00},
+    {"origin": "Antipolo", "destination": "Cubao", "price": 20.00},
+    {"origin": "Recto", "destination": "Pureza", "price": 15.00}
+  ]
+}

@@ -4,6 +4,9 @@ part 'fare_formula.g.dart';
 
 @HiveType(typeId: 0)
 class FareFormula {
+  @HiveField(6)
+  final String mode;
+
   @HiveField(0)
   final String subType;
 
@@ -23,6 +26,7 @@ class FareFormula {
   final String? notes;
 
   FareFormula({
+    required this.mode,
     required this.subType,
     required this.baseFare,
     required this.perKmRate,
@@ -33,6 +37,7 @@ class FareFormula {
 
   factory FareFormula.fromJson(Map<String, dynamic> json) {
     return FareFormula(
+      mode: json['mode'] ?? 'Unknown',
       subType: json['sub_type'],
       baseFare: (json['base_fare'] as num).toDouble(),
       perKmRate: (json['per_km_rate'] as num).toDouble(),

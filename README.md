@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Flutter](https://img.shields.io/badge/Built%20with-Flutter-blue.svg)](https://flutter.dev/)
-[![Status](https://img.shields.io/badge/Status-Active%20Development-green.svg)]()
+[![Status](https://img.shields.io/badge/Status-Feature%20Complete-blue.svg)]()
 
 **PH Fare Estimator** is a cross-platform mobile application designed to help tourists, expats, and locals estimate public transport costs across the Philippines.
 
@@ -22,9 +22,10 @@ Unlike city-centric navigation apps, this tool focuses on **"How much?"** rather
 ## 🛠 Tech Stack
 
 - **Framework:** Flutter (v3.16+) & Dart
-- **Routing API:** OSRM (Open Source Routing Machine) - *Configurable to switch to Mapbox/Google*.
-- **Local Storage:** Hive (NoSQL) for caching and favorites.
-- **HTTP Client:** `http` package
+- **Backend & Remote Config:** Firebase (Remote Config & Analytics)
+- **Routing & Geocoding:** OSRM (Open Source Routing Machine) and a custom geocoding service implementation.
+- **Local Storage:** `shared_preferences` for caching user settings and favorites.
+- **HTTP Client:** `http` package for network requests.
 
 ## 🧮 How It Works (The Hybrid Engine)
 
@@ -44,8 +45,6 @@ Distance formulas fail here (e.g., Rail distance ≠ Road distance).
 
 ## 📱 Screenshots
 
-*(Placeholder: Add screenshots of the Search Screen, Results Card, and Scam Detector UI here once built)*
-
 | Search Screen | Results Card | Scam Detector |
 |:---:|:---:|:---:|
 | ![Search](docs/ss_search.png) | ![Results](docs/ss_results.png) | ![Warning](docs/ss_warning.png) |
@@ -58,15 +57,21 @@ Distance formulas fail here (e.g., Rail distance ≠ Road distance).
     cd ph-fare-estimator
     ```
 
-2.  **Install Dependencies**
+2.  **Set up Firebase**
+    This project uses Firebase for remote configuration and analytics. You must set up a Firebase project and place the appropriate configuration file in the project directory:
+    - For Android: `android/app/google-services.json`
+    - For iOS: `ios/Runner/GoogleService-Info.plist`
+    The app will not build without these files.
+
+3.  **Install Dependencies**
     ```bash
     flutter pub get
     ```
 
-3.  **Configure API (Optional)**
-    By default, the app uses the public OSRM demo server. For production or heavy testing, update `lib/src/services/osrm_api_service.dart` with your own server URL.
+4.  **Configure API (Optional)**
+    By default, the app uses the public OSRM demo server. For production or heavy testing, update `lib/src/services/routing/osrm_routing_service.dart` with your own server URL.
 
-4.  **Run the App**
+5.  **Run the App**
     ```bash
     flutter run
     ```
@@ -75,23 +80,25 @@ Distance formulas fail here (e.g., Rail distance ≠ Road distance).
 
 ```
 lib/
-├── src/
-│   ├── core/             # Logic for Fare Formulas & Constants
-│   ├── models/           # Data Models (TransportMode, RouteResult)
-│   ├── presentation/     # Screens & Widgets
-│   │   ├── screens/      # Main Screen
-│   │   └── widgets/      # Reusable UI Components
-│   ├── services/         # Repositories & API Services (OSRM)
-└── main.dart
+└── src/
+    ├── core/               # Hybrid calculation engine and logic
+    ├── models/             # Data models (FareResult, Location, etc.)
+    ├── presentation/       # Flutter Screens & Widgets
+    │   ├── screens/        # MainScreen, SettingsScreen, SavedRoutesScreen, etc.
+    │   └── widgets/        # Reusable UI components (e.g., FareResultCard)
+    ├── services/           # Backend services and data repositories
+    │   ├── geocoding/      # Geocoding service for place lookups
+    │   └── routing/        # OSRM routing service for distance calculation
+    └── main.dart
 ```
 
-## 🚧 Roadmap
+## ✨ Development Journey
 
-- [ ] **Phase 1:** Basic UI & OSRM Integration (Jeep/Taxi Formulas).
-- [ ] **Phase 2:** Integrate Yellow Taxi vs. White Taxi logic.
-- [ ] **Phase 3:** Add Static Matrices for MRT-3, LRT-1, LRT-2.
-- [ ] **Phase 4:** Offline Hive Caching.
-- [ ] **Phase 5:** "Provincial Variance" Toggle (Settings).
+- [x] **Phase 1:** Basic UI & OSRM Integration (Jeep/Taxi Formulas).
+- [x] **Phase 2:** Integrate Yellow Taxi vs. White Taxi logic.
+- [x] **Phase 3:** Add Static Matrices for MRT-3, LRT-1, LRT-2.
+- [x] **Phase 4:** Offline Hive Caching.
+- [x] **Phase 5:** "Provincial Variance" Toggle (Settings).
 
 ## 🤝 Contributing
 

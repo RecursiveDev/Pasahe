@@ -1,0 +1,22 @@
+{
+  "routes": [
+    {
+      "origin": "Batangas",
+      "destination": "Calapan",
+      "price": 500.00,
+      "operator": "Various"
+    },
+    {
+      "origin": "Cebu",
+      "destination": "Tagbilaran",
+      "price": 800.00,
+      "operator": "OceanJet"
+    },
+    {
+      "origin": "Iloilo",
+      "destination": "Bacolod",
+      "price": 450.00,
+      "operator": "Weesam Express"
+    }
+  ]
+}

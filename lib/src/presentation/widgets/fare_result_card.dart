@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-
-enum IndicatorLevel {
-  standard,
-  adjusted,
-  overpriced,
-}
+import '../../models/fare_result.dart';
 
 class FareResultCard extends StatelessWidget {
   final String transportMode;
@@ -22,9 +17,9 @@ class FareResultCard extends StatelessWidget {
     switch (level) {
       case IndicatorLevel.standard:
         return Colors.green;
-      case IndicatorLevel.adjusted:
+      case IndicatorLevel.peak:
         return Colors.amber;
-      case IndicatorLevel.overpriced:
+      case IndicatorLevel.touristTrap:
         return Colors.red;
     }
   }
@@ -33,36 +28,39 @@ class FareResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = _getColor(indicatorLevel);
 
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-        side: BorderSide(color: color, width: 2.0),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+    return Semantics(
+      label: 'Fare estimate for $transportMode is ${fare.toStringAsFixed(2)} pesos. Traffic level: ${indicatorLevel.name}.',
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
+          side: BorderSide(color: color, width: 2.0),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              transportMode,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              '₱ ${fare.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-          ],
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                transportMode,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                '₱ ${fare.toStringAsFixed(2)}',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

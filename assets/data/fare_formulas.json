@@ -1,0 +1,60 @@
+{
+  "road": [
+    {
+      "mode": "Jeepney",
+      "sub_type": "Traditional",
+      "base_fare": 14.00,
+      "per_km": 1.75,
+      "notes": "Standard formula. +20% toggle for Provinces."
+    },
+    {
+      "mode": "Jeepney",
+      "sub_type": "Modern (PUJ)",
+      "base_fare": 16.00,
+      "per_km": 2.00,
+      "notes": "Aircon standard. Higher base."
+    },
+    {
+      "mode": "Bus",
+      "sub_type": "Traditional",
+      "base_fare": 13.00,
+      "per_km": 2.20,
+      "notes": "Provincial Buses: Min 15 + 2.20/km."
+    },
+    {
+      "mode": "Bus",
+      "sub_type": "Aircon",
+      "base_fare": 15.00,
+      "per_km": 2.50,
+      "notes": "User Input: Aircon toggle required."
+    },
+    {
+      "mode": "Taxi",
+      "sub_type": "White (Regular)",
+      "base_fare": 45.00,
+      "per_km": 13.50,
+      "notes": "Formula: Flagdown + (Dist/300m * 4). Includes wait time buffer."
+    },
+    {
+      "mode": "Taxi",
+      "sub_type": "Yellow (Airport)",
+      "base_fare": 75.00,
+      "per_km": 20.00,
+      "notes": "Higher flagdown & rate. Default if Origin = Airport."
+    },
+    {
+      "mode": "Van",
+      "sub_type": "UV Express",
+      "base_fare": 20.00,
+      "per_km": 3.00,
+      "notes": "Point-to-Point nature implies higher per-km rate."
+    },
+    {
+      "mode": "Tricycle",
+      "sub_type": "Local/Special",
+      "base_fare": 0.00,
+      "per_km": 0.00,
+      "notes": "Fares are negotiated (Pakyaw). Expect ₱20-50 per km."
+    }
+  ]
+}

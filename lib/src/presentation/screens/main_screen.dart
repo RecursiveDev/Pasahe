@@ -1,40 +1,69 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../core/hybrid_engine.dart';
 import '../../models/fare_formula.dart';
+import '../../models/fare_result.dart';
+import '../../models/location.dart';
+import '../../models/saved_route.dart';
 import '../../services/fare_cache_service.dart';
-import '../../services/osrm_api_service.dart';
+import '../../services/geocoding/geocoding_service.dart';
+import '../../services/routing/osrm_routing_service.dart';
+import '../../services/settings_service.dart';
 import '../widgets/fare_result_card.dart';
+import 'offline_menu_screen.dart';
+import 'settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final GeocodingService? geocodingService;
+  final HybridEngine? hybridEngine;
+  final FareCacheService? fareCacheService;
+
+  const MainScreen({
+    super.key,
+    this.geocodingService,
+    this.hybridEngine,
+    this.fareCacheService,
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final TextEditingController _originController = TextEditingController();
-  final TextEditingController _destinationController = TextEditingController();
+  // Geocoding state
+  late final GeocodingService _geocodingService;
+  Location? _originLocation;
+  Location? _destinationLocation;
 
-  final HybridEngine _hybridEngine = HybridEngine(OsrmApiService());
-  final FareCacheService _fareCacheService = FareCacheService();
+  // Engine and Data state
+  late final HybridEngine _hybridEngine;
+  late final FareCacheService _fareCacheService;
   List<FareFormula> _availableFormulas = [];
   bool _isLoading = true;
 
-  double? _fareResult;
+  // UI state
+  List<FareResult> _fareResults = [];
   String? _errorMessage;
-  bool _isAirportTaxi = false;
-  final bool _isProvincial = false;
 
   @override
   void initState() {
     super.initState();
+    _geocodingService =
+        widget.geocodingService ?? OpenStreetMapGeocodingService();
+    _hybridEngine = widget.hybridEngine ??
+        HybridEngine(
+          OsrmRoutingService(),
+          SettingsService(),
+        );
+    _fareCacheService = widget.fareCacheService ?? FareCacheService();
     _initializeData();
   }
 
   Future<void> _initializeData() async {
-    await _fareCacheService.seedDefaults();
+    // Force seed to ensure new data structure with 'mode' field is present
+    await _fareCacheService.seedDefaults(force: true);
     final formulas = await _fareCacheService.getAllFormulas();
     if (mounted) {
       setState(() {
@@ -45,103 +74,85 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
-  void dispose() {
-    _originController.dispose();
-    _destinationController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Fare Estimator')),
-      body: Padding(
+      appBar: AppBar(
+        title: const Text('Fare Estimator'),
+        actions: [
+          Semantics(
+            label: 'Open offline reference menu',
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.book),
+              tooltip: 'Offline Reference',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const OfflineMenuScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+          Semantics(
+            label: 'Open settings',
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            TextField(
-              controller: _originController,
-              decoration: const InputDecoration(
-                labelText: 'Origin',
-                border: OutlineInputBorder(),
-              ),
+            _buildLocationAutocomplete(
+              label: 'Origin',
+              onSelected: (Location location) {
+                setState(() {
+                  _originLocation = location;
+                  _resetResult();
+                });
+              },
             ),
             const SizedBox(height: 16.0),
-            TextField(
-              controller: _destinationController,
-              decoration: const InputDecoration(
-                labelText: 'Destination',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            Row(
-              children: [
-                const Text('Airport Taxi (Yellow)?'),
-                const Spacer(),
-                Switch(
-                  value: _isAirportTaxi,
-                  onChanged: (value) {
-                    setState(() {
-                      _isAirportTaxi = value;
-                    });
-                  },
-                ),
-              ],
+            _buildLocationAutocomplete(
+              label: 'Destination',
+              onSelected: (Location location) {
+                setState(() {
+                  _destinationLocation = location;
+                  _resetResult();
+                });
+              },
             ),
             const SizedBox(height: 24.0),
-            ElevatedButton(
-              onPressed: _isLoading
-                  ? null
-                  : () async {
-                      setState(() {
-                        _errorMessage = null;
-                      });
-
-                      // Hardcoded values for testing (Manila City Hall to Makati)
-                      // TODO: Replace with actual coordinates from user input
-                      const double originLat = 14.5995;
-                      const double originLng = 120.9842;
-                      const double destLat = 14.5547;
-                      const double destLng = 121.0244;
-
-                      // Select formula based on taxi type
-                      final String targetSubType =
-                          _isAirportTaxi ? 'Yellow Taxi' : 'White Taxi';
-
-                      final FareFormula taxiFormula =
-                          _availableFormulas.firstWhere(
-                        (f) => f.subType == targetSubType,
-                        orElse: () => FareFormula(
-                          subType: 'Fallback $targetSubType',
-                          baseFare: _isAirportTaxi ? 75.0 : 45.0,
-                          perKmRate: _isAirportTaxi ? 20.0 : 13.50,
-                        ),
-                      );
-
-                      try {
-                  final fare = await _hybridEngine.calculateDynamicFare(
-                    originLat: originLat,
-                    originLng: originLng,
-                    destLat: destLat,
-                    destLng: destLng,
-                    formula: taxiFormula,
-                  );
-
-                  setState(() {
-                    _fareResult = fare;
-                  });
-                } catch (e) {
-                  debugPrint('Error calculating fare: $e');
-                  setState(() {
-                    _fareResult = null;
-                    _errorMessage =
-                        'Could not calculate fare. Please check your route and try again.';
-                  });
-                }
-              },
-              child: const Text('Calculate Fare'),
+            Semantics(
+              label: 'Calculate Fare based on selected origin and destination',
+              button: true,
+              enabled:
+                  !_isLoading &&
+                  _originLocation != null &&
+                  _destinationLocation != null,
+              child: ElevatedButton(
+                onPressed:
+                    _isLoading ||
+                        _originLocation == null ||
+                        _destinationLocation == null
+                    ? null
+                    : _calculateFare,
+                child: const Text('Calculate Fare'),
+              ),
             ),
             if (_errorMessage != null) ...[
               const SizedBox(height: 24.0),
@@ -154,17 +165,201 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-            ] else if (_fareResult != null) ...[
+            ],
+            if (_fareResults.isNotEmpty) ...[
               const SizedBox(height: 24.0),
-              FareResultCard(
-                transportMode: _isAirportTaxi ? 'Yellow Taxi' : 'White Taxi',
-                fare: _fareResult!,
-                indicatorLevel: IndicatorLevel.standard,
+              Center(
+                child: ElevatedButton.icon(
+                  onPressed: _saveRoute,
+                  icon: const Icon(Icons.save),
+                  label: const Text('Save Route'),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _fareResults.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16.0),
+                itemBuilder: (context, index) {
+                  final result = _fareResults[index];
+                  return FareResultCard(
+                    transportMode: result.transportMode,
+                    fare: result.fare,
+                    indicatorLevel: result.indicatorLevel,
+                  );
+                },
               ),
             ],
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildLocationAutocomplete({
+    required String label,
+    required ValueChanged<Location> onSelected,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Autocomplete<Location>(
+          displayStringForOption: (Location option) => option.name,
+          optionsBuilder: (TextEditingValue textEditingValue) async {
+            if (textEditingValue.text.trim().isEmpty) {
+              return const Iterable<Location>.empty();
+            }
+            // Simple debounce could be added here if needed,
+            // but Autocomplete handles async futures well.
+            return await _geocodingService.getLocations(textEditingValue.text);
+          },
+          onSelected: onSelected,
+          fieldViewBuilder:
+              (
+                BuildContext context,
+                TextEditingController textEditingController,
+                FocusNode focusNode,
+                VoidCallback onFieldSubmitted,
+              ) {
+                return Semantics(
+                  label: 'Input for $label location',
+                  textField: true,
+                  child: TextField(
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                      labelText: label,
+                      border: const OutlineInputBorder(),
+                      suffixIcon: const Icon(Icons.search),
+                    ),
+                  ),
+                );
+              },
+          optionsViewBuilder: (context, onSelected, options) {
+            return Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                elevation: 4.0,
+                child: SizedBox(
+                  width: constraints.maxWidth,
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    itemCount: options.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final Location option = options.elementAt(index);
+                      return ListTile(
+                        title: Text(option.name),
+                        onTap: () {
+                          onSelected(option);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _resetResult() {
+    if (_fareResults.isNotEmpty || _errorMessage != null) {
+      setState(() {
+        _fareResults = [];
+        _errorMessage = null;
+      });
+    }
+  }
+
+  Future<void> _saveRoute() async {
+    if (_originLocation == null ||
+        _destinationLocation == null ||
+        _fareResults.isEmpty) {
+      return;
+    }
+
+    final route = SavedRoute(
+      origin: _originLocation!.name,
+      destination: _destinationLocation!.name,
+      fareResults: _fareResults,
+      timestamp: DateTime.now(),
+    );
+
+    await _fareCacheService.saveRoute(route);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Route saved to offline history!')),
+      );
+    }
+  }
+
+  Future<void> _calculateFare() async {
+    setState(() {
+      _errorMessage = null;
+      _fareResults = [];
+    });
+
+    final modesToCompare = [
+      {'mode': 'Jeepney', 'subType': 'Traditional'},
+      {'mode': 'Taxi', 'subType': 'White (Regular)'},
+    ];
+
+    try {
+      final List<FareResult> results = [];
+      final settingsService = SettingsService();
+      final trafficFactor = await settingsService.getTrafficFactor();
+
+      for (final modeData in modesToCompare) {
+        final formula = _availableFormulas.firstWhere(
+          (f) => f.mode == modeData['mode'] && f.subType == modeData['subType'],
+          orElse: () => FareFormula(
+            mode: modeData['mode']!,
+            subType: modeData['subType']!,
+            baseFare: 0.0,
+            perKmRate: 0.0,
+          ),
+        );
+
+        // Skip if formula not found or invalid (zero base fare as simplistic check)
+        if (formula.baseFare == 0.0 && formula.perKmRate == 0.0) {
+          debugPrint('Formula not found for ${modeData['mode']}');
+          continue;
+        }
+
+        final fare = await _hybridEngine.calculateDynamicFare(
+          originLat: _originLocation!.latitude,
+          originLng: _originLocation!.longitude,
+          destLat: _destinationLocation!.latitude,
+          destLng: _destinationLocation!.longitude,
+          formula: formula,
+        );
+
+        final indicator = _hybridEngine.getIndicatorLevel(trafficFactor.name);
+
+        results.add(
+          FareResult(
+            transportMode: '${modeData['mode']} (${modeData['subType']})',
+            fare: fare,
+            indicatorLevel: indicator,
+          ),
+        );
+      }
+
+      setState(() {
+        _fareResults = results;
+      });
+    } catch (e) {
+      debugPrint('Error calculating fare: $e');
+      setState(() {
+        _fareResults = [];
+        _errorMessage =
+            'Could not calculate fare. Please check your route and try again.';
+      });
+    }
   }
 }

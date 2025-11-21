@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class OsrmApiService {
-  static const String _baseUrl = 'http://router.project-osrm.org/route/v1/driving';
+import 'routing_service.dart';
+
+class OsrmRoutingService implements RoutingService {
+  static const String _baseUrl =
+      'http://router.project-osrm.org/route/v1/driving';
 
   /// Fetches the route distance in meters between two coordinates.
   ///
@@ -11,8 +14,13 @@ class OsrmApiService {
   ///
   /// Returns the distance in meters.
   /// Throws an exception if the request fails or no route is found.
-  Future<double> getRoute(
-      double originLat, double originLng, double destLat, double destLng) async {
+  @override
+  Future<double> getDistance(
+    double originLat,
+    double originLng,
+    double destLat,
+    double destLng,
+  ) async {
     // OSRM expects {longitude},{latitude}
     final requestUrl =
         '$_baseUrl/$originLng,$originLat;$destLng,$destLat?overview=false';
@@ -30,11 +38,13 @@ class OsrmApiService {
           return (route['distance'] as num).toDouble();
         } else {
           throw Exception(
-              'No route found or OSRM returned error: ${data['code']}');
+            'No route found or OSRM returned error: ${data['code']}',
+          );
         }
       } else {
         throw Exception(
-            'Failed to load route. Status code: ${response.statusCode}');
+          'Failed to load route. Status code: ${response.statusCode}',
+        );
       }
     } catch (e) {
       throw Exception('Error fetching route: $e');

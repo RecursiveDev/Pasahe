@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAwhxRItDsxBK0Ze_H4CGicWM85UR5z4tQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>491367081694</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.phFareCalculator</string>
+	<key>PROJECT_ID</key>
+	<string>ph-fare-calculator</string>
+	<key>STORAGE_BUCKET</key>
+	<string>ph-fare-calculator.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:491367081694:ios:bb5a47f0d8f0c4e04dc44f</string>
+</dict>
+</plist>
