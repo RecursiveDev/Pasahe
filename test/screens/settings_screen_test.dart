@@ -4,18 +4,24 @@ import 'package:ph_fare_estimator/src/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ph_fare_estimator/src/presentation/screens/settings_screen.dart';
 import 'package:ph_fare_estimator/src/services/settings_service.dart';
+import 'package:ph_fare_estimator/src/repositories/fare_repository.dart';
 
 import '../helpers/mocks.dart';
 
 void main() {
   late MockSettingsService mockSettingsService;
 
+  late MockFareRepository mockFareRepository;
+
   setUp(() {
     mockSettingsService = MockSettingsService();
+    mockFareRepository = MockFareRepository();
     
     final getIt = GetIt.instance;
     if (getIt.isRegistered<SettingsService>()) getIt.unregister<SettingsService>();
+    if (getIt.isRegistered<FareRepository>()) getIt.unregister<FareRepository>();
     getIt.registerSingleton<SettingsService>(mockSettingsService);
+    getIt.registerSingleton<FareRepository>(mockFareRepository);
   });
 
   tearDown(() async {

@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import '../models/transport_mode.dart';
 import '../models/fare_formula.dart';
 import '../models/static_fare.dart';
+import '../models/discount_type.dart';
 import '../services/routing/routing_service.dart';
 import '../services/settings_service.dart';
 import '../models/fare_result.dart';
@@ -103,6 +104,8 @@ class HybridEngine {
       TransportMode transportMode, String origin, String destination) async {
     if (!_isInitialized) await initialize();
 
+    double? baseFare;
+
     if (transportMode == TransportMode.train) {
       // Search all train lines
       for (final lineFares in _trainFares.values) {
@@ -112,7 +115,8 @@ class HybridEngine {
                 f.origin.toLowerCase() == origin.toLowerCase() &&
                 f.destination.toLowerCase() == destination.toLowerCase(),
           );
-          return fare.price;
+          baseFare = fare.price;
+          break;
         } catch (_) {
           // Continue to next line if not found
         }
@@ -124,13 +128,21 @@ class HybridEngine {
               f.origin.toLowerCase() == origin.toLowerCase() &&
               f.destination.toLowerCase() == destination.toLowerCase(),
         );
-        return fare.price;
+        baseFare = fare.price;
       } catch (_) {
         // Not found
       }
     }
 
-    return null;
+    if (baseFare == null) return null;
+
+    // Apply discount if eligible (Student, Senior, PWD get 20% off)
+    final discountType = await _settingsService.getUserDiscountType();
+    if (discountType.isEligibleForDiscount) {
+      baseFare = baseFare * discountType.fareMultiplier;
+    }
+
+    return baseFare;
   }
 
   /// Calculates the dynamic fare based on road distance and a specific fare formula.
@@ -193,6 +205,12 @@ class HybridEngine {
       // 5. Apply Minimum Fare check if applicable
       if (formula.minimumFare != null && totalFare < formula.minimumFare!) {
         totalFare = formula.minimumFare!;
+      }
+
+      // 6. Apply discount if eligible (Student, Senior, PWD get 20% off)
+      final discountType = await _settingsService.getUserDiscountType();
+      if (discountType.isEligibleForDiscount) {
+        totalFare = totalFare * discountType.fareMultiplier;
       }
 
       return totalFare;

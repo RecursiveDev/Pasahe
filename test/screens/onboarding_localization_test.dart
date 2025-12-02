@@ -4,6 +4,7 @@ import 'package:ph_fare_estimator/src/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ph_fare_estimator/src/presentation/screens/onboarding_screen.dart';
 import 'package:ph_fare_estimator/src/services/settings_service.dart';
+import 'package:ph_fare_estimator/src/models/discount_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Create a real SettingsService to test the locale change logic
@@ -21,26 +22,45 @@ class FakeSettingsService implements SettingsService {
   }
 
   // Stubs for other methods not relevant to this specific test
-  @override
   bool provincialMode = false;
   @override
   Future<bool> getProvincialMode() async => provincialMode;
   @override
   Future<void> setProvincialMode(bool value) async { provincialMode = value; }
   
-  @override
   TrafficFactor trafficFactor = TrafficFactor.medium;
   @override
   Future<TrafficFactor> getTrafficFactor() async => trafficFactor;
   @override
   Future<void> setTrafficFactor(TrafficFactor factor) async { trafficFactor = factor; }
   
-  @override
   bool highContrast = false;
   @override
   Future<bool> getHighContrastEnabled() async => highContrast;
   @override
   Future<void> setHighContrastEnabled(bool value) async { highContrast = value; }
+  
+  DiscountType discountType = DiscountType.standard;
+  @override
+  Future<DiscountType> getUserDiscountType() async => discountType;
+  @override
+  Future<void> setUserDiscountType(DiscountType type) async { discountType = type; }
+  
+  Set<String> hiddenTransportModes = {};
+  @override
+  Future<Set<String>> getHiddenTransportModes() async => hiddenTransportModes;
+  @override
+  Future<void> toggleTransportMode(String modeSubType, bool isHidden) async {
+    if (isHidden) {
+      hiddenTransportModes.add(modeSubType);
+    } else {
+      hiddenTransportModes.remove(modeSubType);
+    }
+  }
+  @override
+  Future<bool> isTransportModeHidden(String mode, String subType) async {
+    return hiddenTransportModes.contains('$mode::$subType');
+  }
 }
 
 void main() {

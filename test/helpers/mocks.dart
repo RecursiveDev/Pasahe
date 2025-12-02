@@ -11,6 +11,7 @@ import 'package:ph_fare_estimator/src/models/fare_formula.dart';
 import 'package:ph_fare_estimator/src/models/fare_result.dart';
 import 'package:ph_fare_estimator/src/models/saved_route.dart';
 import 'package:ph_fare_estimator/src/repositories/fare_repository.dart';
+import 'package:ph_fare_estimator/src/models/discount_type.dart';
 import 'package:hive/hive.dart';
 
 class MockRoutingService implements RoutingService {
@@ -32,6 +33,7 @@ class MockSettingsService implements SettingsService {
   bool provincialMode = false;
   TrafficFactor trafficFactor = TrafficFactor.medium;
   bool highContrast = false;
+  DiscountType discountType = DiscountType.standard;
 
   // Replicate static behavior instance-wise for injection
   @override
@@ -65,11 +67,39 @@ class MockSettingsService implements SettingsService {
 
   @override
   Future<void> setLocale(Locale locale) async {}
+
+  @override
+  Future<DiscountType> getUserDiscountType() async => discountType;
+
+  @override
+  Future<void> setUserDiscountType(DiscountType type) async {
+    discountType = type;
+  }
+
+  Set<String> hiddenTransportModes = {};
+
+  @override
+  Future<Set<String>> getHiddenTransportModes() async => hiddenTransportModes;
+
+  @override
+  Future<void> toggleTransportMode(String modeSubType, bool isHidden) async {
+    if (isHidden) {
+      hiddenTransportModes.add(modeSubType);
+    } else {
+      hiddenTransportModes.remove(modeSubType);
+    }
+  }
+
+  @override
+  Future<bool> isTransportModeHidden(String mode, String subType) async {
+    return hiddenTransportModes.contains('$mode::$subType');
+  }
 }
 
 class MockGeocodingService implements GeocodingService {
   List<Location> locationsToReturn = [];
   Location? currentLocationToReturn;
+  Location? addressFromLatLngToReturn;
 
   @override
   Future<List<Location>> getLocations(String query) async {
@@ -83,6 +113,16 @@ class MockGeocodingService implements GeocodingService {
           name: 'Mock Current Location',
           latitude: 14.5995,
           longitude: 120.9842,
+        );
+  }
+
+  @override
+  Future<Location> getAddressFromLatLng(double latitude, double longitude) async {
+    return addressFromLatLngToReturn ??
+        Location(
+          name: 'Mock Address',
+          latitude: latitude,
+          longitude: longitude,
         );
   }
 }

@@ -17,6 +17,7 @@ import '../../services/routing/routing_service.dart';
 import '../../services/settings_service.dart';
 import '../widgets/fare_result_card.dart';
 import '../widgets/map_selection_widget.dart';
+import 'map_picker_screen.dart';
 import 'offline_menu_screen.dart';
 import 'settings_screen.dart';
 
@@ -286,31 +287,33 @@ class _MainScreenState extends State<MainScreen> {
                     decoration: InputDecoration(
                       labelText: label,
                       border: const OutlineInputBorder(),
-                      suffixIcon: isOriginField
-                          ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (_isLoadingLocation)
-                                  const Padding(
-                                    padding: EdgeInsets.all(12.0),
-                                    child: SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
-                                  )
-                                else
-                                  IconButton(
-                                    icon: const Icon(Icons.my_location),
-                                    tooltip: 'Use my current location',
-                                    onPressed: () => _useCurrentLocation(textEditingController, onSelected),
-                                  ),
-                                const Icon(Icons.search),
-                              ],
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isOriginField && _isLoadingLocation)
+                            const Padding(
+                              padding: EdgeInsets.all(12.0),
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
                             )
-                          : const Icon(Icons.search),
+                          else if (isOriginField)
+                            IconButton(
+                              icon: const Icon(Icons.my_location),
+                              tooltip: 'Use my current location',
+                              onPressed: () => _useCurrentLocation(textEditingController, onSelected),
+                            ),
+                          IconButton(
+                            icon: const Icon(Icons.map),
+                            tooltip: 'Select from map',
+                            onPressed: () => _openMapPicker(isOriginField, textEditingController, onSelected),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -343,6 +346,74 @@ class _MainScreenState extends State<MainScreen> {
         );
       },
     );
+  }
+
+  Future<void> _openMapPicker(
+    bool isOrigin,
+    TextEditingController controller,
+    ValueChanged<Location> onSelected,
+  ) async {
+    final initialLocation = isOrigin ? _originLatLng : _destinationLatLng;
+    final title = isOrigin ? 'Select Origin' : 'Select Destination';
+
+    final LatLng? selectedLatLng = await Navigator.push<LatLng>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapPickerScreen(
+          initialLocation: initialLocation,
+          title: title,
+        ),
+      ),
+    );
+
+    if (selectedLatLng != null) {
+      try {
+        // Show loading indicator
+        setState(() {
+          _isLoadingLocation = true;
+          _errorMessage = null;
+        });
+
+        // Reverse geocode the selected location
+        final location = await _geocodingService.getAddressFromLatLng(
+          selectedLatLng.latitude,
+          selectedLatLng.longitude,
+        );
+
+        if (mounted) {
+          // Update the text field
+          controller.text = location.name;
+          
+          // Call the onSelected callback to update state
+          onSelected(location);
+          
+          setState(() {
+            _isLoadingLocation = false;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          String errorMsg = 'Failed to get address for selected location.';
+          
+          if (e is Failure) {
+            errorMsg = e.message;
+          }
+          
+          setState(() {
+            _isLoadingLocation = false;
+            _errorMessage = errorMsg;
+          });
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMsg),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    }
   }
 
   void _resetResult() {
@@ -409,30 +480,31 @@ class _MainScreenState extends State<MainScreen> {
       _fareResults = [];
     });
 
-    final modesToCompare = [
-      {'mode': 'Jeepney', 'subType': 'Traditional'},
-      {'mode': 'Taxi', 'subType': 'White (Regular)'},
-    ];
-
     try {
       final List<FareResult> results = [];
-      final settingsService = SettingsService();
+      final settingsService = getIt<SettingsService>();
       final trafficFactor = await settingsService.getTrafficFactor();
+      final hiddenModes = await settingsService.getHiddenTransportModes();
 
-      for (final modeData in modesToCompare) {
-        final formula = _availableFormulas.firstWhere(
-          (f) => f.mode == modeData['mode'] && f.subType == modeData['subType'],
-          orElse: () => FareFormula(
-            mode: modeData['mode']!,
-            subType: modeData['subType']!,
-            baseFare: 0.0,
-            perKmRate: 0.0,
-          ),
-        );
+      // Filter formulas: exclude hidden modes
+      final visibleFormulas = _availableFormulas.where((formula) {
+        final modeSubTypeKey = '${formula.mode}::${formula.subType}';
+        return !hiddenModes.contains(modeSubTypeKey);
+      }).toList();
 
-        // Skip if formula not found or invalid (zero base fare as simplistic check)
+      // If no visible formulas, show error
+      if (visibleFormulas.isEmpty) {
+        setState(() {
+          _errorMessage = 'No transport modes enabled. Please enable at least one mode in Settings.';
+        });
+        return;
+      }
+
+      // Calculate fare for each visible formula
+      for (final formula in visibleFormulas) {
+        // Skip if formula is invalid (zero base fare and per km rate)
         if (formula.baseFare == 0.0 && formula.perKmRate == 0.0) {
-          debugPrint('Formula not found for ${modeData['mode']}');
+          debugPrint('Skipping invalid formula for ${formula.mode} (${formula.subType})');
           continue;
         }
 
@@ -448,7 +520,7 @@ class _MainScreenState extends State<MainScreen> {
 
         results.add(
           FareResult(
-            transportMode: '${modeData['mode']} (${modeData['subType']})',
+            transportMode: '${formula.mode} (${formula.subType})',
             fare: fare,
             indicatorLevel: indicator,
           ),

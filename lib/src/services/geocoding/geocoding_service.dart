@@ -8,6 +8,7 @@ import '../../core/errors/failures.dart';
 abstract class GeocodingService {
   Future<List<Location>> getLocations(String query);
   Future<Location> getCurrentLocationAddress();
+  Future<Location> getAddressFromLatLng(double latitude, double longitude);
 }
 
 @LazySingleton(as: GeocodingService)
@@ -52,38 +53,11 @@ class OpenStreetMapGeocodingService implements GeocodingService {
   }
 
   @override
-  Future<Location> getCurrentLocationAddress() async {
+  Future<Location> getAddressFromLatLng(double latitude, double longitude) async {
     try {
-      // Check if location services are enabled
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        throw LocationServiceDisabledFailure();
-      }
-
-      // Check and request location permissions
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          throw LocationPermissionDeniedFailure();
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        throw LocationPermissionDeniedForeverFailure();
-      }
-
-      // Get current position
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 0,
-        ),
-      );
-
       // Reverse geocode using Nominatim
       final url = Uri.parse(
-        'https://nominatim.openstreetmap.org/reverse?lat=${position.latitude}&lon=${position.longitude}&format=json&addressdetails=1',
+        'https://nominatim.openstreetmap.org/reverse?lat=$latitude&lon=$longitude&format=json&addressdetails=1',
       );
 
       final response = await _client.get(
@@ -117,12 +91,50 @@ class OpenStreetMapGeocodingService implements GeocodingService {
 
         return Location(
           name: displayName,
-          latitude: position.latitude,
-          longitude: position.longitude,
+          latitude: latitude,
+          longitude: longitude,
         );
       } else {
         throw ServerFailure('Failed to reverse geocode location: ${response.statusCode}');
       }
+    } catch (e) {
+      if (e is Failure) rethrow;
+      throw NetworkFailure();
+    }
+  }
+
+  @override
+  Future<Location> getCurrentLocationAddress() async {
+    try {
+      // Check if location services are enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw LocationServiceDisabledFailure();
+      }
+
+      // Check and request location permissions
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw LocationPermissionDeniedFailure();
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        throw LocationPermissionDeniedForeverFailure();
+      }
+
+      // Get current position
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 0,
+        ),
+      );
+
+      // Use the new reverse geocoding method
+      return await getAddressFromLatLng(position.latitude, position.longitude);
     } on LocationServiceDisabledFailure {
       rethrow;
     } on LocationPermissionDeniedFailure {
