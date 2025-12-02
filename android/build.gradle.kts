@@ -5,6 +5,8 @@ allprojects {
     }
 }
 
+// apply(plugin = "com.google.gms.google-services") // Removed for privacy
+
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory
         .dir("../../build")

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../core/di/injection.dart';
+import '../../l10n/app_localizations.dart';
 import '../../services/settings_service.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -20,7 +22,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _settingsService = widget.settingsService ?? SettingsService();
+    _settingsService = widget.settingsService ?? getIt<SettingsService>();
     _loadSettings();
   }
 
@@ -42,15 +44,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(AppLocalizations.of(context)!.settingsTitle),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
                 SwitchListTile(
-                  title: const Text('Provincial Mode'),
-                  subtitle: const Text('Enable provincial fare rates'),
+                  title: Text(AppLocalizations.of(context)!.provincialModeTitle),
+                  subtitle: Text(AppLocalizations.of(context)!.provincialModeSubtitle),
                   value: _isProvincialModeEnabled,
                   onChanged: (bool value) async {
                     setState(() {
@@ -60,8 +62,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 SwitchListTile(
-                  title: const Text('High Contrast Mode'),
-                  subtitle: const Text('Increase contrast for better visibility'),
+                  title: Text(AppLocalizations.of(context)!.highContrastModeTitle),
+                  subtitle: Text(AppLocalizations.of(context)!.highContrastModeSubtitle),
                   value: _isHighContrastEnabled,
                   onChanged: (bool value) async {
                     setState(() {
@@ -71,26 +73,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 const Divider(),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
                   child: Text(
-                    'Traffic Factor',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.trafficFactorTitle,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   child: Text(
-                    'Adjusts the fare calculation based on expected traffic conditions.',
-                    style: TextStyle(color: Colors.grey),
+                    AppLocalizations.of(context)!.trafficFactorSubtitle,
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 ),
                 RadioListTile<TrafficFactor>(
-                  title: const Text('Low'),
-                  subtitle: const Text('Light traffic'),
+                  title: Text(AppLocalizations.of(context)!.trafficLow),
+                  subtitle: Text(AppLocalizations.of(context)!.trafficLowSubtitle),
                   value: TrafficFactor.low,
                   groupValue: _trafficFactor,
                   onChanged: (TrafficFactor? value) async {
@@ -103,8 +105,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 RadioListTile<TrafficFactor>(
-                  title: const Text('Medium'),
-                  subtitle: const Text('Moderate traffic'),
+                  title: Text(AppLocalizations.of(context)!.trafficMedium),
+                  subtitle: Text(AppLocalizations.of(context)!.trafficMediumSubtitle),
                   value: TrafficFactor.medium,
                   groupValue: _trafficFactor,
                   onChanged: (TrafficFactor? value) async {
@@ -117,8 +119,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 RadioListTile<TrafficFactor>(
-                  title: const Text('High'),
-                  subtitle: const Text('Heavy traffic'),
+                  title: Text(AppLocalizations.of(context)!.trafficHigh),
+                  subtitle: Text(AppLocalizations.of(context)!.trafficHighSubtitle),
                   value: TrafficFactor.high,
                   groupValue: _trafficFactor,
                   onChanged: (TrafficFactor? value) async {

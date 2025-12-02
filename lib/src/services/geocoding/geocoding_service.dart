@@ -1,16 +1,19 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:injectable/injectable.dart';
 import '../../models/location.dart';
+import '../../core/errors/failures.dart';
 
 abstract class GeocodingService {
   Future<List<Location>> getLocations(String query);
 }
 
+@LazySingleton(as: GeocodingService)
 class OpenStreetMapGeocodingService implements GeocodingService {
   final http.Client _client;
 
-  OpenStreetMapGeocodingService({http.Client? client})
-      : _client = client ?? http.Client();
+  OpenStreetMapGeocodingService()
+      : _client = http.Client();
 
   @override
   Future<List<Location>> getLocations(String query) async {
@@ -26,19 +29,23 @@ class OpenStreetMapGeocodingService implements GeocodingService {
       final response = await _client.get(
         url,
         headers: {
-          'User-Agent': 'PhFareEstimator/1.0 (com.example.ph_fare_estimator)',
+          'User-Agent': 'PhFareCalculator/1.0 (com.example.ph_fare_calculator)',
         },
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Location.fromJson(json)).toList();
+        final results = data.map((json) => Location.fromJson(json)).toList();
+        if (results.isEmpty) {
+          throw LocationNotFoundFailure();
+        }
+        return results;
       } else {
-        throw Exception('Failed to load locations: ${response.statusCode}');
+        throw ServerFailure('Failed to load locations: ${response.statusCode}');
       }
     } catch (e) {
-      // Return empty list on error to avoid breaking the UI flow
-      return [];
+      if (e is Failure) rethrow;
+      throw NetworkFailure();
     }
   }
 }

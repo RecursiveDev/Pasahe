@@ -7,16 +7,20 @@ import 'package:ph_fare_estimator/src/models/fare_result.dart';
 import 'package:ph_fare_estimator/src/models/saved_route.dart';
 import 'package:ph_fare_estimator/src/presentation/screens/offline_menu_screen.dart';
 import 'package:ph_fare_estimator/src/presentation/screens/reference_screen.dart';
+import 'package:get_it/get_it.dart';
 import 'package:ph_fare_estimator/src/presentation/screens/saved_routes_screen.dart';
+import 'package:ph_fare_estimator/src/repositories/fare_repository.dart';
 
 import '../helpers/mocks.dart';
 
 void main() {
-  late MockFareCacheService mockFareCacheService;
+  late MockFareRepository mockFareRepository;
   late Directory tempDir;
 
   setUp(() async {
-    mockFareCacheService = MockFareCacheService();
+    await GetIt.instance.reset();
+    mockFareRepository = MockFareRepository();
+    GetIt.instance.registerSingleton<FareRepository>(mockFareRepository);
     
     // Setup Hive for real service usage in navigation destinations
     tempDir = await Directory.systemTemp.createTemp('hive_test_offline_');
@@ -28,6 +32,7 @@ void main() {
   });
 
   tearDown(() async {
+    await GetIt.instance.reset();
     await Hive.deleteFromDisk();
     await tempDir.delete(recursive: true);
   });
@@ -76,11 +81,11 @@ void main() {
         ],
         timestamp: DateTime.now(),
       );
-      mockFareCacheService.savedRoutesToReturn = [route];
+      mockFareRepository.savedRoutesToReturn = [route];
 
       // Note: When testing SavedRoutesScreen directly, we can inject the mock
       await tester.pumpWidget(MaterialApp(
-        home: SavedRoutesScreen(fareCacheService: mockFareCacheService),
+        home: SavedRoutesScreen(fareRepository: mockFareRepository),
       ));
       await tester.pumpAndSettle();
 
@@ -88,10 +93,10 @@ void main() {
     });
 
     testWidgets('Shows empty message when no routes', (WidgetTester tester) async {
-      mockFareCacheService.savedRoutesToReturn = [];
+      mockFareRepository.savedRoutesToReturn = [];
 
       await tester.pumpWidget(MaterialApp(
-        home: SavedRoutesScreen(fareCacheService: mockFareCacheService),
+        home: SavedRoutesScreen(fareRepository: mockFareRepository),
       ));
       await tester.pumpAndSettle();
 

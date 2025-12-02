@@ -1,8 +1,11 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
+import '../../core/errors/failures.dart';
 import 'routing_service.dart';
 
+// @LazySingleton(as: RoutingService) // Disabled for privacy
 class OsrmRoutingService implements RoutingService {
   static const String _baseUrl =
       'http://router.project-osrm.org/route/v1/driving';
@@ -37,17 +40,18 @@ class OsrmRoutingService implements RoutingService {
           final route = data['routes'][0];
           return (route['distance'] as num).toDouble();
         } else {
-          throw Exception(
+          throw ServerFailure(
             'No route found or OSRM returned error: ${data['code']}',
           );
         }
       } else {
-        throw Exception(
+        throw ServerFailure(
           'Failed to load route. Status code: ${response.statusCode}',
         );
       }
     } catch (e) {
-      throw Exception('Error fetching route: $e');
+      if (e is Failure) rethrow;
+      throw NetworkFailure('Error fetching route: $e');
     }
   }
 }

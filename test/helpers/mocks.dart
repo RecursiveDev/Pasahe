@@ -1,4 +1,6 @@
 // ... existing code ...
+import 'package:flutter/material.dart';
+import 'package:ph_fare_estimator/src/models/transport_mode.dart';
 import 'package:ph_fare_estimator/src/models/location.dart';
 import 'package:ph_fare_estimator/src/services/geocoding/geocoding_service.dart';
 import 'package:ph_fare_estimator/src/services/routing/routing_service.dart';
@@ -7,7 +9,7 @@ import 'package:ph_fare_estimator/src/core/hybrid_engine.dart';
 import 'package:ph_fare_estimator/src/models/fare_formula.dart';
 import 'package:ph_fare_estimator/src/models/fare_result.dart';
 import 'package:ph_fare_estimator/src/models/saved_route.dart';
-import 'package:ph_fare_estimator/src/services/fare_cache_service.dart';
+import 'package:ph_fare_estimator/src/repositories/fare_repository.dart';
 import 'package:hive/hive.dart';
 
 class MockRoutingService implements RoutingService {
@@ -54,6 +56,14 @@ class MockSettingsService implements SettingsService {
   Future<void> setHighContrastEnabled(bool value) async {
     highContrast = value;
   }
+
+  @override
+  Future<Locale> getLocale() async {
+    return const Locale('en');
+  }
+
+  @override
+  Future<void> setLocale(Locale locale) async {}
 }
 
 class MockGeocodingService implements GeocodingService {
@@ -93,13 +103,13 @@ class MockHybridEngine implements HybridEngine {
 
   @override
   Future<double?> calculateStaticFare(
-      String transportMode, String origin, String destination) async {
+      TransportMode transportMode, String origin, String destination) async {
     return 50.0;
   }
 
   @override
   Future<double?> calculateFare({
-    required String transportMode,
+    required TransportMode transportMode,
     double? originLat,
     double? originLng,
     double? destLat,
@@ -113,7 +123,7 @@ class MockHybridEngine implements HybridEngine {
   }
 }
 
-class MockFareCacheService implements FareCacheService {
+class MockFareRepository implements FareRepository {
   List<FareFormula> formulasToReturn = [];
   List<SavedRoute> savedRoutesToReturn = [];
 

@@ -1,32 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ph_fare_estimator/src/core/di/injection.dart';
+
 import '../../models/saved_route.dart';
-import '../../services/fare_cache_service.dart';
+import '../../repositories/fare_repository.dart';
 import '../widgets/fare_result_card.dart';
 
 class SavedRoutesScreen extends StatefulWidget {
-  final FareCacheService? fareCacheService;
+  final FareRepository? fareRepository;
 
-  const SavedRoutesScreen({super.key, this.fareCacheService});
+  const SavedRoutesScreen({super.key, this.fareRepository});
 
   @override
   State<SavedRoutesScreen> createState() => _SavedRoutesScreenState();
 }
 
 class _SavedRoutesScreenState extends State<SavedRoutesScreen> {
-  late final FareCacheService _fareCacheService;
+  late final FareRepository _fareRepository;
   List<SavedRoute> _savedRoutes = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fareCacheService = widget.fareCacheService ?? FareCacheService();
+    _fareRepository = widget.fareRepository ?? getIt<FareRepository>();
     _loadSavedRoutes();
   }
 
   Future<void> _loadSavedRoutes() async {
-    final routes = await _fareCacheService.getSavedRoutes();
+    final routes = await _fareRepository.getSavedRoutes();
     if (mounted) {
       setState(() {
         _savedRoutes = routes;
@@ -36,7 +38,7 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> {
   }
 
   Future<void> _deleteRoute(SavedRoute route) async {
-    await _fareCacheService.deleteRoute(route);
+    await _fareRepository.deleteRoute(route);
     _loadSavedRoutes();
   }
 

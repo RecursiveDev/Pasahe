@@ -1,4 +1,4 @@
-# Data Models for PH Fare Estimator
+# Data Models for PH Fare Calculator
 
 This document outlines the JSON data structures for the Hybrid Calculation Engine, as specified in the Product Requirements Document. These models are designed to be stored in Firebase Remote Config for easy updates without requiring an app store submission.
 

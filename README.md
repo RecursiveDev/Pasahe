@@ -1,10 +1,10 @@
-# 🇵🇭 PH Fare Estimator
+# 🇵🇭 PH Fare Calculator
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Flutter](https://img.shields.io/badge/Built%20with-Flutter-blue.svg)](https://flutter.dev/)
 [![Status](https://img.shields.io/badge/Status-Feature%20Complete-blue.svg)]()
 
-**PH Fare Estimator** is a cross-platform mobile application designed to help tourists, expats, and locals estimate public transport costs across the Philippines.
+**PH Fare Calculator** is a cross-platform mobile application designed to help tourists, expats, and locals estimate public transport costs across the Philippines.
 
 Unlike city-centric navigation apps, this tool focuses on **"How much?"** rather than "How to?". It solves the complex problem of Philippine geography by combining distance-based formulas (for roads) with static fare matrices (for trains and ferries).
 
@@ -53,8 +53,8 @@ Distance formulas fail here (e.g., Rail distance ≠ Road distance).
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/yourusername/ph-fare-estimator.git
-    cd ph-fare-estimator
+    git clone https://github.com/yourusername/ph-fare-calculator.git
+    cd ph-fare-calculator
     ```
 
 2.  **Set up Firebase**

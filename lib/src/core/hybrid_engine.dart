@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:injectable/injectable.dart';
+import '../models/transport_mode.dart';
 import '../models/fare_formula.dart';
 import '../models/static_fare.dart';
 import '../services/routing/routing_service.dart';
 import '../services/settings_service.dart';
 import '../models/fare_result.dart';
 
+@lazySingleton
 class HybridEngine {
   final RoutingService _routingService;
   final SettingsService _settingsService;
@@ -57,7 +60,7 @@ class HybridEngine {
   /// [formula]: Required for dynamic fares.
   /// [isProvincial]: Optional for dynamic fares.
   Future<double?> calculateFare({
-    required String transportMode,
+    required TransportMode transportMode,
     double? originLat,
     double? originLng,
     double? destLat,
@@ -67,14 +70,15 @@ class HybridEngine {
     FareFormula? formula,
     bool isProvincial = false,
   }) async {
-    if (transportMode == 'Train' || transportMode == 'Ferry') {
+    if (transportMode == TransportMode.train ||
+        transportMode == TransportMode.ferry) {
       if (originName == null || destinationName == null) {
         throw ArgumentError(
             'Origin and Destination names are required for static fares.');
       }
       return calculateStaticFare(transportMode, originName, destinationName);
     } else {
-      // Assume dynamic fare for Jeepney, Bus, Taxi
+      // Assume dynamic fare for Jeepney, Bus, Taxi, etc
       if (originLat == null ||
           originLng == null ||
           destLat == null ||
@@ -96,10 +100,10 @@ class HybridEngine {
 
   /// Looks up the static fare from the loaded matrix.
   Future<double?> calculateStaticFare(
-      String transportMode, String origin, String destination) async {
+      TransportMode transportMode, String origin, String destination) async {
     if (!_isInitialized) await initialize();
 
-    if (transportMode == 'Train') {
+    if (transportMode == TransportMode.train) {
       // Search all train lines
       for (final lineFares in _trainFares.values) {
         try {
@@ -113,7 +117,7 @@ class HybridEngine {
           // Continue to next line if not found
         }
       }
-    } else if (transportMode == 'Ferry') {
+    } else if (transportMode == TransportMode.ferry) {
       try {
         final fare = _ferryFares.firstWhere(
           (f) =>

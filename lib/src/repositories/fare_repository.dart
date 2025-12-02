@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:injectable/injectable.dart';
 import '../models/fare_formula.dart';
 import '../models/saved_route.dart';
 
-class FareCacheService {
+@singleton
+class FareRepository {
   static const String _formulaBoxName = 'fareFormulas';
   static const String _savedRoutesBoxName = 'savedRoutes';
 
@@ -16,36 +20,31 @@ class FareCacheService {
     return await Hive.openBox<SavedRoute>(_savedRoutesBoxName);
   }
 
-  /// Seeds the box with default data if it's empty or forced
+  /// Seeds the box with data from assets if it's empty or forced
   Future<void> seedDefaults({bool force = false}) async {
     final box = await openFormulaBox();
     if (box.isEmpty || force) {
       if (force) await box.clear();
-      final defaultFormulas = [
-        FareFormula(
-          mode: 'Jeepney',
-          subType: 'Traditional',
-          baseFare: 14.00,
-          perKmRate: 1.75,
-          provincialMultiplier: 1.20,
-          notes: 'Standard formula',
-        ),
-        FareFormula(
-          mode: 'Taxi',
-          subType: 'White (Regular)',
-          baseFare: 45.00,
-          perKmRate: 13.50,
-          notes: 'Regular Taxi',
-        ),
-        FareFormula(
-          mode: 'Taxi',
-          subType: 'Yellow (Airport)',
-          baseFare: 75.00,
-          perKmRate: 20.00,
-          notes: 'Airport Taxi',
-        ),
-      ];
-      await box.addAll(defaultFormulas);
+      
+      try {
+        final String jsonString = await rootBundle.loadString('assets/data/fare_formulas.json');
+        final Map<String, dynamic> jsonMap = json.decode(jsonString);
+        final List<FareFormula> formulas = [];
+
+        // Parse "road" formulas
+        if (jsonMap.containsKey('road')) {
+          final List<dynamic> roadList = jsonMap['road'];
+          formulas.addAll(roadList.map((e) => FareFormula.fromJson(e)).toList());
+        }
+
+        // Add other modes here if/when they are added to the JSON
+
+        await box.addAll(formulas);
+      } catch (e) {
+        // Fallback or rethrow depending on error handling strategy
+        // For now, logging locally or doing nothing is acceptable if assets are guaranteed
+        print('Error seeding default formulas: $e');
+      }
     }
   }
 

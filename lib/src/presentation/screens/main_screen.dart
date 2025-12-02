@@ -2,30 +2,24 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../core/di/injection.dart';
+import '../../core/errors/failures.dart';
 import '../../core/hybrid_engine.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/fare_formula.dart';
 import '../../models/fare_result.dart';
 import '../../models/location.dart';
 import '../../models/saved_route.dart';
-import '../../services/fare_cache_service.dart';
+import '../../repositories/fare_repository.dart';
+import '../../services/fare_comparison_service.dart';
 import '../../services/geocoding/geocoding_service.dart';
-import '../../services/routing/osrm_routing_service.dart';
 import '../../services/settings_service.dart';
 import '../widgets/fare_result_card.dart';
 import 'offline_menu_screen.dart';
 import 'settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
-  final GeocodingService? geocodingService;
-  final HybridEngine? hybridEngine;
-  final FareCacheService? fareCacheService;
-
-  const MainScreen({
-    super.key,
-    this.geocodingService,
-    this.hybridEngine,
-    this.fareCacheService,
-  });
+  const MainScreen({super.key});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -33,13 +27,16 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   // Geocoding state
-  late final GeocodingService _geocodingService;
+  final GeocodingService _geocodingService = getIt<GeocodingService>();
   Location? _originLocation;
   Location? _destinationLocation;
 
   // Engine and Data state
-  late final HybridEngine _hybridEngine;
-  late final FareCacheService _fareCacheService;
+  final HybridEngine _hybridEngine = getIt<HybridEngine>();
+  final FareRepository _fareRepository = getIt<FareRepository>();
+  final FareComparisonService _fareComparisonService =
+      getIt<FareComparisonService>();
+  // final RoutingService _routingService = getIt<RoutingService>();
   List<FareFormula> _availableFormulas = [];
   bool _isLoading = true;
 
@@ -50,21 +47,12 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    _geocodingService =
-        widget.geocodingService ?? OpenStreetMapGeocodingService();
-    _hybridEngine = widget.hybridEngine ??
-        HybridEngine(
-          OsrmRoutingService(),
-          SettingsService(),
-        );
-    _fareCacheService = widget.fareCacheService ?? FareCacheService();
     _initializeData();
   }
 
   Future<void> _initializeData() async {
-    // Force seed to ensure new data structure with 'mode' field is present
-    await _fareCacheService.seedDefaults(force: true);
-    final formulas = await _fareCacheService.getAllFormulas();
+    // Data is already seeded in Splash Screen
+    final formulas = await _fareRepository.getAllFormulas();
     if (mounted) {
       setState(() {
         _availableFormulas = formulas;
@@ -77,7 +65,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fare Estimator'),
+        title: Text(AppLocalizations.of(context)!.fareEstimatorTitle),
         actions: [
           Semantics(
             label: 'Open offline reference menu',
@@ -118,7 +106,7 @@ class _MainScreenState extends State<MainScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             _buildLocationAutocomplete(
-              label: 'Origin',
+              label: AppLocalizations.of(context)!.originLabel,
               onSelected: (Location location) {
                 setState(() {
                   _originLocation = location;
@@ -128,7 +116,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             const SizedBox(height: 16.0),
             _buildLocationAutocomplete(
-              label: 'Destination',
+              label: AppLocalizations.of(context)!.destinationLabel,
               onSelected: (Location location) {
                 setState(() {
                   _destinationLocation = location;
@@ -151,7 +139,7 @@ class _MainScreenState extends State<MainScreen> {
                         _destinationLocation == null
                     ? null
                     : _calculateFare,
-                child: const Text('Calculate Fare'),
+                child: Text(AppLocalizations.of(context)!.calculateFareButton),
               ),
             ),
             if (_errorMessage != null) ...[
@@ -172,7 +160,7 @@ class _MainScreenState extends State<MainScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _saveRoute,
                   icon: const Icon(Icons.save),
-                  label: const Text('Save Route'),
+                  label: Text(AppLocalizations.of(context)!.saveRouteButton),
                 ),
               ),
               const SizedBox(height: 16.0),
@@ -289,11 +277,13 @@ class _MainScreenState extends State<MainScreen> {
       timestamp: DateTime.now(),
     );
 
-    await _fareCacheService.saveRoute(route);
+    await _fareRepository.saveRoute(route);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Route saved to offline history!')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.routeSavedMessage),
+        ),
       );
     }
   }
@@ -355,11 +345,25 @@ class _MainScreenState extends State<MainScreen> {
       });
     } catch (e) {
       debugPrint('Error calculating fare: $e');
+      String msg =
+          'Could not calculate fare. Please check your route and try again.';
+      if (e is Failure) {
+        msg = e.message;
+      }
+
       setState(() {
         _fareResults = [];
-        _errorMessage =
-            'Could not calculate fare. Please check your route and try again.';
+        _errorMessage = msg;
       });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
     }
   }
 }

@@ -1,7 +1,7 @@
 # Product Requirements Document (PRD): Nationwide Philippines Fare Calculator App
 
 ## Document Information
-- **Product Name**: PH Fare Estimator (working title)
+- **Product Name**: PH Fare Calculator (working title)
 - **Version**: 2.0 (Consolidated Final Draft)
 - **Date**: November 20, 2025
 - **Author**: MasuRii
@@ -9,7 +9,7 @@
 - **Purpose**: To build a cross-platform mobile application that provides accurate fare estimates for public transport across the Philippines. It serves as a budgeting and anti-scam tool for tourists, expats, and locals, addressing the unique challenges of an archipelagic transport system.
 
 ## 1. Executive Summary
-The PH Fare Estimator is a Flutter-based mobile app designed to fill the gap between city-specific transit apps (like Sakay.ph) and the lack of information in the provinces. Unlike navigation apps that focus on "How to get there," this app focuses on "How much it costs."
+The PH Fare Calculator is a Flutter-based mobile app designed to fill the gap between city-specific transit apps (like Sakay.ph) and the lack of information in the provinces. Unlike navigation apps that focus on "How to get there," this app focuses on "How much it costs."
 
 It solves the technical complexity of the Philippines' geography using a **Hybrid Calculation Engine**: combining distance-based formulas for road traffic (Jeeps, Taxis) with static database lookups for fixed lines (Trains, Ferries). Key differentiators include specific "Scam Protection" indicators for tourists and "Offline Reference" capabilities.
 

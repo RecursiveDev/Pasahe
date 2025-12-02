@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ph_fare_estimator/src/core/hybrid_engine.dart';
 import 'package:ph_fare_estimator/src/models/fare_formula.dart';
 import 'package:ph_fare_estimator/src/services/settings_service.dart';
+import 'package:ph_fare_estimator/src/models/transport_mode.dart';
 
 import '../helpers/mocks.dart';
 
@@ -122,7 +123,7 @@ void main() {
   group('HybridEngine - Static Fares', () {
     test('calculateStaticFare returns null for unknown route', () async {
       final fare = await hybridEngine.calculateStaticFare(
-        'Train',
+        TransportMode.train,
         'Nowhere',
         'Anywhere',
       );
@@ -141,7 +142,7 @@ void main() {
       try {
         await hybridEngine.initialize();
         final fare = await hybridEngine.calculateStaticFare(
-          'Train',
+          TransportMode.train,
           'North Ave',
           'Taft',
         );

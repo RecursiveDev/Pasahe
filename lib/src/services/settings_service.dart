@@ -1,14 +1,20 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum TrafficFactor { low, medium, high }
 
+@singleton
 class SettingsService {
   static const String _keyProvincialMode = 'isProvincialModeEnabled';
   static const String _keyTrafficFactor = 'trafficFactor';
   static const String _keyHighContrastEnabled = 'isHighContrastEnabled';
+  static const String _keyLocale = 'locale';
 
   static final ValueNotifier<bool> highContrastNotifier = ValueNotifier(false);
+  static final ValueNotifier<Locale> localeNotifier = ValueNotifier(
+    const Locale('en'),
+  );
 
   Future<bool> getProvincialMode() async {
     final prefs = await SharedPreferences.getInstance();
@@ -23,7 +29,7 @@ class SettingsService {
   Future<TrafficFactor> getTrafficFactor() async {
     final prefs = await SharedPreferences.getInstance();
     final value = prefs.getString(_keyTrafficFactor);
-    
+
     if (value == null) {
       return TrafficFactor.medium;
     }
@@ -56,5 +62,21 @@ class SettingsService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyHighContrastEnabled, value);
     highContrastNotifier.value = value;
+  }
+
+  Future<Locale> getLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    final languageCode = prefs.getString(_keyLocale) ?? 'en';
+    final locale = Locale(languageCode);
+    if (localeNotifier.value != locale) {
+      localeNotifier.value = locale;
+    }
+    return locale;
+  }
+
+  Future<void> setLocale(Locale locale) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyLocale, locale.languageCode);
+    localeNotifier.value = locale;
   }
 }

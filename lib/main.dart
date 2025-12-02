@@ -1,54 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ph_fare_estimator/src/models/fare_formula.dart';
-import 'package:ph_fare_estimator/src/models/fare_result.dart';
-import 'package:ph_fare_estimator/src/models/saved_route.dart';
-import 'package:ph_fare_estimator/src/presentation/screens/main_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:ph_fare_estimator/src/l10n/app_localizations.dart';
 import 'package:ph_fare_estimator/src/presentation/screens/splash_screen.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:ph_fare_estimator/src/services/remote_config_service.dart';
 import 'package:ph_fare_estimator/src/services/settings_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-  
-  // Initialize Firebase with demo project options
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
-  await RemoteConfigService(FirebaseRemoteConfig.instance).initialize();
 
-  final appDocumentDir = await getApplicationDocumentsDirectory();
-  Hive.init(appDocumentDir.path);
-  Hive.registerAdapter(FareFormulaAdapter());
-  Hive.registerAdapter(SavedRouteAdapter());
-  Hive.registerAdapter(FareResultAdapter());
-  Hive.registerAdapter(IndicatorLevelAdapter());
-
+  // Pre-initialize static notifiers from SharedPreferences to avoid race condition
+  // This ensures ValueListenableBuilders have correct values when the widget tree is built
   final prefs = await SharedPreferences.getInstance();
-  final hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
+  final isHighContrast = prefs.getBool('isHighContrastEnabled') ?? false;
+  final languageCode = prefs.getString('locale') ?? 'en';
+  
+  SettingsService.highContrastNotifier.value = isHighContrast;
+  SettingsService.localeNotifier.value = Locale(languageCode);
 
-  // Initialize settings
-  final settingsService = SettingsService();
-  await settingsService.getHighContrastEnabled();
-
-  runApp(MyApp(hasCompletedOnboarding: hasCompletedOnboarding));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool hasCompletedOnboarding;
-
-  const MyApp({
-    super.key,
-    required this.hasCompletedOnboarding,
-  });
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +41,10 @@ class MyApp extends StatelessWidget {
       ),
       textTheme: const TextTheme(
         bodyMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        titleLarge: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold),
+        titleLarge: TextStyle(
+          color: Colors.cyanAccent,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       cardTheme: const CardThemeData(
         color: Colors.black,
@@ -92,10 +68,23 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder<bool>(
       valueListenable: SettingsService.highContrastNotifier,
       builder: (context, isHighContrast, child) {
-        return MaterialApp(
-          title: 'PH Fare Estimator',
-          theme: isHighContrast ? darkTheme : lightTheme,
-          home: hasCompletedOnboarding ? const MainScreen() : const SplashScreen(),
+        return ValueListenableBuilder<Locale>(
+          valueListenable: SettingsService.localeNotifier,
+          builder: (context, locale, child) {
+            return MaterialApp(
+              title: 'PH Fare Calculator',
+              theme: isHighContrast ? darkTheme : lightTheme,
+              locale: locale,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const SplashScreen(),
+            );
+          },
         );
       },
     );

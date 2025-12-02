@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ph_fare_estimator/src/l10n/app_localizations.dart';
+import 'package:get_it/get_it.dart';
 import 'package:ph_fare_estimator/src/presentation/screens/settings_screen.dart';
 import 'package:ph_fare_estimator/src/services/settings_service.dart';
 
@@ -10,11 +12,21 @@ void main() {
 
   setUp(() {
     mockSettingsService = MockSettingsService();
+    
+    final getIt = GetIt.instance;
+    if (getIt.isRegistered<SettingsService>()) getIt.unregister<SettingsService>();
+    getIt.registerSingleton<SettingsService>(mockSettingsService);
+  });
+
+  tearDown(() async {
+    await GetIt.instance.reset();
   });
 
   Widget createWidgetUnderTest() {
     return MaterialApp(
-      home: SettingsScreen(settingsService: mockSettingsService),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const SettingsScreen(),
     );
   }
 
