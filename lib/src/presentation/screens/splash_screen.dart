@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:ph_fare_estimator/src/core/di/injection.dart';
-import 'package:ph_fare_estimator/src/models/fare_formula.dart';
-import 'package:ph_fare_estimator/src/models/fare_result.dart';
-import 'package:ph_fare_estimator/src/models/saved_route.dart';
-import 'package:ph_fare_estimator/src/presentation/screens/main_screen.dart';
-import 'package:ph_fare_estimator/src/presentation/screens/onboarding_screen.dart';
-import 'package:ph_fare_estimator/src/repositories/fare_repository.dart';
-import 'package:ph_fare_estimator/src/services/settings_service.dart';
+import 'package:ph_fare_calculator/src/core/di/injection.dart';
+import 'package:ph_fare_calculator/src/models/fare_formula.dart';
+import 'package:ph_fare_calculator/src/models/fare_result.dart';
+import 'package:ph_fare_calculator/src/models/saved_route.dart';
+import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
+import 'package:ph_fare_calculator/src/presentation/screens/onboarding_screen.dart';
+import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
+import 'package:ph_fare_calculator/src/services/settings_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {

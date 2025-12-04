@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
-import 'package:ph_fare_estimator/src/core/di/injection.dart';
-import 'package:ph_fare_estimator/src/services/settings_service.dart';
+import 'package:ph_fare_calculator/src/core/di/injection.dart';
+import 'package:ph_fare_calculator/src/services/settings_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ph_fare_estimator/src/presentation/screens/main_screen.dart';
+import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

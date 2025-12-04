@@ -3,7 +3,7 @@
   "selectLanguage": "Select Language",
   "continueButton": "Continue",
   "disclaimer": "Disclaimer: All fare calculations are estimates only and may not reflect real-time prices.",
-  "fareEstimatorTitle": "Fare Estimator",
+  "fareEstimatorTitle": "PH Fare Calculator",
   "originLabel": "Origin",
   "destinationLabel": "Destination",
   "calculateFareButton": "Calculate Fare",

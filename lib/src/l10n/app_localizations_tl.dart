@@ -22,7 +22,7 @@ class AppLocalizationsTl extends AppLocalizations {
       'Paunawa: Ang lahat ng kalkulasyon ng pamasahe ay mga taya lamang at maaaring hindi sumasalamin sa kasalukuyang presyo.';
 
   @override
-  String get fareEstimatorTitle => 'Tagatantiya ng Pamasahe';
+  String get fareEstimatorTitle => 'PH Fare Calculator';
 
   @override
   String get originLabel => 'Pinagmulan';

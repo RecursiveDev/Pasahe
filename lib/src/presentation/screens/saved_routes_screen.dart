@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:ph_fare_estimator/src/core/di/injection.dart';
+import 'package:ph_fare_calculator/src/core/di/injection.dart';
 
 import '../../models/saved_route.dart';
 import '../../repositories/fare_repository.dart';

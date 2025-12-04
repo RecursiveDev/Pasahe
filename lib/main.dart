@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:ph_fare_estimator/src/l10n/app_localizations.dart';
-import 'package:ph_fare_estimator/src/presentation/screens/splash_screen.dart';
-import 'package:ph_fare_estimator/src/services/settings_service.dart';
+import 'package:ph_fare_calculator/src/l10n/app_localizations.dart';
+import 'package:ph_fare_calculator/src/presentation/screens/splash_screen.dart';
+import 'package:ph_fare_calculator/src/services/settings_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {

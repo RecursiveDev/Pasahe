@@ -12,6 +12,7 @@ import '../../models/fare_formula.dart';
 import '../../models/fare_result.dart';
 import '../../models/location.dart';
 import '../../models/saved_route.dart';
+import '../../models/transport_mode.dart';
 import '../../repositories/fare_repository.dart';
 import '../../services/fare_comparison_service.dart';
 import '../../services/geocoding/geocoding_service.dart';
@@ -123,7 +124,7 @@ class _MainScreenState extends State<MainScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Welcome to PH Fare Estimator'),
+          title: const Text('Welcome to PH Fare Calculator'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +146,7 @@ class _MainScreenState extends State<MainScreen> {
                 await _settingsService.setUserDiscountType(
                   DiscountType.standard,
                 );
-                if (mounted) {
+                if (context.mounted) {
                   Navigator.of(context).pop();
                 }
               },
@@ -156,7 +157,7 @@ class _MainScreenState extends State<MainScreen> {
                 await _settingsService.setUserDiscountType(
                   DiscountType.discounted,
                 );
-                if (mounted) {
+                if (context.mounted) {
                   Navigator.of(context).pop();
                 }
               },
@@ -304,24 +305,7 @@ class _MainScreenState extends State<MainScreen> {
                 ],
               ),
               const SizedBox(height: 16.0),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _fareResults.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 16.0),
-                itemBuilder: (context, index) {
-                  final result = _fareResults[index];
-                  return FareResultCard(
-                    transportMode: result.transportMode,
-                    fare: result.totalFare,
-                    indicatorLevel: result.indicatorLevel,
-                    isRecommended: result.isRecommended,
-                    passengerCount: result.passengerCount,
-                    totalFare: result.totalFare,
-                  );
-                },
-              ),
+              _buildGroupedFareResults(),
             ],
           ],
         ),
@@ -603,6 +587,115 @@ class _MainScreenState extends State<MainScreen> {
         }
       },
     );
+  }
+
+  /// Builds the grouped fare results display with section headers
+  Widget _buildGroupedFareResults() {
+    // Group the fare results by transport mode
+    final groupedResults = _fareComparisonService.groupFaresByMode(_fareResults);
+    
+    // Sort the groups by the best fare in each group
+    final sortedGroups = groupedResults.entries.toList();
+    if (_sortCriteria == SortCriteria.priceAsc) {
+      sortedGroups.sort((a, b) {
+        final aMin = a.value.map((r) => r.totalFare).reduce((a, b) => a < b ? a : b);
+        final bMin = b.value.map((r) => r.totalFare).reduce((a, b) => a < b ? a : b);
+        return aMin.compareTo(bMin);
+      });
+    } else if (_sortCriteria == SortCriteria.priceDesc) {
+      sortedGroups.sort((a, b) {
+        final aMax = a.value.map((r) => r.totalFare).reduce((a, b) => a > b ? a : b);
+        final bMax = b.value.map((r) => r.totalFare).reduce((a, b) => a > b ? a : b);
+        return bMax.compareTo(aMax);
+      });
+    }
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: sortedGroups.map((entry) {
+        final mode = entry.key;
+        final fares = entry.value;
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Section Header
+            _buildTransportModeHeader(mode),
+            const SizedBox(height: 8.0),
+            // Fare cards for this mode
+            ...fares.map((result) => Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: FareResultCard(
+                transportMode: result.transportMode,
+                fare: result.totalFare,
+                indicatorLevel: result.indicatorLevel,
+                isRecommended: result.isRecommended,
+                passengerCount: result.passengerCount,
+                totalFare: result.totalFare,
+              ),
+            )),
+            const SizedBox(height: 8.0),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
+  /// Builds a header widget for a transport mode section
+  Widget _buildTransportModeHeader(TransportMode mode) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            _getTransportModeIcon(mode),
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+          const SizedBox(width: 12.0),
+          Text(
+            mode.displayName,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Returns an appropriate icon for each transport mode
+  IconData _getTransportModeIcon(TransportMode mode) {
+    switch (mode) {
+      case TransportMode.jeepney:
+        return Icons.directions_bus;
+      case TransportMode.bus:
+        return Icons.directions_bus_filled;
+      case TransportMode.taxi:
+        return Icons.local_taxi;
+      case TransportMode.train:
+        return Icons.train;
+      case TransportMode.ferry:
+        return Icons.directions_boat;
+      case TransportMode.tricycle:
+        return Icons.electric_rickshaw;
+      case TransportMode.uvExpress:
+        return Icons.airport_shuttle;
+      case TransportMode.van:
+        return Icons.airport_shuttle;
+      case TransportMode.motorcycle:
+        return Icons.two_wheeler;
+      case TransportMode.edsaCarousel:
+        return Icons.directions_bus;
+      case TransportMode.pedicab:
+        return Icons.pedal_bike;
+      case TransportMode.kuliglig:
+        return Icons.agriculture;
+    }
   }
 
   void _updateRecommendedFlag() {

@@ -125,7 +125,7 @@ abstract class AppLocalizations {
   /// No description provided for @fareEstimatorTitle.
   ///
   /// In en, this message translates to:
-  /// **'Fare Estimator'**
+  /// **'PH Fare Calculator'**
   String get fareEstimatorTitle;
 
   /// No description provided for @originLabel.

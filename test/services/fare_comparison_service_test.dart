@@ -1,12 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_estimator/src/services/fare_comparison_service.dart';
-import 'package:ph_fare_estimator/src/models/transport_mode.dart';
+import 'package:ph_fare_calculator/src/services/fare_comparison_service.dart';
+import 'package:ph_fare_calculator/src/services/transport_mode_filter_service.dart';
+import 'package:ph_fare_calculator/src/models/transport_mode.dart';
 
 void main() {
   late FareComparisonService service;
+  late TransportModeFilterService filterService;
 
   setUp(() {
-    service = FareComparisonService();
+    filterService = TransportModeFilterService();
+    service = FareComparisonService(filterService);
   });
 
   group('FareComparisonService', () {

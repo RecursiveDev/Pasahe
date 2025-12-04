@@ -92,7 +92,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.example.ph_fare_estimator',
+                userAgentPackageName: 'com.ph_fare_calculator',
               ),
               if (_selectedLocation != null)
                 MarkerLayer(

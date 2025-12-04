@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
@@ -47,7 +48,7 @@ class FareRepository {
       } catch (e) {
         // Fallback or rethrow depending on error handling strategy
         // For now, logging locally or doing nothing is acceptable if assets are guaranteed
-        print('Error seeding default formulas: $e');
+        debugPrint('Error seeding default formulas: $e');
       }
     }
   }

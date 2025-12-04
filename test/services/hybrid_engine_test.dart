@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_estimator/src/core/hybrid_engine.dart';
-import 'package:ph_fare_estimator/src/models/fare_formula.dart';
-import 'package:ph_fare_estimator/src/services/settings_service.dart';
-import 'package:ph_fare_estimator/src/models/transport_mode.dart';
+import 'package:ph_fare_calculator/src/core/hybrid_engine.dart';
+import 'package:ph_fare_calculator/src/models/fare_formula.dart';
+import 'package:ph_fare_calculator/src/services/settings_service.dart';
+import 'package:ph_fare_calculator/src/models/transport_mode.dart';
 
 import '../helpers/mocks.dart';
 

@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_estimator/src/l10n/app_localizations.dart';
+import 'package:ph_fare_calculator/src/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
-import 'package:ph_fare_estimator/src/models/fare_formula.dart';
-import 'package:ph_fare_estimator/src/models/fare_result.dart';
-import 'package:ph_fare_estimator/src/models/location.dart';
-import 'package:ph_fare_estimator/src/presentation/screens/main_screen.dart';
-import 'package:ph_fare_estimator/src/presentation/widgets/fare_result_card.dart';
-import 'package:ph_fare_estimator/src/services/geocoding/geocoding_service.dart';
-import 'package:ph_fare_estimator/src/services/routing/routing_service.dart';
-import 'package:ph_fare_estimator/src/services/settings_service.dart';
-import 'package:ph_fare_estimator/src/core/hybrid_engine.dart';
-import 'package:ph_fare_estimator/src/repositories/fare_repository.dart';
-import 'package:ph_fare_estimator/src/services/fare_comparison_service.dart';
+import 'package:ph_fare_calculator/src/models/fare_formula.dart';
+import 'package:ph_fare_calculator/src/models/fare_result.dart';
+import 'package:ph_fare_calculator/src/models/location.dart';
+import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
+import 'package:ph_fare_calculator/src/presentation/widgets/fare_result_card.dart';
+import 'package:ph_fare_calculator/src/services/geocoding/geocoding_service.dart';
+import 'package:ph_fare_calculator/src/services/routing/routing_service.dart';
+import 'package:ph_fare_calculator/src/services/settings_service.dart';
+import 'package:ph_fare_calculator/src/core/hybrid_engine.dart';
+import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
+import 'package:ph_fare_calculator/src/services/fare_comparison_service.dart';
+import 'package:ph_fare_calculator/src/core/constants/region_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ph_fare_estimator/src/models/transport_mode.dart';
+import 'package:ph_fare_calculator/src/models/transport_mode.dart';
 
 import '../helpers/mocks.dart';
 
@@ -32,12 +33,29 @@ class MockFareComparisonService implements FareComparisonService {
   Future<List<FareResult>> compareFares({
     required List<FareResult> fareResults,
     int passengerCount = 1,
+    double? originLat,
+    double? originLng,
   }) async {
     return fareResults;
   }
 
   @override
   List<FareResult> sortFares(List<FareResult> results, SortCriteria criteria) {
+    return results;
+  }
+
+  @override
+  Map<TransportMode, List<FareResult>> groupFaresByMode(List<FareResult> results) {
+    final grouped = <TransportMode, List<FareResult>>{};
+    for (final result in results) {
+      final mode = TransportMode.fromString(result.transportMode);
+      grouped.putIfAbsent(mode, () => []).add(result);
+    }
+    return grouped;
+  }
+
+  @override
+  List<FareResult> filterByRegion(List<FareResult> results, Region region) {
     return results;
   }
 }
@@ -110,12 +128,12 @@ void main() {
     await tester.pumpAndSettle();
 
     // Dismiss the dialog by selecting Regular
-    if (find.text('Welcome to PH Fare Estimator').evaluate().isNotEmpty) {
+    if (find.text('Welcome to PH Fare Calculator').evaluate().isNotEmpty) {
       await tester.tap(find.text('Regular'));
       await tester.pumpAndSettle();
     }
 
-    expect(find.text('Fare Estimator'), findsOneWidget);
+    expect(find.text('PH Fare Calculator'), findsOneWidget);
     expect(find.text('Origin'), findsOneWidget);
     expect(find.text('Destination'), findsOneWidget);
     expect(find.text('Passengers:'), findsOneWidget);
@@ -149,7 +167,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Dismiss the dialog by selecting Regular
-    if (find.text('Welcome to PH Fare Estimator').evaluate().isNotEmpty) {
+    if (find.text('Welcome to PH Fare Calculator').evaluate().isNotEmpty) {
       await tester.tap(find.text('Regular'));
       await tester.pumpAndSettle();
     }

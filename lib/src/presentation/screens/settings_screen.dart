@@ -126,13 +126,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(color: Colors.grey),
                   ),
                 ),
+                // ignore: deprecated_member_use
                 RadioListTile<TrafficFactor>(
                   title: Text(AppLocalizations.of(context)!.trafficLow),
                   subtitle: Text(
                     AppLocalizations.of(context)!.trafficLowSubtitle,
                   ),
                   value: TrafficFactor.low,
+                  // ignore: deprecated_member_use
                   groupValue: _trafficFactor,
+                  // ignore: deprecated_member_use
                   onChanged: (TrafficFactor? value) async {
                     if (value != null) {
                       setState(() {
@@ -142,13 +145,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     }
                   },
                 ),
+                // ignore: deprecated_member_use
                 RadioListTile<TrafficFactor>(
                   title: Text(AppLocalizations.of(context)!.trafficMedium),
                   subtitle: Text(
                     AppLocalizations.of(context)!.trafficMediumSubtitle,
                   ),
                   value: TrafficFactor.medium,
+                  // ignore: deprecated_member_use
                   groupValue: _trafficFactor,
+                  // ignore: deprecated_member_use
                   onChanged: (TrafficFactor? value) async {
                     if (value != null) {
                       setState(() {
@@ -158,13 +164,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     }
                   },
                 ),
+                // ignore: deprecated_member_use
                 RadioListTile<TrafficFactor>(
                   title: Text(AppLocalizations.of(context)!.trafficHigh),
                   subtitle: Text(
                     AppLocalizations.of(context)!.trafficHighSubtitle,
                   ),
                   value: TrafficFactor.high,
+                  // ignore: deprecated_member_use
                   groupValue: _trafficFactor,
+                  // ignore: deprecated_member_use
                   onChanged: (TrafficFactor? value) async {
                     if (value != null) {
                       setState(() {
@@ -195,11 +204,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(color: Colors.grey),
                   ),
                 ),
+                // ignore: deprecated_member_use
                 RadioListTile<DiscountType>(
                   title: Text(DiscountType.standard.displayName),
                   subtitle: const Text('No discount'),
                   value: DiscountType.standard,
+                  // ignore: deprecated_member_use
                   groupValue: _discountType,
+                  // ignore: deprecated_member_use
                   onChanged: (DiscountType? value) async {
                     if (value != null) {
                       setState(() {
@@ -209,13 +221,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     }
                   },
                 ),
+                // ignore: deprecated_member_use
                 RadioListTile<DiscountType>(
                   title: Text(DiscountType.discounted.displayName),
                   subtitle: const Text(
                     '20% discount (RA 11314, RA 9994, RA 7277)',
                   ),
                   value: DiscountType.discounted,
+                  // ignore: deprecated_member_use
                   groupValue: _discountType,
+                  // ignore: deprecated_member_use
                   onChanged: (DiscountType? value) async {
                     if (value != null) {
                       setState(() {

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_estimator/src/models/fare_result.dart';
+import 'package:ph_fare_calculator/src/models/fare_result.dart';
 
 void main() {
   group('Fare Sorting Logic', () {

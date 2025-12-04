@@ -22,7 +22,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Disclaimer: All fare calculations are estimates only and may not reflect real-time prices.';
 
   @override
-  String get fareEstimatorTitle => 'Fare Estimator';
+  String get fareEstimatorTitle => 'PH Fare Calculator';
 
   @override
   String get originLabel => 'Origin';

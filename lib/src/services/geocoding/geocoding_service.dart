@@ -64,7 +64,7 @@ class OpenStreetMapGeocodingService implements GeocodingService {
 
       final response = await _client.get(
         url,
-        headers: {'User-Agent': 'PHFareEstimator/1.0'},
+        headers: {'User-Agent': 'PHFareCalculator/1.0'},
       );
 
       if (response.statusCode == 200) {

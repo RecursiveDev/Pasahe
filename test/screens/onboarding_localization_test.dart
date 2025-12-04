@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_estimator/src/l10n/app_localizations.dart';
+import 'package:ph_fare_calculator/src/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
-import 'package:ph_fare_estimator/src/presentation/screens/onboarding_screen.dart';
-import 'package:ph_fare_estimator/src/services/settings_service.dart';
-import 'package:ph_fare_estimator/src/models/discount_type.dart';
-import 'package:ph_fare_estimator/src/models/location.dart';
+import 'package:ph_fare_calculator/src/presentation/screens/onboarding_screen.dart';
+import 'package:ph_fare_calculator/src/services/settings_service.dart';
+import 'package:ph_fare_calculator/src/models/discount_type.dart';
+import 'package:ph_fare_calculator/src/models/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Create a real SettingsService to test the locale change logic
