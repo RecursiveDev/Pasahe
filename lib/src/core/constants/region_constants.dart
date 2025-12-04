@@ -2,7 +2,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 /// Defines the supported regions and their geographical bounding boxes.
-/// 
+///
 /// This is a simplified implementation for MVP.
 /// Ideally, we would use polygon geofencing for more accuracy.
 class RegionConstants {
@@ -29,7 +29,7 @@ class RegionConstants {
 
   // Cagayan de Oro (CDO)
   static final LatLngBounds cdoBounds = LatLngBounds(
-    const LatLng(8.4000, 124.5000), 
+    const LatLng(8.4000, 124.5000),
     const LatLng(8.6000, 124.8000),
   );
 }

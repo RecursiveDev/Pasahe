@@ -25,11 +25,14 @@ void main() {
         expect(region, equals(Region.ncr));
       });
 
-      test('returns Cebu for coordinates within Metro Cebu (Magellan Cross)', () {
-        // Magellan's Cross, Cebu: 10.2934, 123.9021
-        final region = service.getRegionForLocation(10.2934, 123.9021);
-        expect(region, equals(Region.cebu));
-      });
+      test(
+        'returns Cebu for coordinates within Metro Cebu (Magellan Cross)',
+        () {
+          // Magellan's Cross, Cebu: 10.2934, 123.9021
+          final region = service.getRegionForLocation(10.2934, 123.9021);
+          expect(region, equals(Region.cebu));
+        },
+      );
 
       test('returns Davao for coordinates within Davao City', () {
         // Davao City: 7.0731, 125.6128
@@ -55,11 +58,14 @@ void main() {
         expect(region, equals(Region.visayas));
       });
 
-      test('returns Mindanao for coordinates in Mindanao but outside specific cities', () {
-        // General Santos City: 6.1164, 125.1716
-        final region = service.getRegionForLocation(6.1164, 125.1716);
-        expect(region, equals(Region.mindanao));
-      });
+      test(
+        'returns Mindanao for coordinates in Mindanao but outside specific cities',
+        () {
+          // General Santos City: 6.1164, 125.1716
+          final region = service.getRegionForLocation(6.1164, 125.1716);
+          expect(region, equals(Region.mindanao));
+        },
+      );
     });
 
     group('getAvailableModes', () {
@@ -237,7 +243,7 @@ void main() {
 
     test('getModesForRegion returns correct modes for NCR', () {
       final modes = RegionConfig.getModesForRegion(Region.ncr);
-      
+
       expect(modes, contains(TransportMode.jeepney));
       expect(modes, contains(TransportMode.tricycle));
       expect(modes, contains(TransportMode.bus));
@@ -249,7 +255,7 @@ void main() {
 
     test('getModesForRegion does not include Train for Visayas', () {
       final modes = RegionConfig.getModesForRegion(Region.visayas);
-      
+
       expect(modes, contains(TransportMode.jeepney));
       expect(modes, contains(TransportMode.tricycle));
       expect(modes, isNot(contains(TransportMode.train)));
@@ -257,15 +263,17 @@ void main() {
     });
 
     test('getRegionsForMode returns correct regions for EDSA Carousel', () {
-      final regions = RegionConfig.getRegionsForMode(TransportMode.edsaCarousel);
-      
+      final regions = RegionConfig.getRegionsForMode(
+        TransportMode.edsaCarousel,
+      );
+
       expect(regions, contains(Region.ncr));
       expect(regions.length, equals(1));
     });
 
     test('getRegionsForMode returns nationwide for Jeepney', () {
       final regions = RegionConfig.getRegionsForMode(TransportMode.jeepney);
-      
+
       expect(regions, contains(Region.nationwide));
     });
   });

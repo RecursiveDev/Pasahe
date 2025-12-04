@@ -7,7 +7,7 @@ import '../core/constants/region_constants.dart';
 @lazySingleton
 class TransportModeFilterService {
   /// Determines the region of a given location.
-  /// 
+  ///
   /// Checks regions in order of specificity (City > Region > Nationwide).
   Region getRegionForLocation(double lat, double lng) {
     final point = LatLng(lat, lng);
@@ -43,14 +43,14 @@ class TransportModeFilterService {
   /// Returns a list of available transport modes for a given location.
   List<TransportMode> getAvailableModes(double lat, double lng) {
     final region = getRegionForLocation(lat, lng);
-    
+
     // Get all modes and filter based on the region
     return TransportMode.values.where((mode) {
       // 1. Check strict region availability from config
       final isAvailableInRegion = RegionConfig.isModeAvailable(mode, region);
-      
+
       // 2. We can add extra dynamic logic here if needed (e.g. time of day)
-      
+
       return isAvailableInRegion;
     }).toList();
   }

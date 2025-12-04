@@ -92,6 +92,9 @@ class _MainScreenState extends State<MainScreen> {
     // Check if user has set their discount type
     final hasSetDiscountType = await _settingsService.hasSetDiscountType();
 
+    // Read user's discount type to initialize passenger state
+    final userDiscountType = await _settingsService.getUserDiscountType();
+
     if (mounted) {
       setState(() {
         _availableFormulas = formulas;
@@ -102,6 +105,17 @@ class _MainScreenState extends State<MainScreen> {
           _originLocation = lastLocation;
           _originLatLng = LatLng(lastLocation.latitude, lastLocation.longitude);
           _originTextController.text = lastLocation.name;
+        }
+
+        // Sync passenger type from settings when user is the sole passenger
+        // Only auto-apply discount when total passengers is 1
+        if (userDiscountType == DiscountType.discounted &&
+            _passengerCount == 1) {
+          _regularPassengers = 0;
+          _discountedPassengers = 1;
+        } else {
+          _regularPassengers = 1;
+          _discountedPassengers = 0;
         }
       });
 
@@ -592,30 +606,40 @@ class _MainScreenState extends State<MainScreen> {
   /// Builds the grouped fare results display with section headers
   Widget _buildGroupedFareResults() {
     // Group the fare results by transport mode
-    final groupedResults = _fareComparisonService.groupFaresByMode(_fareResults);
-    
+    final groupedResults = _fareComparisonService.groupFaresByMode(
+      _fareResults,
+    );
+
     // Sort the groups by the best fare in each group
     final sortedGroups = groupedResults.entries.toList();
     if (_sortCriteria == SortCriteria.priceAsc) {
       sortedGroups.sort((a, b) {
-        final aMin = a.value.map((r) => r.totalFare).reduce((a, b) => a < b ? a : b);
-        final bMin = b.value.map((r) => r.totalFare).reduce((a, b) => a < b ? a : b);
+        final aMin = a.value
+            .map((r) => r.totalFare)
+            .reduce((a, b) => a < b ? a : b);
+        final bMin = b.value
+            .map((r) => r.totalFare)
+            .reduce((a, b) => a < b ? a : b);
         return aMin.compareTo(bMin);
       });
     } else if (_sortCriteria == SortCriteria.priceDesc) {
       sortedGroups.sort((a, b) {
-        final aMax = a.value.map((r) => r.totalFare).reduce((a, b) => a > b ? a : b);
-        final bMax = b.value.map((r) => r.totalFare).reduce((a, b) => a > b ? a : b);
+        final aMax = a.value
+            .map((r) => r.totalFare)
+            .reduce((a, b) => a > b ? a : b);
+        final bMax = b.value
+            .map((r) => r.totalFare)
+            .reduce((a, b) => a > b ? a : b);
         return bMax.compareTo(aMax);
       });
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: sortedGroups.map((entry) {
         final mode = entry.key;
         final fares = entry.value;
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -623,17 +647,19 @@ class _MainScreenState extends State<MainScreen> {
             _buildTransportModeHeader(mode),
             const SizedBox(height: 8.0),
             // Fare cards for this mode
-            ...fares.map((result) => Padding(
-              padding: const EdgeInsets.only(bottom: 12.0),
-              child: FareResultCard(
-                transportMode: result.transportMode,
-                fare: result.totalFare,
-                indicatorLevel: result.indicatorLevel,
-                isRecommended: result.isRecommended,
-                passengerCount: result.passengerCount,
-                totalFare: result.totalFare,
+            ...fares.map(
+              (result) => Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: FareResultCard(
+                  transportMode: result.transportMode,
+                  fare: result.totalFare,
+                  indicatorLevel: result.indicatorLevel,
+                  isRecommended: result.isRecommended,
+                  passengerCount: result.passengerCount,
+                  totalFare: result.totalFare,
+                ),
               ),
-            )),
+            ),
             const SizedBox(height: 8.0),
           ],
         );
@@ -866,7 +892,10 @@ class _MainScreenState extends State<MainScreen> {
     TextEditingController controller,
     ValueChanged<Location> onSelected,
   ) async {
-    final initialLocation = isOrigin ? _originLatLng : _destinationLatLng;
+    // Fall back to origin location when destination is null for better UX
+    final initialLocation = isOrigin
+        ? _originLatLng
+        : (_destinationLatLng ?? _originLatLng);
     final title = isOrigin ? 'Select Origin' : 'Select Destination';
 
     final LatLng? selectedLatLng = await Navigator.push<LatLng>(

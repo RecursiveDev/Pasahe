@@ -45,7 +45,9 @@ class MockFareComparisonService implements FareComparisonService {
   }
 
   @override
-  Map<TransportMode, List<FareResult>> groupFaresByMode(List<FareResult> results) {
+  Map<TransportMode, List<FareResult>> groupFaresByMode(
+    List<FareResult> results,
+  ) {
     final grouped = <TransportMode, List<FareResult>>{};
     for (final result in results) {
       final mode = TransportMode.fromString(result.transportMode);

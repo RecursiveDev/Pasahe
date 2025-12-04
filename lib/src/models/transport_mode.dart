@@ -96,8 +96,14 @@ enum TransportMode {
   }
 
   static TransportMode fromString(String mode) {
+    // Handle "Mode (SubType)" format by extracting just the mode part
+    // Example: "Jeepney (Traditional)" -> "Jeepney"
+    final modeName = mode.contains('(')
+        ? mode.substring(0, mode.indexOf('(')).trim()
+        : mode.trim();
+
     return TransportMode.values.firstWhere(
-      (e) => e.displayName.toLowerCase() == mode.toLowerCase(),
+      (e) => e.displayName.toLowerCase() == modeName.toLowerCase(),
       orElse: () => TransportMode.jeepney, // Default fallback
     );
   }

@@ -77,19 +77,21 @@ class FareComparisonService {
   /// [results]: The list of FareResult objects to group.
   ///
   /// Returns a map where keys are TransportMode and values are lists of FareResult.
-  Map<TransportMode, List<FareResult>> groupFaresByMode(List<FareResult> results) {
+  Map<TransportMode, List<FareResult>> groupFaresByMode(
+    List<FareResult> results,
+  ) {
     final grouped = <TransportMode, List<FareResult>>{};
-    
+
     for (final result in results) {
       // Parse mode string to enum
       final mode = TransportMode.fromString(result.transportMode);
-      
+
       if (!grouped.containsKey(mode)) {
         grouped[mode] = [];
       }
       grouped[mode]!.add(result);
     }
-    
+
     return grouped;
   }
 
@@ -143,7 +145,7 @@ class FareComparisonService {
     if (originLat == null || originLng == null) {
       return fareResults;
     }
-    
+
     // Filter fare results based on regional availability
     final filteredResults = fareResults.where((result) {
       final mode = TransportMode.fromString(result.transportMode);
