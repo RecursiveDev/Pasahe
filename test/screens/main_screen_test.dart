@@ -7,6 +7,7 @@ import 'package:ph_fare_calculator/src/models/fare_result.dart';
 import 'package:ph_fare_calculator/src/models/location.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
 import 'package:ph_fare_calculator/src/presentation/widgets/fare_result_card.dart';
+import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
 import 'package:ph_fare_calculator/src/services/geocoding/geocoding_service.dart';
 import 'package:ph_fare_calculator/src/services/routing/routing_service.dart';
 import 'package:ph_fare_calculator/src/services/settings_service.dart';
@@ -69,6 +70,7 @@ void main() {
   late MockRoutingService mockRoutingService;
   late MockSettingsService mockSettingsService;
   late MockFareComparisonService mockFareComparisonService;
+  late MockConnectivityService mockConnectivityService;
 
   setUp(() async {
     await GetIt.instance.reset();
@@ -79,6 +81,7 @@ void main() {
     mockRoutingService = MockRoutingService();
     mockSettingsService = MockSettingsService();
     mockFareComparisonService = MockFareComparisonService();
+    mockConnectivityService = MockConnectivityService();
 
     // Register mocks with GetIt
     final getIt = GetIt.instance;
@@ -89,6 +92,7 @@ void main() {
     getIt.registerSingleton<HybridEngine>(mockHybridEngine);
     getIt.registerSingleton<FareRepository>(mockFareRepository);
     getIt.registerSingleton<FareComparisonService>(mockFareComparisonService);
+    getIt.registerSingleton<ConnectivityService>(mockConnectivityService);
 
     // Setup default mock behaviors
     mockFareRepository.formulasToReturn = [

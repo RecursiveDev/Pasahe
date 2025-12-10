@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ph_fare_calculator/src/models/route_result.dart';
 import 'package:ph_fare_calculator/src/services/routing/haversine_routing_service.dart';
 
 void main() {
@@ -18,7 +19,9 @@ void main() {
         120.9842,
       );
       expect(result.distance, 0.0);
-      expect(result.geometry, isEmpty);
+      // Same origin/destination still returns a 2-point geometry for display
+      expect(result.geometry, hasLength(2));
+      expect(result.source, RouteSource.haversine);
     });
 
     test(
@@ -31,7 +34,9 @@ void main() {
 
         // Allow for small floating point differences
         expect(result.distance, closeTo(expectedDistance, 0.1));
-        expect(result.geometry, isEmpty);
+        // Haversine now returns interpolated points for straight line display
+        expect(result.geometry, isNotEmpty);
+        expect(result.source, RouteSource.haversine);
       },
     );
 
@@ -41,7 +46,9 @@ void main() {
       final result = await service.getRoute(0, 0, 1, 0);
 
       expect(result.distance, closeTo(expectedDistance, 0.1));
-      expect(result.geometry, isEmpty);
+      // Haversine now returns interpolated points for straight line display
+      expect(result.geometry, isNotEmpty);
+      expect(result.source, RouteSource.haversine);
     });
 
     test(
@@ -59,7 +66,9 @@ void main() {
 
         expect(result.distance, greaterThan(5000));
         expect(result.distance, lessThan(8000));
-        expect(result.geometry, isEmpty);
+        // Haversine now returns interpolated points for straight line display
+        expect(result.geometry, isNotEmpty);
+        expect(result.source, RouteSource.haversine);
       },
     );
 
@@ -71,7 +80,9 @@ void main() {
         final result = await service.getRoute(0, -1, 0, 1);
 
         expect(result.distance, closeTo(expectedDistance, 0.1));
-        expect(result.geometry, isEmpty);
+        // Haversine now returns interpolated points for straight line display
+        expect(result.geometry, isNotEmpty);
+        expect(result.source, RouteSource.haversine);
       },
     );
   });

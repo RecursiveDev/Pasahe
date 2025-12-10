@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../core/di/injection.dart';
+import '../../services/offline/offline_map_service.dart';
+
 /// A modern, accessible map selection widget.
 ///
 /// Provides interactive map with origin/destination selection,
 /// route visualization, and smooth animations following Material 3 guidelines.
+/// Supports offline tile caching when [useCachedTiles] is true.
 class MapSelectionWidget extends StatefulWidget {
   final LatLng? origin;
   final LatLng? destination;
@@ -16,6 +20,9 @@ class MapSelectionWidget extends StatefulWidget {
   final VoidCallback? onExpandMap;
   final bool isLoading;
   final String? errorMessage;
+
+  /// Whether to use cached tiles from FMTC for offline support.
+  final bool useCachedTiles;
 
   const MapSelectionWidget({
     super.key,
@@ -28,6 +35,7 @@ class MapSelectionWidget extends StatefulWidget {
     this.onExpandMap,
     this.isLoading = false,
     this.errorMessage,
+    this.useCachedTiles = true,
   });
 
   @override
@@ -225,11 +233,8 @@ class _MapSelectionWidgetState extends State<MapSelectionWidget>
         },
       ),
       children: [
-        // Base tile layer
-        TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.ph_fare_calculator',
-        ),
+        // Base tile layer - use cached tiles when available
+        _buildTileLayer(),
 
         // Route polyline layer
         if (widget.routePoints.isNotEmpty)
@@ -248,6 +253,23 @@ class _MapSelectionWidgetState extends State<MapSelectionWidget>
         // Markers layer
         MarkerLayer(markers: markers),
       ],
+    );
+  }
+
+  /// Builds the tile layer, using cached tiles when available.
+  Widget _buildTileLayer() {
+    if (widget.useCachedTiles) {
+      try {
+        final offlineMapService = getIt<OfflineMapService>();
+        return offlineMapService.getCachedTileLayer();
+      } catch (_) {
+        // Fall back to network tiles if service not initialized
+      }
+    }
+
+    return TileLayer(
+      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      userAgentPackageName: 'com.ph_fare_calculator',
     );
   }
 

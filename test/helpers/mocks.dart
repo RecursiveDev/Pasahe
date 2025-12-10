@@ -1,8 +1,12 @@
 // ... existing code ...
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:ph_fare_calculator/src/models/connectivity_status.dart';
 import 'package:ph_fare_calculator/src/models/transport_mode.dart';
 import 'package:ph_fare_calculator/src/models/location.dart';
 import 'package:ph_fare_calculator/src/models/route_result.dart';
+import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
 import 'package:ph_fare_calculator/src/services/geocoding/geocoding_service.dart';
 import 'package:ph_fare_calculator/src/services/routing/routing_service.dart';
 import 'package:ph_fare_calculator/src/services/settings_service.dart';
@@ -13,6 +17,41 @@ import 'package:ph_fare_calculator/src/models/saved_route.dart';
 import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
 import 'package:ph_fare_calculator/src/models/discount_type.dart';
 import 'package:hive/hive.dart';
+
+class MockConnectivityService implements ConnectivityService {
+  final _controller = StreamController<ConnectivityStatus>.broadcast();
+
+  @override
+  Stream<ConnectivityStatus> get connectivityStream => _controller.stream;
+
+  @override
+  ConnectivityStatus get lastKnownStatus => ConnectivityStatus.online;
+
+  @override
+  Future<ConnectivityStatus> get currentStatus async =>
+      ConnectivityStatus.online;
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<bool> isServiceReachable(
+    String url, {
+    Duration timeout = const Duration(seconds: 5),
+  }) async {
+    return true;
+  }
+
+  @override
+  Future<ConnectivityStatus> checkActualConnectivity() async {
+    return ConnectivityStatus.online;
+  }
+
+  @override
+  Future<void> dispose() async {
+    await _controller.close();
+  }
+}
 
 class MockRoutingService implements RoutingService {
   double? distanceToReturn;

@@ -9,12 +9,33 @@ build/
 /ios/Pods/
 /ios/Podfile.lock
 
-# Generated files
-lib/src/models/fare_formula.g.dart
+# Generated code
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+lib/src/l10n/app_localizations_*.dart
+!lib/src/l10n/app_localizations.dart
 
-# Secrets
+# Test coverage
+coverage/
+*.lcov
+
+# Build artifacts
+*.apk
+*.aab
+*.ipa
+*.app
+*.dSYM/
+
+# Offline map cache (large binary files)
+offline_maps/
+*.mbtiles
+
+# Secrets and Environment files
 lib/config/api_keys.dart
 .env
+.env.*
+!.env.example
 *.pem
 
 # IntelliJ / Android Studio
@@ -24,7 +45,8 @@ lib/config/api_keys.dart
 .idea/
 
 # Visual Studio Code
-.vscode/
+.vscode/settings.json
+.vscode/launch.json
 *.code-workspace
 
 # Android

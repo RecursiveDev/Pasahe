@@ -1,0 +1,50 @@
+[
+  {
+    "id": "metro_manila",
+    "name": "Metro Manila",
+    "description": "National Capital Region including all 16 cities and 1 municipality",
+    "bounds": {
+      "north": 14.75,
+      "south": 14.35,
+      "east": 121.15,
+      "west": 120.90
+    },
+    "estimatedSize": "150 MB",
+    "zoomLevels": {
+      "min": 10,
+      "max": 16
+    }
+  },
+  {
+    "id": "cebu_metro",
+    "name": "Cebu Metro",
+    "description": "Cebu City and surrounding metropolitan area",
+    "bounds": {
+      "north": 10.45,
+      "south": 10.20,
+      "east": 124.00,
+      "west": 123.75
+    },
+    "estimatedSize": "80 MB",
+    "zoomLevels": {
+      "min": 10,
+      "max": 16
+    }
+  },
+  {
+    "id": "davao_city",
+    "name": "Davao City",
+    "description": "Davao City and surrounding areas",
+    "bounds": {
+      "north": 7.20,
+      "south": 7.00,
+      "east": 125.70,
+      "west": 125.55
+    },
+    "estimatedSize": "60 MB",
+    "zoomLevels": {
+      "min": 10,
+      "max": 16
+    }
+  }
+]

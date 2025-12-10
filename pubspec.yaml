@@ -48,6 +48,15 @@ dependencies:
   get_it: ^7.6.0
   injectable: ^2.3.0
 
+  # Offline tile caching for flutter_map
+  flutter_map_tile_caching: ^10.1.1
+
+  # Connectivity detection
+  connectivity_plus: ^6.0.3
+
+  # Path utilities
+  path: ^1.9.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -78,6 +87,7 @@ flutter:
   assets:
     - .env
     - assets/data/
+    - assets/data/regions.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

@@ -15,6 +15,7 @@ import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/onboarding_screen.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/splash_screen.dart';
 import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
+import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
 import 'package:ph_fare_calculator/src/services/fare_comparison_service.dart';
 import 'package:ph_fare_calculator/src/services/geocoding/geocoding_service.dart';
 import 'package:ph_fare_calculator/src/services/routing/routing_service.dart';
@@ -32,6 +33,7 @@ void main() {
   late MockRoutingService mockRoutingService;
   late MockHybridEngine mockHybridEngine;
   late MockFareComparisonService mockFareComparisonService;
+  late MockConnectivityService mockConnectivityService;
 
   setUp(() async {
     await GetIt.instance.reset();
@@ -44,6 +46,7 @@ void main() {
     mockRoutingService = MockRoutingService();
     mockHybridEngine = MockHybridEngine();
     mockFareComparisonService = MockFareComparisonService();
+    mockConnectivityService = MockConnectivityService();
 
     // Register mocks - SplashScreen will try to register real ones but catch the error
     // We ensure allowReassignment is false so that configureDependencies throws and we keep our mocks
@@ -55,6 +58,9 @@ void main() {
     GetIt.instance.registerSingleton<HybridEngine>(mockHybridEngine);
     GetIt.instance.registerSingleton<FareComparisonService>(
       mockFareComparisonService,
+    );
+    GetIt.instance.registerSingleton<ConnectivityService>(
+      mockConnectivityService,
     );
 
     // Mock Path Provider for SplashScreen to use the temp dir

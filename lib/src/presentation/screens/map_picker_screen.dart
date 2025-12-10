@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../core/di/injection.dart';
+import '../../services/offline/offline_map_service.dart';
+import '../widgets/offline_indicator.dart';
+
 /// A modern full-screen map picker with floating UI elements and animations.
 /// Allows users to select a location by dragging the map or tapping.
+/// Supports offline tile caching via FMTC.
 class MapPickerScreen extends StatefulWidget {
   /// Initial location to center the map on
   final LatLng? initialLocation;
@@ -151,6 +156,13 @@ class _MapPickerScreenState extends State<MapPickerScreen>
           // Floating search bar at top
           _buildFloatingSearchBar(theme, colorScheme),
 
+          // Offline indicator badge (top right)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 72,
+            right: 16,
+            child: const OfflineIndicatorBadge(),
+          ),
+
           // Bottom location card
           _buildBottomLocationCard(theme, colorScheme),
         ],
@@ -231,14 +243,23 @@ class _MapPickerScreenState extends State<MapPickerScreen>
             flags: InteractiveFlag.all,
           ),
         ),
-        children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.ph_fare_calculator',
-          ),
-        ],
+        children: [_buildTileLayer()],
       ),
     );
+  }
+
+  /// Builds the tile layer, using cached tiles when available.
+  Widget _buildTileLayer() {
+    try {
+      final offlineMapService = getIt<OfflineMapService>();
+      return offlineMapService.getCachedTileLayer();
+    } catch (_) {
+      // Fall back to network tiles if service not initialized
+      return TileLayer(
+        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        userAgentPackageName: 'com.ph_fare_calculator',
+      );
+    }
   }
 
   Widget _buildAnimatedCenterPin(ColorScheme colorScheme) {

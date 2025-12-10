@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../core/di/injection.dart';
+import '../../models/map_region.dart';
+import '../../services/offline/offline_map_service.dart';
 import 'reference_screen.dart';
+import 'region_download_screen.dart';
 import 'saved_routes_screen.dart';
 
 /// Menu item data model for the offline menu.
@@ -11,6 +15,7 @@ class _MenuItemData {
   final Color iconBackgroundColor;
   final Color iconColor;
   final Widget destination;
+  final String? badge;
 
   const _MenuItemData({
     required this.title,
@@ -19,11 +24,12 @@ class _MenuItemData {
     required this.iconBackgroundColor,
     required this.iconColor,
     required this.destination,
+    this.badge,
   });
 }
 
 /// Offline menu screen with modern UI/UX design.
-/// Provides access to saved routes and static reference data.
+/// Provides access to saved routes, static reference data, and offline maps.
 class OfflineMenuScreen extends StatefulWidget {
   const OfflineMenuScreen({super.key});
 
@@ -40,47 +46,59 @@ class _OfflineMenuScreenState extends State<OfflineMenuScreen>
   late List<Animation<double>> _itemFadeAnimations;
   late List<Animation<Offset>> _itemSlideAnimations;
 
+  StorageInfo? _storageInfo;
+
   /// Menu items configuration
-  List<_MenuItemData> get _menuItems => [
-    _MenuItemData(
-      title: 'Saved Routes',
-      description:
-          'View your saved fare estimates and quickly access previous calculations.',
-      icon: Icons.bookmark_rounded,
-      iconBackgroundColor: Theme.of(
-        context,
-      ).colorScheme.secondary.withValues(alpha: 0.15),
-      iconColor: Theme.of(context).colorScheme.secondary,
-      destination: const SavedRoutesScreen(),
-    ),
-    _MenuItemData(
-      title: 'Fare Reference',
-      description:
-          'Browse fare matrices for trains, ferries, and discount information.',
-      icon: Icons.table_chart_rounded,
-      iconBackgroundColor: Theme.of(
-        context,
-      ).colorScheme.primary.withValues(alpha: 0.12),
-      iconColor: Theme.of(context).colorScheme.primary,
-      destination: const ReferenceScreen(),
-    ),
-    _MenuItemData(
-      title: 'Discount Guide',
-      description:
-          'Learn about available discounts for students, seniors, and PWD.',
-      icon: Icons.percent_rounded,
-      iconBackgroundColor: Theme.of(
-        context,
-      ).colorScheme.tertiary.withValues(alpha: 0.12),
-      iconColor: Theme.of(context).colorScheme.tertiary,
-      destination: const ReferenceScreen(),
-    ),
-  ];
+  List<_MenuItemData> _getMenuItems(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return [
+      _MenuItemData(
+        title: 'Saved Routes',
+        description:
+            'View your saved fare estimates and quickly access previous calculations.',
+        icon: Icons.bookmark_rounded,
+        iconBackgroundColor: colorScheme.secondary.withValues(alpha: 0.15),
+        iconColor: colorScheme.secondary,
+        destination: const SavedRoutesScreen(),
+      ),
+      _MenuItemData(
+        title: 'Download Maps',
+        description:
+            'Download map regions for offline use. View maps without internet.',
+        icon: Icons.download_for_offline_rounded,
+        iconBackgroundColor: colorScheme.primary.withValues(alpha: 0.15),
+        iconColor: colorScheme.primary,
+        destination: const RegionDownloadScreen(),
+        badge: _storageInfo?.mapCacheFormatted,
+      ),
+      _MenuItemData(
+        title: 'Fare Reference',
+        description:
+            'Browse fare matrices for trains, ferries, and discount information.',
+        icon: Icons.table_chart_rounded,
+        iconBackgroundColor: colorScheme.tertiary.withValues(alpha: 0.12),
+        iconColor: colorScheme.tertiary,
+        destination: const ReferenceScreen(),
+      ),
+      _MenuItemData(
+        title: 'Discount Guide',
+        description:
+            'Learn about available discounts for students, seniors, and PWD.',
+        icon: Icons.percent_rounded,
+        iconBackgroundColor: Colors.green.withValues(alpha: 0.12),
+        iconColor: Colors.green,
+        destination: const ReferenceScreen(),
+      ),
+    ];
+  }
 
   @override
   void initState() {
     super.initState();
     _initAnimations();
+    _loadStorageInfo();
   }
 
   void _initAnimations() {
@@ -112,9 +130,9 @@ class _OfflineMenuScreenState extends State<OfflineMenuScreen>
     _itemFadeAnimations = [];
     _itemSlideAnimations = [];
 
-    for (int i = 0; i < 3; i++) {
-      final startInterval = 0.2 + (i * 0.2);
-      final endInterval = (startInterval + 0.4).clamp(0.0, 1.0);
+    for (int i = 0; i < 4; i++) {
+      final startInterval = 0.15 + (i * 0.15);
+      final endInterval = (startInterval + 0.35).clamp(0.0, 1.0);
 
       _itemFadeAnimations.add(
         Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -144,6 +162,19 @@ class _OfflineMenuScreenState extends State<OfflineMenuScreen>
     _listController.forward();
   }
 
+  Future<void> _loadStorageInfo() async {
+    try {
+      final offlineMapService = getIt<OfflineMapService>();
+      await offlineMapService.initialize();
+      final info = await offlineMapService.getStorageUsage();
+      if (mounted) {
+        setState(() => _storageInfo = info);
+      }
+    } catch (_) {
+      // Ignore errors - storage info is optional
+    }
+  }
+
   @override
   void dispose() {
     _headerController.dispose();
@@ -155,6 +186,7 @@ class _OfflineMenuScreenState extends State<OfflineMenuScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final menuItems = _getMenuItems(context);
 
     return Scaffold(
       body: CustomScrollView(
@@ -189,18 +221,18 @@ class _OfflineMenuScreenState extends State<OfflineMenuScreen>
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                if (index >= _menuItems.length) return null;
+                if (index >= menuItems.length) return null;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: FadeTransition(
                     opacity: _itemFadeAnimations[index],
                     child: SlideTransition(
                       position: _itemSlideAnimations[index],
-                      child: _buildMenuCard(context, _menuItems[index]),
+                      child: _buildMenuCard(context, menuItems[index]),
                     ),
                   ),
                 );
-              }, childCount: _menuItems.length),
+              }, childCount: menuItems.length),
             ),
           ),
 
@@ -278,7 +310,7 @@ class _OfflineMenuScreenState extends State<OfflineMenuScreen>
 
               // Description
               Text(
-                'Access fare information without internet.',
+                'Access fare information and maps without internet.',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white.withValues(alpha: 0.9),
                 ),
@@ -290,7 +322,7 @@ class _OfflineMenuScreenState extends State<OfflineMenuScreen>
     );
   }
 
-  /// Builds a menu card with icon, title, and description.
+  /// Builds a menu card with icon, title, description, and optional badge.
   Widget _buildMenuCard(BuildContext context, _MenuItemData item) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -330,11 +362,35 @@ class _OfflineMenuScreenState extends State<OfflineMenuScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        item.title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            item.title,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          if (item.badge != null) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colorScheme.secondaryContainer,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                item.badge!,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: colorScheme.onSecondaryContainer,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Text(
