@@ -1,50 +1,560 @@
 [
   {
-    "id": "metro_manila",
-    "name": "Metro Manila",
-    "description": "National Capital Region including all 16 cities and 1 municipality",
+    "id": "luzon",
+    "name": "Luzon",
+    "description": "Luzon island group - the largest and most populous island group in the Philippines",
+    "type": "island_group",
+    "parentId": null,
     "bounds": {
-      "north": 14.75,
-      "south": 14.35,
-      "east": 121.15,
-      "west": 120.90
+      "southWestLat": 8.30,
+      "southWestLng": 116.90,
+      "northEastLat": 21.20,
+      "northEastLng": 124.60
     },
-    "estimatedSize": "150 MB",
-    "zoomLevels": {
-      "min": 10,
-      "max": 16
-    }
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 800,
+    "estimatedTileCount": 80000,
+    "priority": 1
   },
   {
-    "id": "cebu_metro",
-    "name": "Cebu Metro",
-    "description": "Cebu City and surrounding metropolitan area",
+    "id": "luzon_main",
+    "name": "Luzon Main Island",
+    "description": "Main island of Luzon including Metro Manila, Central Luzon, and Bicol Peninsula",
+    "type": "island",
+    "parentId": "luzon",
     "bounds": {
-      "north": 10.45,
-      "south": 10.20,
-      "east": 124.00,
-      "west": 123.75
+      "southWestLat": 12.50,
+      "southWestLng": 119.50,
+      "northEastLat": 18.70,
+      "northEastLng": 124.50
     },
-    "estimatedSize": "80 MB",
-    "zoomLevels": {
-      "min": 10,
-      "max": 16
-    }
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 450,
+    "estimatedTileCount": 45000,
+    "priority": 1
   },
   {
-    "id": "davao_city",
-    "name": "Davao City",
-    "description": "Davao City and surrounding areas",
+    "id": "mindoro",
+    "name": "Mindoro",
+    "description": "Mindoro island - includes Oriental and Occidental Mindoro provinces",
+    "type": "island",
+    "parentId": "luzon",
     "bounds": {
-      "north": 7.20,
-      "south": 7.00,
-      "east": 125.70,
-      "west": 125.55
+      "southWestLat": 12.10,
+      "southWestLng": 120.20,
+      "northEastLat": 13.60,
+      "northEastLng": 121.60
     },
-    "estimatedSize": "60 MB",
-    "zoomLevels": {
-      "min": 10,
-      "max": 16
-    }
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 80,
+    "estimatedTileCount": 8000,
+    "priority": 2
+  },
+  {
+    "id": "palawan",
+    "name": "Palawan",
+    "description": "Palawan province - includes Puerto Princesa, El Nido, Coron, and Calamian Islands",
+    "type": "island",
+    "parentId": "luzon",
+    "bounds": {
+      "southWestLat": 8.30,
+      "southWestLng": 116.90,
+      "northEastLat": 12.50,
+      "northEastLng": 120.40
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 150,
+    "estimatedTileCount": 15000,
+    "priority": 3
+  },
+  {
+    "id": "catanduanes",
+    "name": "Catanduanes",
+    "description": "Catanduanes island province - east of Bicol Region",
+    "type": "island",
+    "parentId": "luzon",
+    "bounds": {
+      "southWestLat": 13.50,
+      "southWestLng": 124.00,
+      "northEastLat": 14.10,
+      "northEastLng": 124.50
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 25,
+    "estimatedTileCount": 2500,
+    "priority": 4
+  },
+  {
+    "id": "marinduque",
+    "name": "Marinduque",
+    "description": "Marinduque island province - heart-shaped island south of Quezon",
+    "type": "island",
+    "parentId": "luzon",
+    "bounds": {
+      "southWestLat": 13.15,
+      "southWestLng": 121.80,
+      "northEastLat": 13.60,
+      "northEastLng": 122.20
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 20,
+    "estimatedTileCount": 2000,
+    "priority": 5
+  },
+  {
+    "id": "masbate",
+    "name": "Masbate",
+    "description": "Masbate province - includes Ticao and Burias islands",
+    "type": "island",
+    "parentId": "luzon",
+    "bounds": {
+      "southWestLat": 11.70,
+      "southWestLng": 122.90,
+      "northEastLat": 13.15,
+      "northEastLng": 124.10
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 45,
+    "estimatedTileCount": 4500,
+    "priority": 6
+  },
+  {
+    "id": "romblon",
+    "name": "Romblon Group",
+    "description": "Romblon province - archipelago of Tablas, Romblon, and Sibuyan islands",
+    "type": "island",
+    "parentId": "luzon",
+    "bounds": {
+      "southWestLat": 11.70,
+      "southWestLng": 121.80,
+      "northEastLat": 12.70,
+      "northEastLng": 122.70
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 35,
+    "estimatedTileCount": 3500,
+    "priority": 7
+  },
+  {
+    "id": "batanes",
+    "name": "Batanes",
+    "description": "Batanes province - northernmost islands including Batan, Sabtang, Itbayat",
+    "type": "island",
+    "parentId": "luzon",
+    "bounds": {
+      "southWestLat": 20.20,
+      "southWestLng": 121.70,
+      "northEastLat": 21.20,
+      "northEastLng": 122.10
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 15,
+    "estimatedTileCount": 1500,
+    "priority": 8
+  },
+  {
+    "id": "polillo",
+    "name": "Polillo Islands",
+    "description": "Polillo Islands - group off eastern coast of Quezon province",
+    "type": "island",
+    "parentId": "luzon",
+    "bounds": {
+      "southWestLat": 14.60,
+      "southWestLng": 121.80,
+      "northEastLat": 15.20,
+      "northEastLng": 122.20
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 18,
+    "estimatedTileCount": 1800,
+    "priority": 9
+  },
+  {
+    "id": "lubang",
+    "name": "Lubang Islands",
+    "description": "Lubang Islands - group west of Mindoro and Batangas",
+    "type": "island",
+    "parentId": "luzon",
+    "bounds": {
+      "southWestLat": 13.60,
+      "southWestLng": 120.00,
+      "northEastLat": 13.90,
+      "northEastLng": 120.25
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 10,
+    "estimatedTileCount": 1000,
+    "priority": 10
+  },
+  {
+    "id": "visayas",
+    "name": "Visayas",
+    "description": "Visayas island group - the central island group of the Philippines",
+    "type": "island_group",
+    "parentId": null,
+    "bounds": {
+      "southWestLat": 9.00,
+      "southWestLng": 121.80,
+      "northEastLat": 12.70,
+      "northEastLng": 126.10
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 480,
+    "estimatedTileCount": 48000,
+    "priority": 2
+  },
+  {
+    "id": "panay",
+    "name": "Panay",
+    "description": "Panay island - includes Iloilo City, Roxas City, Kalibo, and Boracay",
+    "type": "island",
+    "parentId": "visayas",
+    "bounds": {
+      "southWestLat": 10.40,
+      "southWestLng": 121.80,
+      "northEastLat": 12.10,
+      "northEastLng": 123.20
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 75,
+    "estimatedTileCount": 7500,
+    "priority": 1
+  },
+  {
+    "id": "negros",
+    "name": "Negros",
+    "description": "Negros island - fourth largest island, includes Bacolod and Dumaguete",
+    "type": "island",
+    "parentId": "visayas",
+    "bounds": {
+      "southWestLat": 9.00,
+      "southWestLng": 122.30,
+      "northEastLat": 11.10,
+      "northEastLng": 123.60
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 85,
+    "estimatedTileCount": 8500,
+    "priority": 2
+  },
+  {
+    "id": "cebu",
+    "name": "Cebu",
+    "description": "Cebu island - center of Visayan commerce, includes Cebu City and Mactan",
+    "type": "island",
+    "parentId": "visayas",
+    "bounds": {
+      "southWestLat": 9.40,
+      "southWestLng": 123.20,
+      "northEastLat": 11.40,
+      "northEastLng": 124.10
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 65,
+    "estimatedTileCount": 6500,
+    "priority": 3
+  },
+  {
+    "id": "bohol",
+    "name": "Bohol",
+    "description": "Bohol island - includes Tagbilaran and Panglao Island",
+    "type": "island",
+    "parentId": "visayas",
+    "bounds": {
+      "southWestLat": 9.50,
+      "southWestLng": 123.70,
+      "northEastLat": 10.20,
+      "northEastLng": 124.70
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 55,
+    "estimatedTileCount": 5500,
+    "priority": 4
+  },
+  {
+    "id": "leyte",
+    "name": "Leyte",
+    "description": "Leyte island - includes Tacloban and Ormoc, site of WWII landing",
+    "type": "island",
+    "parentId": "visayas",
+    "bounds": {
+      "southWestLat": 9.90,
+      "southWestLng": 124.20,
+      "northEastLat": 11.60,
+      "northEastLng": 125.30
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 70,
+    "estimatedTileCount": 7000,
+    "priority": 5
+  },
+  {
+    "id": "samar",
+    "name": "Samar",
+    "description": "Samar island - third largest island, includes Northern, Western, and Eastern Samar",
+    "type": "island",
+    "parentId": "visayas",
+    "bounds": {
+      "southWestLat": 10.90,
+      "southWestLng": 124.10,
+      "northEastLat": 12.70,
+      "northEastLng": 126.10
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 90,
+    "estimatedTileCount": 9000,
+    "priority": 6
+  },
+  {
+    "id": "siquijor",
+    "name": "Siquijor",
+    "description": "Siquijor island province - small mystical island south of Cebu",
+    "type": "island",
+    "parentId": "visayas",
+    "bounds": {
+      "southWestLat": 9.10,
+      "southWestLng": 123.40,
+      "northEastLat": 9.35,
+      "northEastLng": 123.70
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 12,
+    "estimatedTileCount": 1200,
+    "priority": 7
+  },
+  {
+    "id": "guimaras",
+    "name": "Guimaras",
+    "description": "Guimaras island province - between Panay and Negros, known for mangoes",
+    "type": "island",
+    "parentId": "visayas",
+    "bounds": {
+      "southWestLat": 10.40,
+      "southWestLng": 122.50,
+      "northEastLat": 10.75,
+      "northEastLng": 122.80
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 15,
+    "estimatedTileCount": 1500,
+    "priority": 8
+  },
+  {
+    "id": "biliran",
+    "name": "Biliran",
+    "description": "Biliran island province - north of Leyte",
+    "type": "island",
+    "parentId": "visayas",
+    "bounds": {
+      "southWestLat": 11.40,
+      "southWestLng": 124.30,
+      "northEastLat": 11.80,
+      "northEastLng": 124.60
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 14,
+    "estimatedTileCount": 1400,
+    "priority": 9
+  },
+  {
+    "id": "bantayan",
+    "name": "Bantayan",
+    "description": "Bantayan Island - tourist destination west of Northern Cebu",
+    "type": "island",
+    "parentId": "visayas",
+    "bounds": {
+      "southWestLat": 11.10,
+      "southWestLng": 123.60,
+      "northEastLat": 11.35,
+      "northEastLng": 123.85
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 10,
+    "estimatedTileCount": 1000,
+    "priority": 10
+  },
+  {
+    "id": "camotes",
+    "name": "Camotes Group",
+    "description": "Camotes Islands - island group east of Cebu",
+    "type": "island",
+    "parentId": "visayas",
+    "bounds": {
+      "southWestLat": 10.50,
+      "southWestLng": 124.20,
+      "northEastLat": 10.80,
+      "northEastLng": 124.50
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 12,
+    "estimatedTileCount": 1200,
+    "priority": 11
+  },
+  {
+    "id": "mindanao",
+    "name": "Mindanao",
+    "description": "Mindanao island group - the second largest island group in the Philippines",
+    "type": "island_group",
+    "parentId": null,
+    "bounds": {
+      "southWestLat": 4.50,
+      "southWestLng": 119.30,
+      "northEastLat": 10.10,
+      "northEastLng": 126.70
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 550,
+    "estimatedTileCount": 55000,
+    "priority": 3
+  },
+  {
+    "id": "mindanao_main",
+    "name": "Mindanao Main Island",
+    "description": "Main island of Mindanao - includes Davao, Cagayan de Oro, Zamboanga, General Santos",
+    "type": "island",
+    "parentId": "mindanao",
+    "bounds": {
+      "southWestLat": 5.30,
+      "southWestLng": 121.80,
+      "northEastLat": 10.00,
+      "northEastLng": 126.70
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 400,
+    "estimatedTileCount": 40000,
+    "priority": 1
+  },
+  {
+    "id": "basilan",
+    "name": "Basilan",
+    "description": "Basilan island province - south of Zamboanga Peninsula",
+    "type": "island",
+    "parentId": "mindanao",
+    "bounds": {
+      "southWestLat": 6.25,
+      "southWestLng": 121.70,
+      "northEastLat": 6.75,
+      "northEastLng": 122.40
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 25,
+    "estimatedTileCount": 2500,
+    "priority": 2
+  },
+  {
+    "id": "sulu",
+    "name": "Sulu Archipelago",
+    "description": "Sulu Archipelago - chain from Basilan to Borneo, includes Jolo and Tawi-Tawi",
+    "type": "island",
+    "parentId": "mindanao",
+    "bounds": {
+      "southWestLat": 4.50,
+      "southWestLng": 119.30,
+      "northEastLat": 6.50,
+      "northEastLng": 121.50
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 60,
+    "estimatedTileCount": 6000,
+    "priority": 3
+  },
+  {
+    "id": "camiguin",
+    "name": "Camiguin",
+    "description": "Camiguin island province - pear-shaped island off northern Mindanao coast",
+    "type": "island",
+    "parentId": "mindanao",
+    "bounds": {
+      "southWestLat": 9.10,
+      "southWestLng": 124.60,
+      "northEastLat": 9.30,
+      "northEastLng": 124.85
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 10,
+    "estimatedTileCount": 1000,
+    "priority": 4
+  },
+  {
+    "id": "siargao",
+    "name": "Siargao",
+    "description": "Siargao island - surfing capital of the Philippines, Surigao del Norte",
+    "type": "island",
+    "parentId": "mindanao",
+    "bounds": {
+      "southWestLat": 9.60,
+      "southWestLng": 125.90,
+      "northEastLat": 10.10,
+      "northEastLng": 126.20
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 18,
+    "estimatedTileCount": 1800,
+    "priority": 5
+  },
+  {
+    "id": "dinagat",
+    "name": "Dinagat Islands",
+    "description": "Dinagat Islands province - north of Surigao",
+    "type": "island",
+    "parentId": "mindanao",
+    "bounds": {
+      "southWestLat": 9.80,
+      "southWestLng": 125.40,
+      "northEastLat": 10.50,
+      "northEastLng": 125.70
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 20,
+    "estimatedTileCount": 2000,
+    "priority": 6
+  },
+  {
+    "id": "samal",
+    "name": "Samal Island",
+    "description": "Island Garden City of Samal - resort island in Davao Gulf",
+    "type": "island",
+    "parentId": "mindanao",
+    "bounds": {
+      "southWestLat": 6.90,
+      "southWestLng": 125.60,
+      "northEastLat": 7.20,
+      "northEastLng": 125.85
+    },
+    "minZoom": 8,
+    "maxZoom": 14,
+    "estimatedSizeMB": 15,
+    "estimatedTileCount": 1500,
+    "priority": 7
   }
 ]

@@ -85,6 +85,291 @@ void main() {
       });
     });
 
+    group('Hierarchical region display logic', () {
+      test('island group contains multiple islands', () {
+        final group = MapRegion(
+          id: 'luzon',
+          name: 'Luzon',
+          description: 'Luzon island group',
+          southWestLat: 7.5,
+          southWestLng: 116.9,
+          northEastLat: 21.2,
+          northEastLng: 124.6,
+          estimatedTileCount: 80000,
+          estimatedSizeMB: 800,
+          type: RegionType.islandGroup,
+          priority: 1,
+        );
+
+        final islands = [
+          MapRegion(
+            id: 'luzon_main',
+            name: 'Luzon Main Island',
+            description: 'Main island',
+            southWestLat: 12.5,
+            southWestLng: 119.5,
+            northEastLat: 18.7,
+            northEastLng: 124.5,
+            estimatedTileCount: 45000,
+            estimatedSizeMB: 450,
+            type: RegionType.island,
+            parentId: 'luzon',
+            priority: 1,
+          ),
+          MapRegion(
+            id: 'palawan',
+            name: 'Palawan',
+            description: 'Palawan province',
+            southWestLat: 8.30,
+            southWestLng: 116.90,
+            northEastLat: 12.50,
+            northEastLng: 120.40,
+            estimatedTileCount: 15000,
+            estimatedSizeMB: 150,
+            type: RegionType.island,
+            parentId: 'luzon',
+            priority: 3,
+          ),
+        ];
+
+        expect(group.isParent, isTrue);
+        expect(islands.every((i) => i.parentId == group.id), isTrue);
+        expect(islands.every((i) => i.isChild), isTrue);
+      });
+
+      test('calculates total size for island group', () {
+        final islands = [
+          MapRegion(
+            id: 'luzon_main',
+            name: 'Luzon Main Island',
+            description: 'Main island',
+            southWestLat: 12.5,
+            southWestLng: 119.5,
+            northEastLat: 18.7,
+            northEastLng: 124.5,
+            estimatedTileCount: 45000,
+            estimatedSizeMB: 450,
+            type: RegionType.island,
+            parentId: 'luzon',
+          ),
+          MapRegion(
+            id: 'palawan',
+            name: 'Palawan',
+            description: 'Palawan province',
+            southWestLat: 8.30,
+            southWestLng: 116.90,
+            northEastLat: 12.50,
+            northEastLng: 120.40,
+            estimatedTileCount: 15000,
+            estimatedSizeMB: 150,
+            type: RegionType.island,
+            parentId: 'luzon',
+          ),
+          MapRegion(
+            id: 'mindoro',
+            name: 'Mindoro',
+            description: 'Mindoro island',
+            southWestLat: 12.10,
+            southWestLng: 120.20,
+            northEastLat: 13.60,
+            northEastLng: 121.60,
+            estimatedTileCount: 8000,
+            estimatedSizeMB: 80,
+            type: RegionType.island,
+            parentId: 'luzon',
+          ),
+        ];
+
+        final totalSize = islands.fold<int>(0, (sum, i) => sum + i.estimatedSizeMB);
+        expect(totalSize, 680);
+      });
+
+      test('counts downloaded islands in group', () {
+        final islands = [
+          MapRegion(
+            id: 'luzon_main',
+            name: 'Luzon Main Island',
+            description: 'Main island',
+            southWestLat: 12.5,
+            southWestLng: 119.5,
+            northEastLat: 18.7,
+            northEastLng: 124.5,
+            estimatedTileCount: 45000,
+            estimatedSizeMB: 450,
+            type: RegionType.island,
+            parentId: 'luzon',
+            status: DownloadStatus.downloaded,
+          ),
+          MapRegion(
+            id: 'palawan',
+            name: 'Palawan',
+            description: 'Palawan province',
+            southWestLat: 8.30,
+            southWestLng: 116.90,
+            northEastLat: 12.50,
+            northEastLng: 120.40,
+            estimatedTileCount: 15000,
+            estimatedSizeMB: 150,
+            type: RegionType.island,
+            parentId: 'luzon',
+            status: DownloadStatus.notDownloaded,
+          ),
+          MapRegion(
+            id: 'mindoro',
+            name: 'Mindoro',
+            description: 'Mindoro island',
+            southWestLat: 12.10,
+            southWestLng: 120.20,
+            northEastLat: 13.60,
+            northEastLng: 121.60,
+            estimatedTileCount: 8000,
+            estimatedSizeMB: 80,
+            type: RegionType.island,
+            parentId: 'luzon',
+            status: DownloadStatus.downloaded,
+          ),
+        ];
+
+        final downloadedCount = islands.where((i) => i.status.isAvailableOffline).length;
+        expect(downloadedCount, 2);
+
+        final allDownloaded = islands.every((i) => i.status.isAvailableOffline);
+        expect(allDownloaded, isFalse);
+
+        final partiallyDownloaded = downloadedCount > 0 && !allDownloaded;
+        expect(partiallyDownloaded, isTrue);
+      });
+
+      test('determines group status from children', () {
+        // All downloaded
+        final allDownloadedIslands = [
+          MapRegion(
+            id: 'island1',
+            name: 'Island 1',
+            description: '',
+            southWestLat: 10.0,
+            southWestLng: 120.0,
+            northEastLat: 11.0,
+            northEastLng: 121.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            status: DownloadStatus.downloaded,
+          ),
+          MapRegion(
+            id: 'island2',
+            name: 'Island 2',
+            description: '',
+            southWestLat: 11.0,
+            southWestLng: 121.0,
+            northEastLat: 12.0,
+            northEastLng: 122.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            status: DownloadStatus.downloaded,
+          ),
+        ];
+
+        expect(
+          allDownloadedIslands.every((i) => i.status == DownloadStatus.downloaded),
+          isTrue,
+        );
+
+        // Any downloading
+        final mixedIslands = [
+          MapRegion(
+            id: 'island1',
+            name: 'Island 1',
+            description: '',
+            southWestLat: 10.0,
+            southWestLng: 120.0,
+            northEastLat: 11.0,
+            northEastLng: 121.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            status: DownloadStatus.downloaded,
+          ),
+          MapRegion(
+            id: 'island2',
+            name: 'Island 2',
+            description: '',
+            southWestLat: 11.0,
+            southWestLng: 121.0,
+            northEastLat: 12.0,
+            northEastLng: 122.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            status: DownloadStatus.downloading,
+          ),
+        ];
+
+        expect(
+          mixedIslands.any((i) => i.status == DownloadStatus.downloading),
+          isTrue,
+        );
+      });
+
+      test('sorts islands by priority', () {
+        final islands = [
+          MapRegion(
+            id: 'island3',
+            name: 'Third Island',
+            description: '',
+            southWestLat: 10.0,
+            southWestLng: 120.0,
+            northEastLat: 11.0,
+            northEastLng: 121.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            priority: 3,
+          ),
+          MapRegion(
+            id: 'island1',
+            name: 'First Island',
+            description: '',
+            southWestLat: 11.0,
+            southWestLng: 121.0,
+            northEastLat: 12.0,
+            northEastLng: 122.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            priority: 1,
+          ),
+          MapRegion(
+            id: 'island2',
+            name: 'Second Island',
+            description: '',
+            southWestLat: 12.0,
+            southWestLng: 122.0,
+            northEastLat: 13.0,
+            northEastLng: 123.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            priority: 2,
+          ),
+        ];
+
+        islands.sort((a, b) => a.priority.compareTo(b.priority));
+
+        expect(islands[0].id, 'island1');
+        expect(islands[1].id, 'island2');
+        expect(islands[2].id, 'island3');
+      });
+    });
+
     group('Storage display logic', () {
       test('storage info displays MB for small cache', () {
         const info = StorageInfo(
@@ -178,6 +463,129 @@ void main() {
         );
         expect(region.status, DownloadStatus.error);
         // Download/retry icon should be shown
+      });
+    });
+
+    group('Island group action button states', () {
+      test('download all button shown for group with no downloads', () {
+        final islands = [
+          MapRegion(
+            id: 'island1',
+            name: 'Island 1',
+            description: '',
+            southWestLat: 10.0,
+            southWestLng: 120.0,
+            northEastLat: 11.0,
+            northEastLng: 121.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            status: DownloadStatus.notDownloaded,
+          ),
+          MapRegion(
+            id: 'island2',
+            name: 'Island 2',
+            description: '',
+            southWestLat: 11.0,
+            southWestLng: 121.0,
+            northEastLat: 12.0,
+            northEastLng: 122.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            status: DownloadStatus.notDownloaded,
+          ),
+        ];
+
+        final downloadedCount = islands.where((i) => i.status.isAvailableOffline).length;
+        final allDownloaded = downloadedCount == islands.length;
+        final partiallyDownloaded = downloadedCount > 0 && !allDownloaded;
+
+        expect(allDownloaded, isFalse);
+        expect(partiallyDownloaded, isFalse);
+        // "Download" button should be shown
+      });
+
+      test('complete button shown for partially downloaded group', () {
+        final islands = [
+          MapRegion(
+            id: 'island1',
+            name: 'Island 1',
+            description: '',
+            southWestLat: 10.0,
+            southWestLng: 120.0,
+            northEastLat: 11.0,
+            northEastLng: 121.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            status: DownloadStatus.downloaded,
+          ),
+          MapRegion(
+            id: 'island2',
+            name: 'Island 2',
+            description: '',
+            southWestLat: 11.0,
+            southWestLng: 121.0,
+            northEastLat: 12.0,
+            northEastLng: 122.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            status: DownloadStatus.notDownloaded,
+          ),
+        ];
+
+        final downloadedCount = islands.where((i) => i.status.isAvailableOffline).length;
+        final allDownloaded = downloadedCount == islands.length;
+        final partiallyDownloaded = downloadedCount > 0 && !allDownloaded;
+
+        expect(allDownloaded, isFalse);
+        expect(partiallyDownloaded, isTrue);
+        // "Complete" button should be shown
+      });
+
+      test('delete all button shown for fully downloaded group', () {
+        final islands = [
+          MapRegion(
+            id: 'island1',
+            name: 'Island 1',
+            description: '',
+            southWestLat: 10.0,
+            southWestLng: 120.0,
+            northEastLat: 11.0,
+            northEastLng: 121.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            status: DownloadStatus.downloaded,
+          ),
+          MapRegion(
+            id: 'island2',
+            name: 'Island 2',
+            description: '',
+            southWestLat: 11.0,
+            southWestLng: 121.0,
+            northEastLat: 12.0,
+            northEastLng: 122.0,
+            estimatedTileCount: 1000,
+            estimatedSizeMB: 10,
+            type: RegionType.island,
+            parentId: 'group',
+            status: DownloadStatus.downloaded,
+          ),
+        ];
+
+        final downloadedCount = islands.where((i) => i.status.isAvailableOffline).length;
+        final allDownloaded = downloadedCount == islands.length;
+
+        expect(allDownloaded, isTrue);
+        // Menu with "Delete All" should be shown
       });
     });
   });

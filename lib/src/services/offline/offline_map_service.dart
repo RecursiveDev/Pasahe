@@ -9,15 +9,18 @@ import 'package:latlong2/latlong.dart';
 
 import '../../models/connectivity_status.dart';
 import '../../models/map_region.dart';
+import '../../repositories/region_repository.dart';
 import '../connectivity/connectivity_service.dart';
 
 /// Service for managing offline map tiles using flutter_map_tile_caching (FMTC).
 ///
 /// Provides functionality to download, delete, and manage map regions for
 /// offline use. Supports pause/resume of downloads and progress tracking.
+/// Now uses [RegionRepository] to load hierarchical regions from JSON.
 @lazySingleton
 class OfflineMapService {
   final ConnectivityService _connectivityService;
+  final RegionRepository _regionRepository;
 
   /// Stream controller for download progress updates.
   final StreamController<RegionDownloadProgress> _progressController =
@@ -35,6 +38,9 @@ class OfflineMapService {
   /// Hive box for storing region metadata.
   Box<MapRegion>? _regionsBox;
 
+  /// All regions loaded from JSON.
+  List<MapRegion> _allRegions = [];
+
   /// Store name for the tile cache.
   static const String _storeName = 'ph_fare_calculator_tiles';
 
@@ -43,7 +49,7 @@ class OfflineMapService {
 
   /// Creates a new [OfflineMapService] instance.
   @factoryMethod
-  OfflineMapService(this._connectivityService);
+  OfflineMapService(this._connectivityService, this._regionRepository);
 
   /// Stream of download progress updates.
   Stream<RegionDownloadProgress> get progressStream =>
@@ -51,6 +57,9 @@ class OfflineMapService {
 
   /// Whether a download is currently in progress.
   bool get isDownloading => _isDownloading;
+
+  /// Gets all loaded regions.
+  List<MapRegion> get allRegions => List.unmodifiable(_allRegions);
 
   /// Initializes the FMTC backend and store.
   ///
@@ -70,13 +79,6 @@ class OfflineMapService {
     } catch (e) {
       // ignore: avoid_print
       print('Failed to initialize FMTC backend: $e');
-      // If FMTC fails, we can't really do anything offline map related,
-      // but we shouldn't crash the app.
-      // We'll leave _isInitialized as false so calls to store throw or handle it.
-      // However, we still might want to try initializing Hive metadata just in case
-      // we can show "Downloaded" status even if tiles are inaccessible?
-      // Actually, if backend fails, tiles likely won't load.
-      // But we proceed to catch everything to avoid crash.
     }
 
     // Initialize Hive persistence for regions
@@ -86,29 +88,71 @@ class OfflineMapService {
       } else {
         _regionsBox = Hive.box<MapRegion>(_regionsBoxName);
       }
-
-      // Restore saved regions state
-      if (_regionsBox != null) {
-        for (final savedRegion in _regionsBox!.values) {
-          final predefined = PredefinedRegions.getById(savedRegion.id);
-          if (predefined != null) {
-            // Restore state from persistence
-            predefined.status = savedRegion.status;
-            predefined.downloadProgress = savedRegion.downloadProgress;
-            predefined.tilesDownloaded = savedRegion.tilesDownloaded;
-            predefined.actualSizeBytes = savedRegion.actualSizeBytes;
-            predefined.lastUpdated = savedRegion.lastUpdated;
-            predefined.errorMessage = savedRegion.errorMessage;
-          }
-        }
-      }
     } catch (e) {
-      // Log error or handle initialization failure
       // ignore: avoid_print
       print('Failed to initialize Hive box for offline maps: $e');
     }
 
+    // Load regions from JSON
+    await _loadRegionsFromJson();
+
+    // Restore saved region states from Hive
+    await _restoreRegionStates();
+
     _isInitialized = true;
+  }
+
+  /// Loads regions from JSON and caches them.
+  Future<void> _loadRegionsFromJson() async {
+    try {
+      _allRegions = await _regionRepository.loadAllRegions();
+    } catch (e) {
+      // ignore: avoid_print
+      print('Failed to load regions from JSON: $e');
+      // Fall back to predefined regions for backward compatibility
+      _allRegions = PredefinedRegions.all;
+    }
+  }
+
+  /// Restores download states from Hive for all regions.
+  Future<void> _restoreRegionStates() async {
+    if (_regionsBox == null) return;
+
+    for (final region in _allRegions) {
+      final savedRegion = _regionsBox!.get(region.id);
+      if (savedRegion != null) {
+        // Restore state from persistence
+        region.status = savedRegion.status;
+        region.downloadProgress = savedRegion.downloadProgress;
+        region.tilesDownloaded = savedRegion.tilesDownloaded;
+        region.actualSizeBytes = savedRegion.actualSizeBytes;
+        region.lastUpdated = savedRegion.lastUpdated;
+        region.errorMessage = savedRegion.errorMessage;
+      }
+    }
+  }
+
+  /// Gets all island groups (parent regions).
+  Future<List<MapRegion>> getIslandGroups() async {
+    return _allRegions
+        .where((r) => r.type == RegionType.islandGroup)
+        .toList()
+      ..sort((a, b) => a.priority.compareTo(b.priority));
+  }
+
+  /// Gets all islands for a given parent group.
+  Future<List<MapRegion>> getIslandsForGroup(String parentId) async {
+    return _allRegions.where((r) => r.parentId == parentId).toList()
+      ..sort((a, b) => a.priority.compareTo(b.priority));
+  }
+
+  /// Gets a region by ID.
+  MapRegion? getRegionById(String id) {
+    try {
+      return _allRegions.firstWhere((r) => r.id == id);
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Gets the FMTC store for use with tile providers.
@@ -192,6 +236,11 @@ class OfflineMapService {
           // Save to Hive
           await _regionsBox?.put(region.id, region);
 
+          // Update parent group status if applicable
+          if (region.parentId != null) {
+            await _updateGroupStatus(region.parentId!);
+          }
+
           break;
         }
       }
@@ -208,6 +257,114 @@ class OfflineMapService {
     } finally {
       _isDownloading = false;
     }
+  }
+
+  /// Downloads all child islands for an island group.
+  ///
+  /// Emits progress for each child region and aggregates total progress.
+  Future<void> downloadIslandGroup(String groupId) async {
+    _ensureInitialized();
+
+    final children = await getIslandsForGroup(groupId);
+
+    if (children.isEmpty) {
+      throw ArgumentError('No islands found for group: $groupId');
+    }
+
+    int totalTiles = children.fold<int>(0, (sum, r) => sum + r.estimatedTileCount);
+    int downloadedTiles = 0;
+
+    final group = getRegionById(groupId);
+    if (group != null) {
+      group.status = DownloadStatus.downloading;
+      await _regionsBox?.put(group.id, group);
+    }
+
+    for (int i = 0; i < children.length; i++) {
+      final child = children[i];
+
+      if (child.status == DownloadStatus.downloaded) {
+        downloadedTiles += child.tilesDownloaded;
+        continue;
+      }
+
+      await for (final progress in downloadRegion(child)) {
+        // Emit aggregated progress for the group
+        if (group != null) {
+          final groupProgress = GroupDownloadProgress(
+            region: group,
+            tilesDownloaded: downloadedTiles + progress.tilesDownloaded,
+            totalTiles: totalTiles,
+            children: children,
+            currentChild: child,
+            currentChildIndex: i,
+          );
+          _progressController.add(groupProgress);
+        }
+      }
+
+      downloadedTiles += child.tilesDownloaded;
+    }
+
+    // Update parent group status
+    await _updateGroupStatus(groupId);
+  }
+
+  /// Updates the parent group's status based on children.
+  Future<void> _updateGroupStatus(String groupId) async {
+    final group = getRegionById(groupId);
+    if (group == null) return;
+
+    final children = await getIslandsForGroup(groupId);
+
+    final allDownloaded = children.every(
+      (c) => c.status == DownloadStatus.downloaded,
+    );
+    final anyDownloading = children.any(
+      (c) => c.status == DownloadStatus.downloading,
+    );
+    final anyError = children.any((c) => c.status == DownloadStatus.error);
+
+    if (allDownloaded) {
+      group.status = DownloadStatus.downloaded;
+      group.downloadProgress = 1.0;
+      group.lastUpdated = DateTime.now();
+    } else if (anyDownloading) {
+      group.status = DownloadStatus.downloading;
+    } else if (anyError) {
+      group.status = DownloadStatus.error;
+    } else {
+      // Calculate partial progress
+      final downloadedCount =
+          children.where((c) => c.status == DownloadStatus.downloaded).length;
+      group.downloadProgress = downloadedCount / children.length;
+      group.status = DownloadStatus.notDownloaded;
+    }
+
+    await _regionsBox?.put(group.id, group);
+  }
+
+  /// Gets the aggregated download status for an island group.
+  Future<DownloadStatus> getGroupDownloadStatus(String groupId) async {
+    final children = await getIslandsForGroup(groupId);
+    if (children.isEmpty) return DownloadStatus.notDownloaded;
+
+    final allDownloaded = children.every(
+      (c) => c.status == DownloadStatus.downloaded,
+    );
+    final anyDownloading = children.any(
+      (c) => c.status == DownloadStatus.downloading,
+    );
+    final anyDownloaded = children.any(
+      (c) => c.status == DownloadStatus.downloaded,
+    );
+    final anyError = children.any((c) => c.status == DownloadStatus.error);
+
+    if (allDownloaded) return DownloadStatus.downloaded;
+    if (anyDownloading) return DownloadStatus.downloading;
+    if (anyError) return DownloadStatus.error;
+    if (anyDownloaded) return DownloadStatus.paused; // Partial download
+    return DownloadStatus.notDownloaded;
   }
 
   /// Pauses the current download.
@@ -253,6 +410,28 @@ class OfflineMapService {
 
     // Remove from Hive
     await _regionsBox?.delete(region.id);
+
+    // Update parent group status if applicable
+    if (region.parentId != null) {
+      await _updateGroupStatus(region.parentId!);
+    }
+  }
+
+  /// Deletes all child islands for an island group.
+  Future<void> deleteIslandGroup(String groupId) async {
+    final children = await getIslandsForGroup(groupId);
+
+    for (final child in children) {
+      await deleteRegion(child);
+    }
+
+    // Update group status
+    final group = getRegionById(groupId);
+    if (group != null) {
+      group.status = DownloadStatus.notDownloaded;
+      group.downloadProgress = 0.0;
+      await _regionsBox?.delete(group.id);
+    }
   }
 
   /// Gets the list of downloaded regions.
@@ -261,10 +440,8 @@ class OfflineMapService {
   Future<List<MapRegion>> getDownloadedRegions() async {
     _ensureInitialized();
 
-    // Filter predefined regions that have been downloaded
-    return PredefinedRegions.all
-        .where((r) => r.status.isAvailableOffline)
-        .toList();
+    // Filter regions that have been downloaded
+    return _allRegions.where((r) => r.status.isAvailableOffline).toList();
   }
 
   /// Gets storage usage information.
@@ -288,13 +465,16 @@ class OfflineMapService {
     await _store!.manage.reset();
 
     // Reset all regions to not downloaded
-    for (final region in PredefinedRegions.all) {
+    for (final region in _allRegions) {
       region.status = DownloadStatus.notDownloaded;
       region.downloadProgress = 0.0;
       region.tilesDownloaded = 0;
       region.actualSizeBytes = null;
       region.lastUpdated = null;
     }
+
+    // Clear Hive box
+    await _regionsBox?.clear();
   }
 
   /// Gets a tile layer that uses the FMTC cache.
@@ -314,8 +494,8 @@ class OfflineMapService {
 
   /// Checks if a point is within any downloaded region.
   bool isPointCached(LatLng point) {
-    for (final region in PredefinedRegions.all) {
-      if (region.status.isAvailableOffline) {
+    for (final region in _allRegions) {
+      if (region.status.isAvailableOffline && region.type == RegionType.island) {
         if (point.latitude >= region.southWestLat &&
             point.latitude <= region.northEastLat &&
             point.longitude >= region.southWestLng &&

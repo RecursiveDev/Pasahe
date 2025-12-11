@@ -61,10 +61,41 @@ extension DownloadStatusX on DownloadStatus {
   }
 }
 
-/// Represents a downloadable map region.
+/// Type of map region for hierarchical organization.
+@HiveType(typeId: 12)
+enum RegionType {
+  /// A parent region containing multiple islands (e.g., Luzon, Visayas, Mindanao).
+  @HiveField(0)
+  islandGroup,
+
+  /// An individual island within a parent group.
+  @HiveField(1)
+  island,
+}
+
+/// Extension methods for [RegionType].
+extension RegionTypeX on RegionType {
+  /// Returns true if this is a parent region that can contain children.
+  bool get isParent => this == RegionType.islandGroup;
+
+  /// Returns true if this is a child island.
+  bool get isChild => this == RegionType.island;
+
+  /// Returns a human-readable label.
+  String get label {
+    switch (this) {
+      case RegionType.islandGroup:
+        return 'Island Group';
+      case RegionType.island:
+        return 'Island';
+    }
+  }
+}
+
+/// Represents a downloadable map region with optional hierarchical relationships.
 ///
-/// Contains the geographic bounds and metadata for a region
-/// that can be downloaded for offline use.
+/// Supports both island groups (parent regions) and individual islands (child regions).
+/// Parent regions can be downloaded as a whole, which downloads all child islands.
 @HiveType(typeId: 11)
 class MapRegion extends HiveObject {
   /// Unique identifier for the region.
@@ -135,6 +166,22 @@ class MapRegion extends HiveObject {
   @HiveField(16)
   String? errorMessage;
 
+  // ========== NEW FIELDS FOR HIERARCHICAL SUPPORT ==========
+
+  /// Type of region: islandGroup (parent) or island (child).
+  /// Defaults to island for backward compatibility with existing data.
+  @HiveField(17)
+  final RegionType type;
+
+  /// ID of the parent island group (null for island_group types).
+  /// Used to establish parent-child relationships.
+  @HiveField(18)
+  final String? parentId;
+
+  /// Display priority within parent (lower = displayed first).
+  @HiveField(19)
+  final int priority;
+
   MapRegion({
     required this.id,
     required this.name,
@@ -143,8 +190,8 @@ class MapRegion extends HiveObject {
     required this.southWestLng,
     required this.northEastLat,
     required this.northEastLng,
-    this.minZoom = 10,
-    this.maxZoom = 16,
+    this.minZoom = 8,
+    this.maxZoom = 14,
     required this.estimatedTileCount,
     required this.estimatedSizeMB,
     this.status = DownloadStatus.notDownloaded,
@@ -153,6 +200,10 @@ class MapRegion extends HiveObject {
     this.actualSizeBytes,
     this.lastUpdated,
     this.errorMessage,
+    // New fields with defaults for backward compatibility
+    this.type = RegionType.island,
+    this.parentId,
+    this.priority = 100,
   });
 
   /// Gets the southwest corner of the bounds.
@@ -163,9 +214,63 @@ class MapRegion extends HiveObject {
 
   /// Gets the center of the region.
   LatLng get center => LatLng(
-    (southWestLat + northEastLat) / 2,
-    (southWestLng + northEastLng) / 2,
-  );
+        (southWestLat + northEastLat) / 2,
+        (southWestLng + northEastLng) / 2,
+      );
+
+  /// Returns true if this is a parent island group.
+  bool get isParent => type == RegionType.islandGroup;
+
+  /// Returns true if this is a child island.
+  bool get isChild => type == RegionType.island;
+
+  /// Returns true if this region has a parent.
+  bool get hasParent => parentId != null;
+
+  /// Creates a MapRegion from JSON map.
+  factory MapRegion.fromJson(Map<String, dynamic> json) {
+    final bounds = json['bounds'] as Map<String, dynamic>;
+    final typeStr = json['type'] as String? ?? 'island';
+
+    return MapRegion(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String? ?? '',
+      southWestLat: (bounds['southWestLat'] as num).toDouble(),
+      southWestLng: (bounds['southWestLng'] as num).toDouble(),
+      northEastLat: (bounds['northEastLat'] as num).toDouble(),
+      northEastLng: (bounds['northEastLng'] as num).toDouble(),
+      minZoom: json['minZoom'] as int? ?? 8,
+      maxZoom: json['maxZoom'] as int? ?? 14,
+      estimatedTileCount: json['estimatedTileCount'] as int? ?? 0,
+      estimatedSizeMB: json['estimatedSizeMB'] as int? ?? 0,
+      type: typeStr == 'island_group' ? RegionType.islandGroup : RegionType.island,
+      parentId: json['parentId'] as String?,
+      priority: json['priority'] as int? ?? 100,
+    );
+  }
+
+  /// Converts this MapRegion to a JSON map.
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'bounds': {
+        'southWestLat': southWestLat,
+        'southWestLng': southWestLng,
+        'northEastLat': northEastLat,
+        'northEastLng': northEastLng,
+      },
+      'minZoom': minZoom,
+      'maxZoom': maxZoom,
+      'estimatedTileCount': estimatedTileCount,
+      'estimatedSizeMB': estimatedSizeMB,
+      'type': type == RegionType.islandGroup ? 'island_group' : 'island',
+      'parentId': parentId,
+      'priority': priority,
+    };
+  }
 
   /// Creates a copy with updated fields.
   MapRegion copyWith({
@@ -186,6 +291,9 @@ class MapRegion extends HiveObject {
     int? actualSizeBytes,
     DateTime? lastUpdated,
     String? errorMessage,
+    RegionType? type,
+    String? parentId,
+    int? priority,
   }) {
     return MapRegion(
       id: id ?? this.id,
@@ -205,16 +313,20 @@ class MapRegion extends HiveObject {
       actualSizeBytes: actualSizeBytes ?? this.actualSizeBytes,
       lastUpdated: lastUpdated ?? this.lastUpdated,
       errorMessage: errorMessage ?? this.errorMessage,
+      type: type ?? this.type,
+      parentId: parentId ?? this.parentId,
+      priority: priority ?? this.priority,
     );
   }
 
   @override
   String toString() {
-    return 'MapRegion(id: $id, name: $name, status: ${status.label})';
+    return 'MapRegion(id: $id, name: $name, type: ${type.label}, status: ${status.label})';
   }
 }
 
 /// Predefined regions for the Philippines.
+/// @deprecated Use RegionRepository to load regions from JSON instead.
 class PredefinedRegions {
   PredefinedRegions._();
 
@@ -231,6 +343,8 @@ class PredefinedRegions {
     maxZoom: 14,
     estimatedTileCount: 80000,
     estimatedSizeMB: 800,
+    type: RegionType.islandGroup,
+    priority: 1,
   );
 
   /// Visayas region.
@@ -246,6 +360,8 @@ class PredefinedRegions {
     maxZoom: 14,
     estimatedTileCount: 35000,
     estimatedSizeMB: 350,
+    type: RegionType.islandGroup,
+    priority: 2,
   );
 
   /// Mindanao region.
@@ -261,6 +377,8 @@ class PredefinedRegions {
     maxZoom: 14,
     estimatedTileCount: 50000,
     estimatedSizeMB: 500,
+    type: RegionType.islandGroup,
+    priority: 3,
   );
 
   /// All predefined regions.
@@ -317,6 +435,38 @@ class RegionDownloadProgress {
   @override
   String toString() {
     return 'RegionDownloadProgress(${region.name}: $percentage%, $tilesDownloaded/$totalTiles tiles)';
+  }
+}
+
+/// Extended progress class for group downloads.
+class GroupDownloadProgress extends RegionDownloadProgress {
+  /// Child regions being downloaded.
+  final List<MapRegion> children;
+
+  /// Current child being downloaded.
+  final MapRegion? currentChild;
+
+  /// Index of current child (0-based).
+  final int currentChildIndex;
+
+  const GroupDownloadProgress({
+    required super.region,
+    required super.tilesDownloaded,
+    required super.totalTiles,
+    super.bytesDownloaded = 0,
+    super.isComplete = false,
+    super.errorMessage,
+    required this.children,
+    this.currentChild,
+    this.currentChildIndex = 0,
+  });
+
+  /// Progress message for UI.
+  String get progressMessage {
+    if (currentChild != null) {
+      return 'Downloading ${currentChild!.name} (${currentChildIndex + 1}/${children.length})';
+    }
+    return 'Downloading ${region.name}';
   }
 }
 
