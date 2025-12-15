@@ -31,12 +31,14 @@ class AppLogoWidget extends StatelessWidget {
   /// Whether to show the drop shadow. Defaults to true.
   final bool showShadow;
 
-  /// Brand color from AppTheme - Philippine flag blue.
-  static const Color _primaryBlue = Color(0xFF0038A8);
-
   @override
   Widget build(BuildContext context) {
     final dimensions = _getDimensions();
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // The logo uses the brand primary color consistently
+    // We use colorScheme.primary which is derived from the same brand color
+    final brandColor = colorScheme.primary;
 
     return Semantics(
       label: 'PH Fare Calculator logo',
@@ -44,12 +46,12 @@ class AppLogoWidget extends StatelessWidget {
         width: dimensions.outerSize,
         height: dimensions.outerSize,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           shape: BoxShape.circle,
           boxShadow: showShadow
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
+                    color: colorScheme.shadow.withValues(alpha: 0.2),
                     blurRadius: dimensions.shadowBlur,
                     offset: Offset(0, dimensions.shadowOffset),
                   ),
@@ -64,7 +66,7 @@ class AppLogoWidget extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [_primaryBlue, _primaryBlue.withValues(alpha: 0.8)],
+                colors: [brandColor, brandColor.withValues(alpha: 0.8)],
               ),
               shape: BoxShape.circle,
             ),
@@ -72,7 +74,7 @@ class AppLogoWidget extends StatelessWidget {
               child: Icon(
                 Icons.directions_bus_rounded,
                 size: dimensions.iconSize,
-                color: Colors.white,
+                color: colorScheme.onPrimary,
               ),
             ),
           ),

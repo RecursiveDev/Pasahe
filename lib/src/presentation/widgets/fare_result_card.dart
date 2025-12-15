@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../core/theme/transit_colors.dart';
 import '../../models/fare_result.dart';
 
 /// A modern, accessible fare result card widget.
@@ -34,9 +36,10 @@ class FareResultCard extends StatelessWidget {
   /// Returns the status color based on indicator level.
   Color _getStatusColor(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final transitColors = Theme.of(context).extension<TransitColors>();
     switch (indicatorLevel) {
       case IndicatorLevel.standard:
-        return const Color(0xFF4CAF50); // Green
+        return transitColors?.standardFare ?? colorScheme.primary;
       case IndicatorLevel.peak:
         return colorScheme.secondary; // Yellow from theme
       case IndicatorLevel.touristTrap:

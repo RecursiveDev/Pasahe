@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../core/di/injection.dart';
+import '../../core/theme/transit_colors.dart';
 import '../../models/map_region.dart';
 import '../../services/offline/offline_map_service.dart';
 
@@ -88,10 +89,13 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
       if (progress.isComplete) {
         _loadStorageInfo();
         if (mounted) {
+          final transitColors = Theme.of(context).extension<TransitColors>();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${progress.region.name} downloaded successfully!'),
-              backgroundColor: Colors.green,
+              backgroundColor:
+                  transitColors?.successColor ??
+                  Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -250,10 +254,13 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
       await _loadStorageInfo();
       setState(() {});
       if (mounted) {
+        final transitColors = Theme.of(context).extension<TransitColors>();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('All offline map data cleared'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('All offline map data cleared'),
+            backgroundColor:
+                transitColors?.successColor ??
+                Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -452,9 +459,11 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
     );
     final partiallyDownloaded = downloadedCount > 0 && !allDownloaded;
 
+    final transitColors = Theme.of(context).extension<TransitColors>();
     Color? cardBackground;
     if (allDownloaded) {
-      cardBackground = Colors.green.withValues(alpha: 0.1);
+      cardBackground =
+          transitColors?.successContainer ?? colorScheme.primaryContainer;
     } else if (partiallyDownloaded) {
       cardBackground = colorScheme.primaryContainer.withValues(alpha: 0.3);
     }
@@ -588,8 +597,12 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
     }
 
     if (allDownloaded) {
+      final transitColors = Theme.of(context).extension<TransitColors>();
       return PopupMenuButton<String>(
-        icon: const Icon(Icons.check_circle, color: Colors.green),
+        icon: Icon(
+          Icons.check_circle,
+          color: transitColors?.successColor ?? colorScheme.primary,
+        ),
         tooltip: 'Options',
         onSelected: (value) {
           if (value == 'delete') {
@@ -601,7 +614,7 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
             value: 'delete',
             child: Row(
               children: [
-                Icon(Icons.delete, color: Colors.red),
+                Icon(Icons.delete, color: colorScheme.error),
                 const SizedBox(width: 8),
                 const Text('Delete All'),
               ],
@@ -627,11 +640,13 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
     ColorScheme colorScheme,
     MapRegion island,
   ) {
+    final transitColors = Theme.of(context).extension<TransitColors>();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: island.status.isAvailableOffline
-            ? Colors.green.withValues(alpha: 0.05)
+            ? (transitColors?.successContainer ?? colorScheme.primaryContainer)
+                  .withValues(alpha: 0.3)
             : null,
         borderRadius: BorderRadius.circular(8),
       ),
@@ -697,10 +712,15 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
   }
 
   Widget _buildIslandStatusIcon(ColorScheme colorScheme, MapRegion island) {
+    final transitColors = Theme.of(context).extension<TransitColors>();
     switch (island.status) {
       case DownloadStatus.downloaded:
       case DownloadStatus.updateAvailable:
-        return Icon(Icons.check_circle, color: Colors.green, size: 20);
+        return Icon(
+          Icons.check_circle,
+          color: transitColors?.successColor ?? colorScheme.primary,
+          size: 20,
+        );
       case DownloadStatus.downloading:
         return SizedBox(
           width: 20,

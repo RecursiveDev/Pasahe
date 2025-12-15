@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/di/injection.dart';
+import '../../core/theme/transit_colors.dart';
 import '../../models/map_region.dart';
 import '../../services/offline/offline_map_service.dart';
 import 'reference_screen.dart';
@@ -87,8 +88,12 @@ class _OfflineMenuScreenState extends State<OfflineMenuScreen>
         description:
             'Learn about available discounts for students, seniors, and PWD.',
         icon: Icons.percent_rounded,
-        iconBackgroundColor: Colors.green.withValues(alpha: 0.12),
-        iconColor: Colors.green,
+        iconBackgroundColor:
+            Theme.of(context).extension<TransitColors>()?.successContainer ??
+            colorScheme.primaryContainer,
+        iconColor:
+            Theme.of(context).extension<TransitColors>()?.successColor ??
+            colorScheme.primary,
         destination: const ReferenceScreen(initialTabIndex: 3),
       ),
     ];

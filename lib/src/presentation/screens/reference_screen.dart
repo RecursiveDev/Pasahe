@@ -690,11 +690,25 @@ class _TrainLineCard extends StatelessWidget {
     return Theme.of(context).colorScheme.outline;
   }
 
+  /// Gets the appropriate text color for the train line header based on the line color.
+  /// Uses dark text on light/pastel backgrounds for better contrast in dark mode.
+  Color _getHeaderTextColor(BuildContext context, Color lineColor) {
+    // Calculate relative luminance to determine if the background is light or dark
+    final luminance = lineColor.computeLuminance();
+    // For light/pastel colors (luminance > 0.5), use dark text
+    // For dark colors, use white text
+    if (luminance > 0.5) {
+      return const Color(0xFF1B1B1F); // Dark text for light backgrounds
+    }
+    return Colors.white;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final lineColor = _getLineColor(context, lineName);
+    final headerTextColor = _getHeaderTextColor(context, lineColor);
 
     // Calculate stats
     final maxFare = routes.map((r) => r.price).reduce((a, b) => a > b ? a : b);
@@ -739,12 +753,12 @@ class _TrainLineCard extends StatelessWidget {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: headerTextColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.train_rounded,
-                        color: Colors.white,
+                        color: headerTextColor,
                         size: 24,
                       ),
                     ),
@@ -757,13 +771,13 @@ class _TrainLineCard extends StatelessWidget {
                             lineName,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: headerTextColor,
                             ),
                           ),
                           Text(
                             '${uniqueStations.length} stations • ${routes.length} routes',
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.8),
+                              color: headerTextColor.withValues(alpha: 0.8),
                             ),
                           ),
                         ],
@@ -775,13 +789,13 @@ class _TrainLineCard extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: headerTextColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         '₱${minFare.toStringAsFixed(0)} - ₱${maxFare.toStringAsFixed(0)}',
                         style: theme.textTheme.labelMedium?.copyWith(
-                          color: Colors.white,
+                          color: headerTextColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1362,10 +1376,14 @@ class _DiscountCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     final transitColors = theme.extension<TransitColors>();
     final badgeColor = transitColors?.discountBadge ?? const Color(0xFF4CAF50);
-    final badgeTextColor =
-        transitColors?.discountBadgeText ?? const Color(0xFF2E7D32);
+    // In dark mode, use the badge color itself (light pastel green) for text visibility
+    // In light mode, use the dark green text color for contrast on light background
+    final badgeTextColor = isDark
+        ? badgeColor
+        : (transitColors?.discountBadgeText ?? const Color(0xFF2E7D32));
 
     return TweenAnimationBuilder<double>(
       duration: Duration(milliseconds: 400 + (index * 100)),
@@ -1419,10 +1437,14 @@ class _DiscountCard extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: badgeColor.withValues(alpha: 0.1),
+                              color: badgeColor.withValues(
+                                alpha: isDark ? 0.2 : 0.1,
+                              ),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: badgeColor.withValues(alpha: 0.3),
+                                color: badgeColor.withValues(
+                                  alpha: isDark ? 0.5 : 0.3,
+                                ),
                               ),
                             ),
                             child: Text(

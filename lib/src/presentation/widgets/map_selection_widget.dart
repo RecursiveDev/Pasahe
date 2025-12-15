@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../core/di/injection.dart';
+import '../../core/theme/transit_colors.dart';
 import '../../services/offline/offline_map_service.dart';
 
 /// A modern, accessible map selection widget.
@@ -324,13 +325,14 @@ class _MapSelectionWidgetState extends State<MapSelectionWidget>
   }
 
   Widget _buildOriginMarker(ColorScheme colorScheme) {
+    final transitColors = Theme.of(context).extension<TransitColors>();
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white,
+        color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: colorScheme.shadow.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -340,10 +342,14 @@ class _MapSelectionWidgetState extends State<MapSelectionWidget>
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: const Color(0xFF4CAF50),
-          border: Border.all(color: Colors.white, width: 2),
+          color: transitColors?.originMarker ?? colorScheme.primary,
+          border: Border.all(color: colorScheme.surface, width: 2),
         ),
-        child: const Icon(Icons.my_location, color: Colors.white, size: 20),
+        child: Icon(
+          Icons.my_location,
+          color: transitColors?.onOriginMarker ?? colorScheme.onPrimary,
+          size: 20,
+        ),
       ),
     );
   }
@@ -365,7 +371,11 @@ class _MapSelectionWidgetState extends State<MapSelectionWidget>
             ],
           ),
           padding: const EdgeInsets.all(8),
-          child: const Icon(Icons.location_on, color: Colors.white, size: 20),
+          child: Icon(
+            Icons.location_on,
+            color: colorScheme.onTertiary,
+            size: 20,
+          ),
         ),
         // Pin point
         Container(

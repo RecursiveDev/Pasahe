@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 // WCAG 2.1 Contrast Checker Tool for PH Fare Calculator
 // Run with: dart run tool/wcag_contrast_checker.dart
 //
@@ -23,7 +25,8 @@ class Color {
     final g = (hex >> 8) & 0xFF;
     final b = hex & 0xFF;
     final hexStr =
-        '#${r.toRadixString(16).padLeft(2, '0')}${g.toRadixString(16).padLeft(2, '0')}${b.toRadixString(16).padLeft(2, '0')}'.toUpperCase();
+        '#${r.toRadixString(16).padLeft(2, '0')}${g.toRadixString(16).padLeft(2, '0')}${b.toRadixString(16).padLeft(2, '0')}'
+            .toUpperCase();
     return Color(r, g, b, name, hexStr);
   }
 
@@ -54,13 +57,13 @@ class ContrastResult {
 }
 
 /// WCAG 2.1 Contrast Ratio Calculator
-/// 
+///
 /// Formula: (L1 + 0.05) / (L2 + 0.05)
 /// Where L1 is the relative luminance of the lighter color
 /// and L2 is the relative luminance of the darker color.
 class WCAGContrastChecker {
   /// Calculate relative luminance for a color.
-  /// 
+  ///
   /// Formula: L = 0.2126 * R + 0.7152 * G + 0.0722 * B
   /// Where R, G, B are linearized sRGB values.
   static double relativeLuminance(Color color) {
@@ -81,7 +84,7 @@ class WCAGContrastChecker {
   }
 
   /// Calculate contrast ratio between two colors.
-  /// 
+  ///
   /// Returns a value between 1:1 and 21:1.
   static double contrastRatio(Color fg, Color bg) {
     final lum1 = relativeLuminance(fg);
@@ -121,27 +124,57 @@ class WCAGContrastChecker {
 class LightThemeColors {
   // M3 generates these from seed 0xFF0038A8 (PH Blue)
   static final surface = Color.fromHex(0xFFFFFFFF, 'surface');
-  static final surfaceContainerLowest = Color.fromHex(0xFFF8F9FA, 'surfaceContainerLowest');
-  static final onSurface = Color.fromHex(0xFF1A1C1E, 'onSurface'); // M3 default dark
-  static final onSurfaceVariant = Color.fromHex(0xFF44474E, 'onSurfaceVariant'); // M3 default
+  static final surfaceContainerLowest = Color.fromHex(
+    0xFFF8F9FA,
+    'surfaceContainerLowest',
+  );
+  static final onSurface = Color.fromHex(
+    0xFF1A1C1E,
+    'onSurface',
+  ); // M3 default dark
+  static final onSurfaceVariant = Color.fromHex(
+    0xFF44474E,
+    'onSurfaceVariant',
+  ); // M3 default
   static final primary = Color.fromHex(0xFF0038A8, 'primary'); // Seed color
   static final onPrimary = Color.fromHex(0xFFFFFFFF, 'onPrimary');
   static final secondary = Color.fromHex(0xFFFCD116, 'secondary'); // PH Yellow
-  static final onSecondary = Color.fromHex(0xFF000000, 'onSecondary'); // Dark for contrast
+  static final onSecondary = Color.fromHex(
+    0xFF000000,
+    'onSecondary',
+  ); // Dark for contrast
   static final error = Color.fromHex(0xFFBA1A1A, 'error'); // M3 default error
   static final onError = Color.fromHex(0xFFFFFFFF, 'onError');
-  static final outline = Color.fromHex(0xFF74777F, 'outline'); // M3 default outline
-  static final surfaceContainer = Color.fromHex(0xFFEEEFF2, 'surfaceContainer'); // M3 default
+  static final outline = Color.fromHex(
+    0xFF74777F,
+    'outline',
+  ); // M3 default outline
+  static final surfaceContainer = Color.fromHex(
+    0xFFEEEFF2,
+    'surfaceContainer',
+  ); // M3 default
 }
 
 // Dark Theme Colors (explicitly defined in app_theme.dart)
 class DarkThemeColors {
   static final surface = Color.fromHex(0xFF141218, 'surface');
-  static final surfaceContainerLowest = Color.fromHex(0xFF0F0D13, 'surfaceContainerLowest');
-  static final surfaceContainerLow = Color.fromHex(0xFF1D1B20, 'surfaceContainerLow');
+  static final surfaceContainerLowest = Color.fromHex(
+    0xFF0F0D13,
+    'surfaceContainerLowest',
+  );
+  static final surfaceContainerLow = Color.fromHex(
+    0xFF1D1B20,
+    'surfaceContainerLow',
+  );
   static final surfaceContainer = Color.fromHex(0xFF211F26, 'surfaceContainer');
-  static final surfaceContainerHigh = Color.fromHex(0xFF2B2930, 'surfaceContainerHigh');
-  static final surfaceContainerHighest = Color.fromHex(0xFF36343B, 'surfaceContainerHighest');
+  static final surfaceContainerHigh = Color.fromHex(
+    0xFF2B2930,
+    'surfaceContainerHigh',
+  );
+  static final surfaceContainerHighest = Color.fromHex(
+    0xFF36343B,
+    'surfaceContainerHighest',
+  );
   static final onSurface = Color.fromHex(0xFFE6E0E9, 'onSurface');
   static final onSurfaceVariant = Color.fromHex(0xFFCAC4D0, 'onSurfaceVariant');
   static final outline = Color.fromHex(0xFF938F99, 'outline');
@@ -149,29 +182,59 @@ class DarkThemeColors {
   static final primary = Color.fromHex(0xFFB8C9FF, 'primary'); // Pastel blue
   static final onPrimary = Color.fromHex(0xFF002C71, 'onPrimary');
   static final primaryContainer = Color.fromHex(0xFF1B4496, 'primaryContainer');
-  static final onPrimaryContainer = Color.fromHex(0xFFD9E2FF, 'onPrimaryContainer');
-  static final secondary = Color.fromHex(0xFFE5C54C, 'secondary'); // Pastel yellow
+  static final onPrimaryContainer = Color.fromHex(
+    0xFFD9E2FF,
+    'onPrimaryContainer',
+  );
+  static final secondary = Color.fromHex(
+    0xFFE5C54C,
+    'secondary',
+  ); // Pastel yellow
   static final onSecondary = Color.fromHex(0xFF3B2F00, 'onSecondary');
   static final tertiary = Color.fromHex(0xFFFFB4AB, 'tertiary'); // Pastel red
   static final onTertiary = Color.fromHex(0xFF561E18, 'onTertiary');
   static final error = Color.fromHex(0xFFF2B8B5, 'error'); // M3 soft error
-  static final onError = Color.fromHex(0xFF601410, 'onError'); // M3 dark on error
+  static final onError = Color.fromHex(
+    0xFF601410,
+    'onError',
+  ); // M3 dark on error
 }
 
 // Light Transit Colors (from transit_colors.dart) - WCAG AA compliant
 class LightTransitColors {
-  static final lrt1 = Color.fromHex(0xFF2E7D32, 'lrt1 (Darker Green)'); // Fixed: 4.52:1
+  static final lrt1 = Color.fromHex(
+    0xFF2E7D32,
+    'lrt1 (Darker Green)',
+  ); // Fixed: 4.52:1
   static final lrt2 = Color.fromHex(0xFF7B1FA2, 'lrt2 (Purple)');
-  static final mrt3 = Color.fromHex(0xFF1565C0, 'mrt3 (Darker Blue)'); // Fixed: 4.62:1
-  static final mrt7 = Color.fromHex(0xFFE65100, 'mrt7 (Darker Orange)'); // Fixed: 3.26:1
+  static final mrt3 = Color.fromHex(
+    0xFF1565C0,
+    'mrt3 (Darker Blue)',
+  ); // Fixed: 4.62:1
+  static final mrt7 = Color.fromHex(
+    0xFFE65100,
+    'mrt7 (Darker Orange)',
+  ); // Fixed: 3.26:1
   static final pnr = Color.fromHex(0xFF795548, 'pnr (Brown)');
   static final jeep = Color.fromHex(0xFF00695C, 'jeep (Teal)');
   static final bus = Color.fromHex(0xFFC62828, 'bus (Red)');
-  static final discountStudent = Color.fromHex(0xFF1976D2, 'discountStudent (Blue)');
-  static final discountSenior = Color.fromHex(0xFF7B1FA2, 'discountSenior (Purple)');
+  static final discountStudent = Color.fromHex(
+    0xFF1976D2,
+    'discountStudent (Blue)',
+  );
+  static final discountSenior = Color.fromHex(
+    0xFF7B1FA2,
+    'discountSenior (Purple)',
+  );
   static final discountPwd = Color.fromHex(0xFF388E3C, 'discountPwd (Green)');
-  static final discountBadge = Color.fromHex(0xFFA5D6A7, 'discountBadge (Pastel Green)'); // Fixed for text contrast
-  static final discountBadgeText = Color.fromHex(0xFF1B5E20, 'discountBadgeText (Dark Green)'); // 5.24:1 on pastel
+  static final discountBadge = Color.fromHex(
+    0xFFA5D6A7,
+    'discountBadge (Pastel Green)',
+  ); // Fixed for text contrast
+  static final discountBadgeText = Color.fromHex(
+    0xFF1B5E20,
+    'discountBadgeText (Dark Green)',
+  ); // 5.24:1 on pastel
 }
 
 // Dark Transit Colors (from transit_colors.dart)
@@ -183,11 +246,26 @@ class DarkTransitColors {
   static final pnr = Color.fromHex(0xFFC4B5AD, 'pnr (Pastel Brown)');
   static final jeep = Color.fromHex(0xFF9DCDC6, 'jeep (Pastel Teal)');
   static final bus = Color.fromHex(0xFFE8AEAB, 'bus (Pastel Red)');
-  static final discountStudent = Color.fromHex(0xFFABC8E8, 'discountStudent (Pastel Blue)');
-  static final discountSenior = Color.fromHex(0xFFD4B8E0, 'discountSenior (Pastel Purple)');
-  static final discountPwd = Color.fromHex(0xFFA8D5AA, 'discountPwd (Pastel Green)');
-  static final discountBadge = Color.fromHex(0xFFA8D5AA, 'discountBadge (Pastel Green)');
-  static final discountBadgeText = Color.fromHex(0xFF1B3D1D, 'discountBadgeText (Dark Green)');
+  static final discountStudent = Color.fromHex(
+    0xFFABC8E8,
+    'discountStudent (Pastel Blue)',
+  );
+  static final discountSenior = Color.fromHex(
+    0xFFD4B8E0,
+    'discountSenior (Pastel Purple)',
+  );
+  static final discountPwd = Color.fromHex(
+    0xFFA8D5AA,
+    'discountPwd (Pastel Green)',
+  );
+  static final discountBadge = Color.fromHex(
+    0xFFA8D5AA,
+    'discountBadge (Pastel Green)',
+  );
+  static final discountBadgeText = Color.fromHex(
+    0xFF1B3D1D,
+    'discountBadgeText (Dark Green)',
+  );
 }
 
 /// Runs all contrast checks and returns results.
@@ -206,61 +284,77 @@ List<ContrastResult> runAllChecks() {
   // ==========================================================================
 
   // Primary text contrasts
-  results.add(WCAGContrastChecker.check(
-    foreground: LightThemeColors.onSurface,
-    background: LightThemeColors.surface,
-    context: 'Light: onSurface on surface (primary text)',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: LightThemeColors.onSurface,
+      background: LightThemeColors.surface,
+      context: 'Light: onSurface on surface (primary text)',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: LightThemeColors.onSurface,
-    background: LightThemeColors.surfaceContainerLowest,
-    context: 'Light: onSurface on background (body text)',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: LightThemeColors.onSurface,
+      background: LightThemeColors.surfaceContainerLowest,
+      context: 'Light: onSurface on background (body text)',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: LightThemeColors.primary,
-    background: LightThemeColors.surface,
-    context: 'Light: primary on surface (buttons, links)',
-    requiredRatio: largeTextUIRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: LightThemeColors.primary,
+      background: LightThemeColors.surface,
+      context: 'Light: primary on surface (buttons, links)',
+      requiredRatio: largeTextUIRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: LightThemeColors.onPrimary,
-    background: LightThemeColors.primary,
-    context: 'Light: onPrimary on primary (button text)',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: LightThemeColors.onPrimary,
+      background: LightThemeColors.primary,
+      context: 'Light: onPrimary on primary (button text)',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: LightThemeColors.error,
-    background: LightThemeColors.surface,
-    context: 'Light: error on surface (error messages)',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: LightThemeColors.error,
+      background: LightThemeColors.surface,
+      context: 'Light: error on surface (error messages)',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: LightThemeColors.onError,
-    background: LightThemeColors.error,
-    context: 'Light: onError on error (error button text)',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: LightThemeColors.onError,
+      background: LightThemeColors.error,
+      context: 'Light: onError on error (error button text)',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: LightThemeColors.outline,
-    background: LightThemeColors.surface,
-    context: 'Light: outline on surface (borders)',
-    requiredRatio: largeTextUIRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: LightThemeColors.outline,
+      background: LightThemeColors.surface,
+      context: 'Light: outline on surface (borders)',
+      requiredRatio: largeTextUIRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: LightThemeColors.onSurfaceVariant,
-    background: LightThemeColors.surfaceContainer,
-    context: 'Light: onSurfaceVariant on surfaceContainer',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: LightThemeColors.onSurfaceVariant,
+      background: LightThemeColors.surfaceContainer,
+      context: 'Light: onSurfaceVariant on surfaceContainer',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
   // Light theme transit colors on surface
   for (final transit in [
@@ -272,89 +366,111 @@ List<ContrastResult> runAllChecks() {
     LightTransitColors.jeep,
     LightTransitColors.bus,
   ]) {
-    results.add(WCAGContrastChecker.check(
-      foreground: transit,
-      background: LightThemeColors.surface,
-      context: 'Light: ${transit.name} on surface',
-      requiredRatio: largeTextUIRatio,
-    ));
+    results.add(
+      WCAGContrastChecker.check(
+        foreground: transit,
+        background: LightThemeColors.surface,
+        context: 'Light: ${transit.name} on surface',
+        requiredRatio: largeTextUIRatio,
+      ),
+    );
 
-    results.add(WCAGContrastChecker.check(
-      foreground: transit,
-      background: LightThemeColors.surfaceContainer,
-      context: 'Light: ${transit.name} on surfaceContainer',
-      requiredRatio: largeTextUIRatio,
-    ));
+    results.add(
+      WCAGContrastChecker.check(
+        foreground: transit,
+        background: LightThemeColors.surfaceContainer,
+        context: 'Light: ${transit.name} on surfaceContainer',
+        requiredRatio: largeTextUIRatio,
+      ),
+    );
   }
 
   // Discount badge text contrast
-  results.add(WCAGContrastChecker.check(
-    foreground: LightTransitColors.discountBadgeText,
-    background: LightTransitColors.discountBadge,
-    context: 'Light: discountBadgeText on discountBadge',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: LightTransitColors.discountBadgeText,
+      background: LightTransitColors.discountBadge,
+      context: 'Light: discountBadgeText on discountBadge',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
   // ==========================================================================
   // DARK THEME CHECKS
   // ==========================================================================
 
   // Primary text contrasts
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkThemeColors.onSurface,
-    background: DarkThemeColors.surface,
-    context: 'Dark: onSurface on surface (primary text)',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkThemeColors.onSurface,
+      background: DarkThemeColors.surface,
+      context: 'Dark: onSurface on surface (primary text)',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkThemeColors.onSurface,
-    background: DarkThemeColors.surfaceContainerLowest,
-    context: 'Dark: onSurface on background (body text)',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkThemeColors.onSurface,
+      background: DarkThemeColors.surfaceContainerLowest,
+      context: 'Dark: onSurface on background (body text)',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkThemeColors.primary,
-    background: DarkThemeColors.surface,
-    context: 'Dark: primary on surface (buttons, links)',
-    requiredRatio: largeTextUIRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkThemeColors.primary,
+      background: DarkThemeColors.surface,
+      context: 'Dark: primary on surface (buttons, links)',
+      requiredRatio: largeTextUIRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkThemeColors.onPrimary,
-    background: DarkThemeColors.primary,
-    context: 'Dark: onPrimary on primary (button text)',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkThemeColors.onPrimary,
+      background: DarkThemeColors.primary,
+      context: 'Dark: onPrimary on primary (button text)',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkThemeColors.error,
-    background: DarkThemeColors.surface,
-    context: 'Dark: error on surface (error messages)',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkThemeColors.error,
+      background: DarkThemeColors.surface,
+      context: 'Dark: error on surface (error messages)',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkThemeColors.onError,
-    background: DarkThemeColors.error,
-    context: 'Dark: onError on error (error button text)',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkThemeColors.onError,
+      background: DarkThemeColors.error,
+      context: 'Dark: onError on error (error button text)',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkThemeColors.outline,
-    background: DarkThemeColors.surface,
-    context: 'Dark: outline on surface (borders)',
-    requiredRatio: largeTextUIRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkThemeColors.outline,
+      background: DarkThemeColors.surface,
+      context: 'Dark: outline on surface (borders)',
+      requiredRatio: largeTextUIRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkThemeColors.onSurfaceVariant,
-    background: DarkThemeColors.surfaceContainerHigh,
-    context: 'Dark: onSurfaceVariant on surfaceContainerHigh',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkThemeColors.onSurfaceVariant,
+      background: DarkThemeColors.surfaceContainerHigh,
+      context: 'Dark: onSurfaceVariant on surfaceContainerHigh',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
   // Dark theme transit colors on surface
   for (final transit in [
@@ -366,50 +482,62 @@ List<ContrastResult> runAllChecks() {
     DarkTransitColors.jeep,
     DarkTransitColors.bus,
   ]) {
-    results.add(WCAGContrastChecker.check(
-      foreground: transit,
-      background: DarkThemeColors.surface,
-      context: 'Dark: ${transit.name} on surface',
-      requiredRatio: largeTextUIRatio,
-    ));
+    results.add(
+      WCAGContrastChecker.check(
+        foreground: transit,
+        background: DarkThemeColors.surface,
+        context: 'Dark: ${transit.name} on surface',
+        requiredRatio: largeTextUIRatio,
+      ),
+    );
 
-    results.add(WCAGContrastChecker.check(
-      foreground: transit,
-      background: DarkThemeColors.surfaceContainer,
-      context: 'Dark: ${transit.name} on surfaceContainer',
-      requiredRatio: largeTextUIRatio,
-    ));
+    results.add(
+      WCAGContrastChecker.check(
+        foreground: transit,
+        background: DarkThemeColors.surfaceContainer,
+        context: 'Dark: ${transit.name} on surfaceContainer',
+        requiredRatio: largeTextUIRatio,
+      ),
+    );
   }
 
   // Discount badge text contrast
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkTransitColors.discountBadgeText,
-    background: DarkTransitColors.discountBadge,
-    context: 'Dark: discountBadgeText on discountBadge',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkTransitColors.discountBadgeText,
+      background: DarkTransitColors.discountBadge,
+      context: 'Dark: discountBadgeText on discountBadge',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
   // Additional dark theme checks
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkThemeColors.onSurfaceVariant,
-    background: DarkThemeColors.surfaceContainer,
-    context: 'Dark: onSurfaceVariant on surfaceContainer',
-    requiredRatio: normalTextRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkThemeColors.onSurfaceVariant,
+      background: DarkThemeColors.surfaceContainer,
+      context: 'Dark: onSurfaceVariant on surfaceContainer',
+      requiredRatio: normalTextRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkThemeColors.secondary,
-    background: DarkThemeColors.surface,
-    context: 'Dark: secondary on surface',
-    requiredRatio: largeTextUIRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkThemeColors.secondary,
+      background: DarkThemeColors.surface,
+      context: 'Dark: secondary on surface',
+      requiredRatio: largeTextUIRatio,
+    ),
+  );
 
-  results.add(WCAGContrastChecker.check(
-    foreground: DarkThemeColors.tertiary,
-    background: DarkThemeColors.surface,
-    context: 'Dark: tertiary on surface',
-    requiredRatio: largeTextUIRatio,
-  ));
+  results.add(
+    WCAGContrastChecker.check(
+      foreground: DarkThemeColors.tertiary,
+      background: DarkThemeColors.surface,
+      context: 'Dark: tertiary on surface',
+      requiredRatio: largeTextUIRatio,
+    ),
+  );
 
   return results;
 }
@@ -433,7 +561,9 @@ String generateMarkdownReport(List<ContrastResult> results) {
   buffer.writeln('| **AA (minimum)** | 4.5:1 | 3:1 |');
   buffer.writeln('| **AAA (enhanced)** | 7:1 | 4.5:1 |');
   buffer.writeln();
-  buffer.writeln('> **Large text** = 18pt+ (24px) or 14pt+ bold (18.67px bold)');
+  buffer.writeln(
+    '> **Large text** = 18pt+ (24px) or 14pt+ bold (18.67px bold)',
+  );
   buffer.writeln();
   buffer.writeln('---');
   buffer.writeln();
@@ -450,7 +580,9 @@ String generateMarkdownReport(List<ContrastResult> results) {
   buffer.writeln('| Total checks | $total |');
   buffer.writeln('| ✅ Passed | $passed |');
   buffer.writeln('| ❌ Failed | $failed |');
-  buffer.writeln('| Pass rate | ${(passed / total * 100).toStringAsFixed(1)}% |');
+  buffer.writeln(
+    '| Pass rate | ${(passed / total * 100).toStringAsFixed(1)}% |',
+  );
   buffer.writeln();
   buffer.writeln('---');
   buffer.writeln();
@@ -458,12 +590,17 @@ String generateMarkdownReport(List<ContrastResult> results) {
   // Light Theme Results
   buffer.writeln('## Light Theme Results');
   buffer.writeln();
-  buffer.writeln('| Context | Foreground | Background | Ratio | Required | Status |');
-  buffer.writeln('|---------|------------|------------|-------|----------|--------|');
+  buffer.writeln(
+    '| Context | Foreground | Background | Ratio | Required | Status |',
+  );
+  buffer.writeln(
+    '|---------|------------|------------|-------|----------|--------|',
+  );
 
   for (final r in results.where((r) => r.context.startsWith('Light:'))) {
     buffer.writeln(
-        '| ${r.context.replaceFirst('Light: ', '')} | ${r.foreground.hex} | ${r.background.hex} | ${r.ratioStr} | ${r.requiredRatio}:1 | ${r.status} |');
+      '| ${r.context.replaceFirst('Light: ', '')} | ${r.foreground.hex} | ${r.background.hex} | ${r.ratioStr} | ${r.requiredRatio}:1 | ${r.status} |',
+    );
   }
 
   buffer.writeln();
@@ -473,12 +610,17 @@ String generateMarkdownReport(List<ContrastResult> results) {
   // Dark Theme Results
   buffer.writeln('## Dark Theme Results');
   buffer.writeln();
-  buffer.writeln('| Context | Foreground | Background | Ratio | Required | Status |');
-  buffer.writeln('|---------|------------|------------|-------|----------|--------|');
+  buffer.writeln(
+    '| Context | Foreground | Background | Ratio | Required | Status |',
+  );
+  buffer.writeln(
+    '|---------|------------|------------|-------|----------|--------|',
+  );
 
   for (final r in results.where((r) => r.context.startsWith('Dark:'))) {
     buffer.writeln(
-        '| ${r.context.replaceFirst('Dark: ', '')} | ${r.foreground.hex} | ${r.background.hex} | ${r.ratioStr} | ${r.requiredRatio}:1 | ${r.status} |');
+      '| ${r.context.replaceFirst('Dark: ', '')} | ${r.foreground.hex} | ${r.background.hex} | ${r.ratioStr} | ${r.requiredRatio}:1 | ${r.status} |',
+    );
   }
 
   buffer.writeln();
@@ -500,7 +642,9 @@ String generateMarkdownReport(List<ContrastResult> results) {
       buffer.writeln('- **Required ratio:** ${r.requiredRatio}:1');
       buffer.writeln('- **Deficit:** ${deficit.toStringAsFixed(2)}');
       buffer.writeln();
-      buffer.writeln('**Recommendation:** Adjust the foreground color to be ${r.foreground.r > 128 ? "darker" : "lighter"} to achieve the required contrast ratio.');
+      buffer.writeln(
+        '**Recommendation:** Adjust the foreground color to be ${r.foreground.r > 128 ? "darker" : "lighter"} to achieve the required contrast ratio.',
+      );
       buffer.writeln();
     }
   } else {
@@ -508,7 +652,9 @@ String generateMarkdownReport(List<ContrastResult> results) {
     buffer.writeln();
     buffer.writeln('## ✅ All Checks Passed');
     buffer.writeln();
-    buffer.writeln('All color combinations meet WCAG 2.1 AA minimum contrast requirements.');
+    buffer.writeln(
+      'All color combinations meet WCAG 2.1 AA minimum contrast requirements.',
+    );
   }
 
   buffer.writeln();
@@ -536,7 +682,9 @@ String generateMarkdownReport(List<ContrastResult> results) {
   buffer.writeln('ratio = (L1 + 0.05) / (L2 + 0.05)');
   buffer.writeln('```');
   buffer.writeln();
-  buffer.writeln('Where L1 is the luminance of the lighter color and L2 is the luminance of the darker color.');
+  buffer.writeln(
+    'Where L1 is the luminance of the lighter color and L2 is the luminance of the darker color.',
+  );
 
   return buffer.toString();
 }

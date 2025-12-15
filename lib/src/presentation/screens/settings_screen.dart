@@ -214,7 +214,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                         )!.trafficLowSubtitle,
                         value: TrafficFactor.low,
                         icon: Icons.speed_rounded,
-                        iconColor: Colors.green,
+                        iconColor: _getTrafficIconColor(
+                          context,
+                          TrafficFactor.low,
+                        ),
                       ),
                       _buildTrafficFactorTile(
                         context,
@@ -224,7 +227,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                         )!.trafficMediumSubtitle,
                         value: TrafficFactor.medium,
                         icon: Icons.speed_rounded,
-                        iconColor: Colors.orange,
+                        iconColor: _getTrafficIconColor(
+                          context,
+                          TrafficFactor.medium,
+                        ),
                       ),
                       _buildTrafficFactorTile(
                         context,
@@ -234,7 +240,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                         )!.trafficHighSubtitle,
                         value: TrafficFactor.high,
                         icon: Icons.speed_rounded,
-                        iconColor: Colors.red,
+                        iconColor: _getTrafficIconColor(
+                          context,
+                          TrafficFactor.high,
+                        ),
                       ),
                     ],
                   ),
@@ -410,6 +419,22 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
+  /// Gets theme-aware traffic icon color based on traffic factor.
+  Color _getTrafficIconColor(BuildContext context, TrafficFactor factor) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    switch (factor) {
+      case TrafficFactor.low:
+        // Green - darker in light mode, lighter pastel in dark mode
+        return isDark ? const Color(0xFFA8D5AA) : const Color(0xFF2E7D32);
+      case TrafficFactor.medium:
+        // Orange - darker in light mode, lighter pastel in dark mode
+        return isDark ? const Color(0xFFE8CFA8) : const Color(0xFFE65100);
+      case TrafficFactor.high:
+        // Red - darker in light mode, lighter pastel in dark mode
+        return isDark ? const Color(0xFFE8AEAB) : const Color(0xFFC62828);
+    }
+  }
+
   /// Builds a switch tile with icon.
   Widget _buildSwitchTile(
     BuildContext context, {
@@ -447,7 +472,8 @@ class _SettingsScreenState extends State<SettingsScreen>
           ),
           child: Icon(icon, color: colorScheme.onPrimaryContainer, size: 24),
         ),
-        activeTrackColor: colorScheme.primary.withValues(alpha: 0.5),
+        activeTrackColor: colorScheme.primary,
+        activeThumbColor: colorScheme.onPrimary,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
     );
@@ -975,7 +1001,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                   },
                   contentPadding: EdgeInsets.zero,
                   dense: true,
-                  activeTrackColor: colorScheme.primary.withValues(alpha: 0.5),
+                  activeTrackColor: colorScheme.primary,
+                  activeThumbColor: colorScheme.onPrimary,
                 );
               }),
             ],

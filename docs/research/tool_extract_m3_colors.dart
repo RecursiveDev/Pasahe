@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -41,11 +43,11 @@ void _printScheme(ColorScheme scheme) {
   print('| onError | ${_toHex(scheme.onError)} |');
   print('| errorContainer | ${_toHex(scheme.errorContainer)} |');
   print('| onErrorContainer | ${_toHex(scheme.onErrorContainer)} |');
-  print('| background | ${_toHex(scheme.background)} |');
-  print('| onBackground | ${_toHex(scheme.onBackground)} |');
+  print('| background | ${_toHex(scheme.surface)} |');
+  print('| onBackground | ${_toHex(scheme.onSurface)} |');
   print('| surface | ${_toHex(scheme.surface)} |');
   print('| onSurface | ${_toHex(scheme.onSurface)} |');
-  print('| surfaceVariant | ${_toHex(scheme.surfaceVariant)} |');
+  print('| surfaceVariant | ${_toHex(scheme.surfaceContainerHighest)} |');
   print('| onSurfaceVariant | ${_toHex(scheme.onSurfaceVariant)} |');
   print('| outline | ${_toHex(scheme.outline)} |');
   print('| outlineVariant | ${_toHex(scheme.outlineVariant)} |');
@@ -61,9 +63,11 @@ void _printScheme(ColorScheme scheme) {
     // though for this task we assume a reasonably recent one.
     // But let's stick to the standard ones first.
     // We can check surfaceContainer properties if available.
-  } catch (e) {}
+  } catch (e) {
+    // Intentionally empty - we're just checking if the properties exist
+  }
 }
 
 String _toHex(Color color) {
-  return '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase().substring(2)}';
+  return '#${color.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase().substring(2)}';
 }

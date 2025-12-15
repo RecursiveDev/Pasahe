@@ -320,7 +320,7 @@ class _MapPickerScreenState extends State<MapPickerScreen>
             decoration: BoxDecoration(
               color: colorScheme.primary,
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 3),
+              border: Border.all(color: colorScheme.surface, width: 3),
             ),
             child: Icon(Icons.place, color: colorScheme.onPrimary, size: 28),
           ),
