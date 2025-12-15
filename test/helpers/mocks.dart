@@ -71,7 +71,7 @@ class MockRoutingService implements RoutingService {
 class MockSettingsService implements SettingsService {
   bool provincialMode = false;
   TrafficFactor trafficFactor = TrafficFactor.medium;
-  bool highContrast = false;
+  String themeMode = 'system';
   DiscountType discountType = DiscountType.standard;
 
   // Replicate static behavior instance-wise for injection
@@ -92,11 +92,11 @@ class MockSettingsService implements SettingsService {
   }
 
   @override
-  Future<bool> getHighContrastEnabled() async => highContrast;
+  Future<String> getThemeMode() async => themeMode;
 
   @override
-  Future<void> setHighContrastEnabled(bool value) async {
-    highContrast = value;
+  Future<void> setThemeMode(String mode) async {
+    themeMode = mode;
   }
 
   @override

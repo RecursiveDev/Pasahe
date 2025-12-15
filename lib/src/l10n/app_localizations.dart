@@ -176,17 +176,35 @@ abstract class AppLocalizations {
   /// **'Enable provincial fare rates'**
   String get provincialModeSubtitle;
 
-  /// No description provided for @highContrastModeTitle.
+  /// No description provided for @themeModeTitle.
   ///
   /// In en, this message translates to:
-  /// **'High Contrast Mode'**
-  String get highContrastModeTitle;
+  /// **'Theme'**
+  String get themeModeTitle;
 
-  /// No description provided for @highContrastModeSubtitle.
+  /// No description provided for @themeModeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Increase contrast for better visibility'**
-  String get highContrastModeSubtitle;
+  /// **'Choose your preferred appearance'**
+  String get themeModeSubtitle;
+
+  /// No description provided for @themeModeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeModeSystem;
+
+  /// No description provided for @themeModeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeModeLight;
+
+  /// No description provided for @themeModeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeModeDark;
 
   /// No description provided for @trafficFactorTitle.
   ///
@@ -277,6 +295,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose Your Language'**
   String get onboardingLanguageTitle;
+
+  /// No description provided for @sourceCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Source Code'**
+  String get sourceCodeTitle;
+
+  /// No description provided for @sourceCodeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View on GitHub'**
+  String get sourceCodeSubtitle;
 }
 
 class _AppLocalizationsDelegate

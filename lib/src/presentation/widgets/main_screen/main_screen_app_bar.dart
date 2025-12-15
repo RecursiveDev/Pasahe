@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../screens/offline_menu_screen.dart';
 import '../../screens/settings_screen.dart';
+import '../app_logo_widget.dart';
 
 /// Modern app bar widget for the main screen.
 class MainScreenAppBar extends StatelessWidget {
@@ -17,6 +18,8 @@ class MainScreenAppBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
+          const AppLogoWidget(size: AppLogoSize.small, showShadow: false),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

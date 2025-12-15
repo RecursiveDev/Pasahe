@@ -42,88 +42,88 @@ class LocationInputSection extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Route Indicator
-                Column(
-                  children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    Container(
-                      width: 2,
-                      height: 48,
-                      color: colorScheme.outlineVariant,
-                    ),
-                    Icon(
-                      Icons.location_on,
-                      size: 16,
-                      color: colorScheme.tertiary,
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 12),
-                // Input Fields
-                Expanded(
-                  child: Column(
-                    children: [
-                      _LocationField(
-                        label: 'Origin',
-                        controller: originController,
-                        isOrigin: true,
-                        isLoadingLocation: isLoadingLocation,
-                        onSearchLocations: (query) =>
-                            onSearchLocations(query, true),
-                        onLocationSelected: onOriginSelected,
-                        onUseCurrentLocation: onUseCurrentLocation,
-                        onOpenMapPicker: () => onOpenMapPicker(true),
-                      ),
-                      const SizedBox(height: 12),
-                      _LocationField(
-                        label: 'Destination',
-                        controller: destinationController,
-                        isOrigin: false,
-                        isLoadingLocation: false,
-                        onSearchLocations: (query) =>
-                            onSearchLocations(query, false),
-                        onLocationSelected: onDestinationSelected,
-                        onUseCurrentLocation: null,
-                        onOpenMapPicker: () => onOpenMapPicker(false),
-                      ),
-                    ],
-                  ),
-                ),
-                // Swap Button
-                Padding(
-                  padding: const EdgeInsets.only(left: 8, top: 20),
-                  child: Semantics(
-                    label: 'Swap origin and destination',
-                    button: true,
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.swap_vert_rounded,
-                        color: colorScheme.primary,
-                      ),
-                      onPressed: onSwapLocations,
-                      style: IconButton.styleFrom(
-                        backgroundColor: colorScheme.primaryContainer
-                            .withValues(alpha: 0.3),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+            // Route Indicator
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Column(
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary,
+                      shape: BoxShape.circle,
                     ),
                   ),
+                  Container(
+                    width: 2,
+                    height: 68,
+                    color: colorScheme.outlineVariant,
+                  ),
+                  Icon(
+                    Icons.location_on,
+                    size: 16,
+                    color: colorScheme.tertiary,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Input Fields
+            Expanded(
+              child: Column(
+                children: [
+                  _LocationField(
+                    label: 'Origin',
+                    controller: originController,
+                    isOrigin: true,
+                    isLoadingLocation: isLoadingLocation,
+                    onSearchLocations: (query) =>
+                        onSearchLocations(query, true),
+                    onLocationSelected: onOriginSelected,
+                    onUseCurrentLocation: onUseCurrentLocation,
+                    onOpenMapPicker: () => onOpenMapPicker(true),
+                  ),
+                  const SizedBox(height: 12),
+                  _LocationField(
+                    label: 'Destination',
+                    controller: destinationController,
+                    isOrigin: false,
+                    isLoadingLocation: false,
+                    onSearchLocations: (query) =>
+                        onSearchLocations(query, false),
+                    onLocationSelected: onDestinationSelected,
+                    onUseCurrentLocation: null,
+                    onOpenMapPicker: () => onOpenMapPicker(false),
+                  ),
+                ],
+              ),
+            ),
+            // Swap Button
+            Padding(
+              padding: const EdgeInsets.only(left: 8, top: 12),
+              child: Semantics(
+                label: 'Swap origin and destination',
+                button: true,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.swap_vert_rounded,
+                    color: colorScheme.primary,
+                  ),
+                  onPressed: onSwapLocations,
+                  style: IconButton.styleFrom(
+                    backgroundColor: colorScheme.primaryContainer.withValues(
+                      alpha: 0.3,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
-              ],
+              ),
             ),
           ],
         ),

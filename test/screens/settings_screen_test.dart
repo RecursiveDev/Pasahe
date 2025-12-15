@@ -56,14 +56,19 @@ void main() {
 
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Provincial Mode'), findsOneWidget);
-    expect(find.text('High Contrast Mode'), findsOneWidget);
+    expect(find.text('Theme'), findsOneWidget);
     expect(find.text('Traffic Factor'), findsOneWidget);
 
-    // Scroll down to see bottom sections
-    await tester.drag(find.byType(ListView), const Offset(0, -500));
+    // Scroll down to see Passenger Type section
+    await tester.drag(find.byType(ListView), const Offset(0, -400));
     await tester.pumpAndSettle();
 
     expect(find.text('Passenger Type'), findsOneWidget);
+
+    // Scroll down more to see Transport Modes section
+    await tester.drag(find.byType(ListView), const Offset(0, -400));
+    await tester.pumpAndSettle();
+
     expect(find.text('Transport Modes'), findsOneWidget);
   });
 
@@ -80,16 +85,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(mockSettingsService.provincialMode, true);
+  });
 
-    // 2. Toggle High Contrast
-    final highContrastSwitch = find.widgetWithText(
-      SwitchListTile,
-      'High Contrast Mode',
-    );
-    await tester.tap(highContrastSwitch);
+  testWidgets('Theme mode selector updates settings service', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+
+    // Find and tap the Dark theme segment
+    final darkSegment = find.text('Dark');
+    await tester.tap(darkSegment);
     await tester.pumpAndSettle();
 
-    expect(mockSettingsService.highContrast, true);
+    expect(mockSettingsService.themeMode, 'dark');
+
+    // Tap the Light theme segment
+    final lightSegment = find.text('Light');
+    await tester.tap(lightSegment);
+    await tester.pumpAndSettle();
+
+    expect(mockSettingsService.themeMode, 'light');
   });
 
   testWidgets('Traffic Factor selection updates settings service', (
@@ -129,13 +145,30 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pumpAndSettle(const Duration(seconds: 1));
 
-    // Scroll down to see Transport Modes section
-    await tester.drag(find.byType(ListView), const Offset(0, -500));
+    // Scroll down to see Transport Modes section (multiple scrolls needed)
+    await tester.drag(find.byType(ListView), const Offset(0, -400));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView), const Offset(0, -400));
     await tester.pumpAndSettle();
 
     // The Phase 5 refactor groups modes by category (Road, Rail, Water)
     expect(find.text('Transport Modes'), findsOneWidget);
     // With Jeepney formula, we should see the Road category
     expect(find.text('Road'), findsOneWidget);
+  });
+
+  testWidgets('About section contains Source Code link to GitHub', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+
+    // Scroll down to see About section
+    await tester.drag(find.byType(ListView), const Offset(0, -800));
+    await tester.pumpAndSettle();
+
+    // Verify the Source Code tile exists
+    expect(find.text('Source Code'), findsOneWidget);
+    expect(find.text('View on GitHub'), findsOneWidget);
   });
 }

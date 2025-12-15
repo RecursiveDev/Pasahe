@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:ph_fare_calculator/src/core/di/injection.dart';
+import 'package:ph_fare_calculator/src/presentation/widgets/app_logo_widget.dart';
 import 'package:ph_fare_calculator/src/services/settings_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
@@ -204,14 +205,44 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   Widget _buildKnowYourFarePage(AppLocalizations l10n, ThemeData theme) {
-    return _buildOnboardingPage(
-      icon: Icons.directions_bus_rounded,
-      iconColor: _primaryBlue,
-      iconBackgroundColor: _primaryBlue.withValues(alpha: 0.1),
-      title: l10n.welcomeTitle,
-      description: l10n.onboardingKnowFareDescription,
-      theme: theme,
-      semanticLabel: 'Know Your Fare - Calculate fares for different transport',
+    return Semantics(
+      label: 'Know Your Fare - Calculate fares for different transport',
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Use AppLogoWidget for visual consistency with splash screen
+                const AppLogoWidget(size: AppLogoSize.large, showShadow: true),
+                const SizedBox(height: 48),
+                // Title
+                Text(
+                  l10n.welcomeTitle,
+                  style: theme.textTheme.headlineLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1A1C1E),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                // Description
+                Text(
+                  l10n.onboardingKnowFareDescription,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: Colors.grey.shade600,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

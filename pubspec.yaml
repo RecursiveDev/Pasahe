@@ -57,6 +57,12 @@ dependencies:
   # Path utilities
   path: ^1.9.0
 
+  # Package info for version display
+  package_info_plus: ^8.0.0
+
+  # URL launcher for opening external links
+  url_launcher: ^6.2.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -71,6 +77,9 @@ dev_dependencies:
   injectable_generator: ^2.4.0
   hive_generator: ^2.0.1
   mockito: ^5.4.4
+
+  # App launcher icon generator
+  flutter_launcher_icons: ^0.14.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -115,3 +124,23 @@ flutter:
   #
   # For details regarding fonts from package dependencies, see
   # https://flutter.dev/to/font-from-package
+
+# Flutter Launcher Icons configuration
+# Run: flutter pub run flutter_launcher_icons
+flutter_launcher_icons:
+  # Android configuration
+  android: true
+  ios: true
+  
+  # Path to the source icon (1024x1024 recommended)
+  image_path: "assets/icons/app_icon.png"
+  
+  # Remove alpha channel for iOS (required for App Store)
+  remove_alpha_ios: true
+  
+  # Android adaptive icon configuration
+  adaptive_icon_background: "#0038A8"  # Philippine flag blue
+  adaptive_icon_foreground: "assets/icons/app_icon_foreground.png"
+  
+  # Minimum SDK version for adaptive icons
+  min_sdk_android: 21

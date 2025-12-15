@@ -10,7 +10,7 @@ enum TrafficFactor { low, medium, high }
 class SettingsService {
   static const String _keyProvincialMode = 'isProvincialModeEnabled';
   static const String _keyTrafficFactor = 'trafficFactor';
-  static const String _keyHighContrastEnabled = 'isHighContrastEnabled';
+  static const String _keyThemeMode = 'themeMode';
   static const String _keyLocale = 'locale';
   static const String _keyUserDiscountType = 'user_discount_type';
   static const String _keyHasSetDiscountType = 'has_set_discount_type';
@@ -19,7 +19,10 @@ class SettingsService {
   static const String _keyLastLongitude = 'last_known_longitude';
   static const String _keyLastLocationName = 'last_known_location_name';
 
-  static final ValueNotifier<bool> highContrastNotifier = ValueNotifier(false);
+  /// Notifier for theme mode changes. Values: 'system', 'light', 'dark'
+  static final ValueNotifier<String> themeModeNotifier = ValueNotifier(
+    'system',
+  );
   static final ValueNotifier<Locale> localeNotifier = ValueNotifier(
     const Locale('en'),
   );
@@ -60,19 +63,31 @@ class SettingsService {
     await prefs.setString(_keyTrafficFactor, factor.name);
   }
 
-  Future<bool> getHighContrastEnabled() async {
+  /// Get the theme mode preference. Returns 'system', 'light', or 'dark'.
+  /// Default is 'system' (follows device settings).
+  Future<String> getThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getBool(_keyHighContrastEnabled) ?? false;
-    if (highContrastNotifier.value != value) {
-      highContrastNotifier.value = value;
+    final value = prefs.getString(_keyThemeMode) ?? 'system';
+    // Validate the value
+    if (value != 'system' && value != 'light' && value != 'dark') {
+      return 'system';
+    }
+    if (themeModeNotifier.value != value) {
+      themeModeNotifier.value = value;
     }
     return value;
   }
 
-  Future<void> setHighContrastEnabled(bool value) async {
+  /// Set the theme mode preference.
+  /// @param mode: 'system', 'light', or 'dark'
+  Future<void> setThemeMode(String mode) async {
+    // Validate the mode
+    if (mode != 'system' && mode != 'light' && mode != 'dark') {
+      mode = 'system';
+    }
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_keyHighContrastEnabled, value);
-    highContrastNotifier.value = value;
+    await prefs.setString(_keyThemeMode, mode);
+    themeModeNotifier.value = mode;
   }
 
   Future<Locale> getLocale() async {

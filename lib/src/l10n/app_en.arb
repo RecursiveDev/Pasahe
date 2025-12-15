@@ -12,8 +12,11 @@
   "settingsTitle": "Settings",
   "provincialModeTitle": "Provincial Mode",
   "provincialModeSubtitle": "Enable provincial fare rates",
-  "highContrastModeTitle": "High Contrast Mode",
-  "highContrastModeSubtitle": "Increase contrast for better visibility",
+  "themeModeTitle": "Theme",
+  "themeModeSubtitle": "Choose your preferred appearance",
+  "themeModeSystem": "System",
+  "themeModeLight": "Light",
+  "themeModeDark": "Dark",
   "trafficFactorTitle": "Traffic Factor",
   "trafficFactorSubtitle": "Adjusts the fare calculation based on expected traffic conditions.",
   "trafficLow": "Low",
@@ -28,5 +31,7 @@
   "onboardingKnowFareDescription": "Calculate fares for jeepneys, buses, trains, and ferries across the Philippines.",
   "onboardingWorkOfflineTitle": "Work Offline",
   "onboardingWorkOfflineDescription": "Access fare data anytime, even without an internet connection.",
-  "onboardingLanguageTitle": "Choose Your Language"
+  "onboardingLanguageTitle": "Choose Your Language",
+  "sourceCodeTitle": "Source Code",
+  "sourceCodeSubtitle": "View on GitHub"
 }

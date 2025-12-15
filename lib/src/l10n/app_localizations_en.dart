@@ -49,11 +49,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get provincialModeSubtitle => 'Enable provincial fare rates';
 
   @override
-  String get highContrastModeTitle => 'High Contrast Mode';
+  String get themeModeTitle => 'Theme';
 
   @override
-  String get highContrastModeSubtitle =>
-      'Increase contrast for better visibility';
+  String get themeModeSubtitle => 'Choose your preferred appearance';
+
+  @override
+  String get themeModeSystem => 'System';
+
+  @override
+  String get themeModeLight => 'Light';
+
+  @override
+  String get themeModeDark => 'Dark';
 
   @override
   String get trafficFactorTitle => 'Traffic Factor';
@@ -102,4 +110,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingLanguageTitle => 'Choose Your Language';
+
+  @override
+  String get sourceCodeTitle => 'Source Code';
+
+  @override
+  String get sourceCodeSubtitle => 'View on GitHub';
 }

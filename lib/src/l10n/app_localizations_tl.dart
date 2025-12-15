@@ -50,11 +50,19 @@ class AppLocalizationsTl extends AppLocalizations {
       'Paganahin ang mga presyo ng pamasahe sa probinsya';
 
   @override
-  String get highContrastModeTitle => 'High Contrast Mode';
+  String get themeModeTitle => 'Tema';
 
   @override
-  String get highContrastModeSubtitle =>
-      'Taasan ang contrast para sa mas malinaw na pagtingin';
+  String get themeModeSubtitle => 'Piliin ang iyong gustong hitsura';
+
+  @override
+  String get themeModeSystem => 'System';
+
+  @override
+  String get themeModeLight => 'Maliwanag';
+
+  @override
+  String get themeModeDark => 'Madilim';
 
   @override
   String get trafficFactorTitle => 'Antas ng Trapiko';
@@ -103,4 +111,10 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get onboardingLanguageTitle => 'Pumili ng Wika';
+
+  @override
+  String get sourceCodeTitle => 'Source Code';
+
+  @override
+  String get sourceCodeSubtitle => 'Tingnan sa GitHub';
 }

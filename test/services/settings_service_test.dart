@@ -14,7 +14,7 @@ void main() {
   test('Default values are correct', () async {
     expect(await settingsService.getProvincialMode(), false);
     expect(await settingsService.getTrafficFactor(), TrafficFactor.medium);
-    expect(await settingsService.getHighContrastEnabled(), false);
+    expect(await settingsService.getThemeMode(), 'system');
   });
 
   test('Provincial mode is saved and retrieved', () async {
@@ -33,10 +33,23 @@ void main() {
     expect(await settingsService.getTrafficFactor(), TrafficFactor.low);
   });
 
-  test('High contrast is saved and retrieved', () async {
-    await settingsService.setHighContrastEnabled(true);
-    expect(await settingsService.getHighContrastEnabled(), true);
-    expect(SettingsService.highContrastNotifier.value, true);
+  test('Theme mode is saved and retrieved', () async {
+    await settingsService.setThemeMode('dark');
+    expect(await settingsService.getThemeMode(), 'dark');
+    expect(SettingsService.themeModeNotifier.value, 'dark');
+
+    await settingsService.setThemeMode('light');
+    expect(await settingsService.getThemeMode(), 'light');
+    expect(SettingsService.themeModeNotifier.value, 'light');
+
+    await settingsService.setThemeMode('system');
+    expect(await settingsService.getThemeMode(), 'system');
+    expect(SettingsService.themeModeNotifier.value, 'system');
+  });
+
+  test('Invalid theme mode defaults to system', () async {
+    await settingsService.setThemeMode('invalid');
+    expect(await settingsService.getThemeMode(), 'system');
   });
 
   test('Last location returns null when not previously saved', () async {

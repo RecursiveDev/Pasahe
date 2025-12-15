@@ -39,12 +39,12 @@ class FakeSettingsService implements SettingsService {
     trafficFactor = factor;
   }
 
-  bool highContrast = false;
+  String themeMode = 'system';
   @override
-  Future<bool> getHighContrastEnabled() async => highContrast;
+  Future<String> getThemeMode() async => themeMode;
   @override
-  Future<void> setHighContrastEnabled(bool value) async {
-    highContrast = value;
+  Future<void> setThemeMode(String mode) async {
+    themeMode = mode;
   }
 
   DiscountType discountType = DiscountType.standard;

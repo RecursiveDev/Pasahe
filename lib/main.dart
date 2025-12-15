@@ -20,10 +20,10 @@ Future<void> main() async {
   // Pre-initialize static notifiers from SharedPreferences to avoid race condition
   // This ensures ValueListenableBuilders have correct values when the widget tree is built
   final prefs = await SharedPreferences.getInstance();
-  final isHighContrast = prefs.getBool('isHighContrastEnabled') ?? false;
+  final themeMode = prefs.getString('themeMode') ?? 'system';
   final languageCode = prefs.getString('locale') ?? 'en';
 
-  SettingsService.highContrastNotifier.value = isHighContrast;
+  SettingsService.themeModeNotifier.value = themeMode;
   SettingsService.localeNotifier.value = Locale(languageCode);
 
   runApp(const MyApp());
@@ -32,17 +32,32 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  /// Convert theme mode string to ThemeMode enum
+  ThemeMode _getThemeMode(String mode) {
+    switch (mode) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      case 'system':
+      default:
+        return ThemeMode.system;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<bool>(
-      valueListenable: SettingsService.highContrastNotifier,
-      builder: (context, isHighContrast, child) {
+    return ValueListenableBuilder<String>(
+      valueListenable: SettingsService.themeModeNotifier,
+      builder: (context, themeMode, child) {
         return ValueListenableBuilder<Locale>(
           valueListenable: SettingsService.localeNotifier,
           builder: (context, locale, child) {
             return MaterialApp(
               title: 'PH Fare Calculator',
-              theme: isHighContrast ? AppTheme.darkTheme : AppTheme.lightTheme,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: _getThemeMode(themeMode),
               locale: locale,
               localizationsDelegates: const [
                 AppLocalizations.delegate,

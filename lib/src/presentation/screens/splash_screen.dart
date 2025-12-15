@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:ph_fare_calculator/src/core/di/injection.dart';
-import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
 import 'package:ph_fare_calculator/src/models/fare_formula.dart';
 import 'package:ph_fare_calculator/src/models/fare_result.dart';
 import 'package:ph_fare_calculator/src/models/saved_route.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/onboarding_screen.dart';
+import 'package:ph_fare_calculator/src/presentation/widgets/app_logo_widget.dart';
 import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
+import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
 import 'package:ph_fare_calculator/src/services/settings_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -149,7 +150,7 @@ class _SplashScreenState extends State<SplashScreen>
 
       // 4. Settings
       final settingsService = getIt<SettingsService>();
-      await settingsService.getHighContrastEnabled();
+      await settingsService.getThemeMode();
 
       // 5. Check Onboarding
       final prefs = await SharedPreferences.getInstance();
@@ -292,53 +293,15 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Widget _buildAnimatedLogo() {
-    return Semantics(
-      label: 'Application logo',
-      child: AnimatedBuilder(
-        animation: _logoController,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _logoScale.value,
-            child: Opacity(opacity: _logoOpacity.value, child: child),
-          );
-        },
-        child: Container(
-          width: 140,
-          height: 140,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Center(
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [_primaryBlue, _primaryBlue.withValues(alpha: 0.8)],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.directions_bus_rounded,
-                  size: 56,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+    return AnimatedBuilder(
+      animation: _logoController,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _logoScale.value,
+          child: Opacity(opacity: _logoOpacity.value, child: child),
+        );
+      },
+      child: const AppLogoWidget(size: AppLogoSize.large, showShadow: true),
     );
   }
 

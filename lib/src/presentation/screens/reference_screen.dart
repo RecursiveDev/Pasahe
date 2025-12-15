@@ -100,25 +100,19 @@ class _ReferenceScreenState extends State<ReferenceScreen>
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+          tooltip: 'Back',
+        ),
+        title: const Text('Fare Reference Guide'),
+        centerTitle: false,
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Custom App Bar with title
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Semantics(
-                header: true,
-                child: Text(
-                  'Fare Reference Guide',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-            ),
-
             // Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -167,6 +161,8 @@ class _ReferenceScreenState extends State<ReferenceScreen>
               ),
               child: TabBar(
                 controller: _tabController,
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
                 labelColor: colorScheme.primary,
                 unselectedLabelColor: colorScheme.onSurfaceVariant,
                 indicatorSize: TabBarIndicatorSize.tab,
@@ -184,7 +180,7 @@ class _ReferenceScreenState extends State<ReferenceScreen>
                   _buildTab(Icons.directions_bus_rounded, 'Road'),
                   _buildTab(Icons.train_rounded, 'Train'),
                   _buildTab(Icons.directions_boat_rounded, 'Ferry'),
-                  _buildTab(Icons.info_outline_rounded, 'Discounts'),
+                  _buildTab(Icons.info_outline_rounded, 'Discount Guide'),
                 ],
               ),
             ),

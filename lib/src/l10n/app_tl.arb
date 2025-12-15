@@ -12,8 +12,11 @@
   "settingsTitle": "Mga Setting",
   "provincialModeTitle": "Provincial Mode",
   "provincialModeSubtitle": "Paganahin ang mga presyo ng pamasahe sa probinsya",
-  "highContrastModeTitle": "High Contrast Mode",
-  "highContrastModeSubtitle": "Taasan ang contrast para sa mas malinaw na pagtingin",
+  "themeModeTitle": "Tema",
+  "themeModeSubtitle": "Piliin ang iyong gustong hitsura",
+  "themeModeSystem": "System",
+  "themeModeLight": "Maliwanag",
+  "themeModeDark": "Madilim",
   "trafficFactorTitle": "Antas ng Trapiko",
   "trafficFactorSubtitle": "Isinasaayos ang kalkulasyon ng pamasahe batay sa inaasahang kondisyon ng trapiko.",
   "trafficLow": "Mababa",
@@ -28,5 +31,7 @@
   "onboardingKnowFareDescription": "Kalkulahin ang pamasahe para sa jeepney, bus, tren, at ferry sa buong Pilipinas.",
   "onboardingWorkOfflineTitle": "Magtrabaho Offline",
   "onboardingWorkOfflineDescription": "Ma-access ang datos ng pamasahe kahit walang internet connection.",
-  "onboardingLanguageTitle": "Pumili ng Wika"
+  "onboardingLanguageTitle": "Pumili ng Wika",
+  "sourceCodeTitle": "Source Code",
+  "sourceCodeSubtitle": "Tingnan sa GitHub"
 }
