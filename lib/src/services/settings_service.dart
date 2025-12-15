@@ -20,9 +20,8 @@ class SettingsService {
   static const String _keyLastLocationName = 'last_known_location_name';
 
   /// Notifier for theme mode changes. Values: 'system', 'light', 'dark'
-  static final ValueNotifier<String> themeModeNotifier = ValueNotifier(
-    'system',
-  );
+  /// Default is 'light' for first-time users.
+  static final ValueNotifier<String> themeModeNotifier = ValueNotifier('light');
   static final ValueNotifier<Locale> localeNotifier = ValueNotifier(
     const Locale('en'),
   );
@@ -64,10 +63,10 @@ class SettingsService {
   }
 
   /// Get the theme mode preference. Returns 'system', 'light', or 'dark'.
-  /// Default is 'system' (follows device settings).
+  /// Default is 'light' for first-time users.
   Future<String> getThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_keyThemeMode) ?? 'system';
+    final value = prefs.getString(_keyThemeMode) ?? 'light';
     // Validate the value
     if (value != 'system' && value != 'light' && value != 'dark') {
       return 'system';

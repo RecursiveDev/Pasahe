@@ -14,7 +14,8 @@ void main() {
   test('Default values are correct', () async {
     expect(await settingsService.getProvincialMode(), false);
     expect(await settingsService.getTrafficFactor(), TrafficFactor.medium);
-    expect(await settingsService.getThemeMode(), 'system');
+    // Default theme is 'light' for first-time users (changed from 'system')
+    expect(await settingsService.getThemeMode(), 'light');
   });
 
   test('Provincial mode is saved and retrieved', () async {

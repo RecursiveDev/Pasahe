@@ -20,7 +20,7 @@ Future<void> main() async {
   // Pre-initialize static notifiers from SharedPreferences to avoid race condition
   // This ensures ValueListenableBuilders have correct values when the widget tree is built
   final prefs = await SharedPreferences.getInstance();
-  final themeMode = prefs.getString('themeMode') ?? 'system';
+  final themeMode = prefs.getString('themeMode') ?? 'light';
   final languageCode = prefs.getString('locale') ?? 'en';
 
   SettingsService.themeModeNotifier.value = themeMode;

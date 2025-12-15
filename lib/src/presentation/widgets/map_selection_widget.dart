@@ -258,20 +258,35 @@ class _MapSelectionWidgetState extends State<MapSelectionWidget>
   }
 
   /// Builds the tile layer, using cached tiles when available.
+  /// The tile style automatically adjusts based on the current theme (light/dark).
+  /// For dark mode, CartoDB Voyager tiles are inverted using ColorFiltered.
   Widget _buildTileLayer() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    Widget tileLayer;
+
     if (widget.useCachedTiles) {
       try {
         final offlineMapService = getIt<OfflineMapService>();
-        return offlineMapService.getCachedTileLayer();
+        tileLayer = offlineMapService.getThemedCachedTileLayer(
+          isDarkMode: isDarkMode,
+        );
       } catch (_) {
         // Fall back to network tiles if service not initialized
+        tileLayer = OfflineMapService.getNetworkTileLayer(
+          isDarkMode: isDarkMode,
+        );
       }
+    } else {
+      tileLayer = OfflineMapService.getNetworkTileLayer(isDarkMode: isDarkMode);
     }
 
-    return TileLayer(
-      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-      userAgentPackageName: 'com.ph_fare_calculator',
-    );
+    // Apply color inversion for dark mode to create dark appearance from Voyager tiles
+    if (isDarkMode) {
+      return OfflineMapService.wrapWithDarkModeFilter(tileLayer);
+    }
+
+    return tileLayer;
   }
 
   List<Marker> _buildMarkers(BuildContext context) {

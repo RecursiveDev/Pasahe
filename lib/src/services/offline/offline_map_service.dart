@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart' as fmtc;
 import 'package:hive/hive.dart';
@@ -532,18 +533,89 @@ class OfflineMapService {
     await _regionsBox?.clear();
   }
 
+  /// CartoDB Voyager tile URL - used for both light and dark mode
+  /// Voyager has excellent road visibility and supports zoom levels 0-20
+  /// For dark mode, we apply a color inversion filter at the widget level
+  static const String _voyagerTileUrl =
+      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+  /// Subdomains for CartoDB tile servers (load balancing)
+  static const List<String> _cartoSubdomains = ['a', 'b', 'c', 'd'];
+
+  /// Color inversion matrix for dark mode
+  /// This inverts the light Voyager tiles to create a dark appearance with visible roads
+  static const ColorFilter darkModeInvertFilter = ColorFilter.matrix(<double>[
+    -1,
+    0,
+    0,
+    0,
+    255,
+    0,
+    -1,
+    0,
+    0,
+    255,
+    0,
+    0,
+    -1,
+    0,
+    255,
+    0,
+    0,
+    0,
+    1,
+    0,
+  ]);
+
+  /// Wraps a widget with the dark mode color inversion filter
+  ///
+  /// Use this to wrap TileLayer widgets when displaying maps in dark mode.
+  /// The filter inverts the light Voyager tiles to create a dark appearance.
+  static Widget wrapWithDarkModeFilter(Widget child) {
+    return ColorFiltered(colorFilter: darkModeInvertFilter, child: child);
+  }
+
   /// Gets a tile layer that uses the FMTC cache.
   ///
   /// Falls back to network tiles when cache misses occur.
+  /// Uses light mode tiles by default.
   TileLayer getCachedTileLayer() {
+    return getThemedCachedTileLayer(isDarkMode: false);
+  }
+
+  /// Gets a theme-aware tile layer that uses the FMTC cache.
+  ///
+  /// Uses CartoDB Voyager tiles for both light and dark mode.
+  /// For dark mode, the calling widget should wrap this with [wrapWithDarkModeFilter].
+  /// Falls back to network tiles when cache misses occur.
+  TileLayer getThemedCachedTileLayer({required bool isDarkMode}) {
     _ensureInitialized();
 
+    // Both light and dark mode use Voyager tiles
+    // Dark mode applies color inversion at the widget level
     return TileLayer(
-      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      urlTemplate: _voyagerTileUrl,
+      subdomains: _cartoSubdomains,
       userAgentPackageName: 'com.ph_fare_calculator',
+      maxZoom: 20, // Voyager supports up to zoom 20
       tileProvider: fmtc.FMTCTileProvider(
         stores: {_storeName: fmtc.BrowseStoreStrategy.readUpdateCreate},
       ),
+    );
+  }
+
+  /// Gets a tile layer without FMTC caching (for fallback scenarios).
+  ///
+  /// Uses CartoDB Voyager tiles for both light and dark mode.
+  /// For dark mode, the calling widget should wrap this with [wrapWithDarkModeFilter].
+  static TileLayer getNetworkTileLayer({required bool isDarkMode}) {
+    // Both light and dark mode use Voyager tiles
+    // Dark mode applies color inversion at the widget level
+    return TileLayer(
+      urlTemplate: _voyagerTileUrl,
+      subdomains: _cartoSubdomains,
+      userAgentPackageName: 'com.ph_fare_calculator',
+      maxZoom: 20, // Voyager supports up to zoom 20
     );
   }
 
