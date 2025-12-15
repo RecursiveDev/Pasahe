@@ -154,10 +154,16 @@ class _MainScreenState extends State<MainScreen> {
                       onSortChanged: _controller.setSortCriteria,
                     ),
                     const SizedBox(height: 16),
-                    MapPreview(
-                      origin: _controller.originLatLng,
-                      destination: _controller.destinationLatLng,
-                      routePoints: _controller.routePoints,
+                    // Map height: 280 when no fare results (40% larger), 200 when showing results
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      child: MapPreview(
+                        origin: _controller.originLatLng,
+                        destination: _controller.destinationLatLng,
+                        routePoints: _controller.routePoints,
+                        height: _controller.fareResults.isEmpty ? 280 : 200,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     CalculateFareButton(

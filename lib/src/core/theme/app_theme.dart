@@ -1,30 +1,122 @@
 import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart'; // Uncomment when dependency added
 
 import 'transit_colors.dart';
 
-/// Application theme configuration with Jeepney-inspired color palette.
-/// Based on Philippine flag colors: Blue, Yellow, Red.
+/// Application theme configuration with Archipelago Blue color palette.
+/// Deep teal primary paired with energetic orange accents,
+/// inspired by the Philippine seas and islands.
 class AppTheme {
   // Private constructor to prevent instantiation
   AppTheme._();
 
-  // Brand Colors
-  static const Color _seedColor = Color(0xFF0038A8); // PH Blue
-  static const Color _secondaryColor = Color(0xFFFCD116); // PH Yellow
-  static const Color _tertiaryColor = Color(0xFFCE1126); // PH Red
+  // ============================================
+  // LIGHT MODE - Archipelago Blue Theme
+  // Optimized for outdoor visibility under strong tropical sunlight
+  // ============================================
+
+  // Primary Colors (Deep Teal)
+  static const Color _lightPrimary = Color(0xFF006064); // Deep Teal
+  static const Color _lightOnPrimary = Color(0xFFFFFFFF);
+  static const Color _lightPrimaryContainer = Color(0xFFE0F7FA); // Coastal Foam
+  static const Color _lightOnPrimaryContainer = Color(
+    0xFF001F23,
+  ); // Deepest Teal
+
+  // Secondary Colors (Pacific Blue)
+  static const Color _lightSecondary = Color(0xFF0097A7); // Pacific Blue
+  static const Color _lightOnSecondary = Color(0xFFFFFFFF);
+  static const Color _lightSecondaryContainer = Color(0xFFD6F7FC); // Reef Mist
+  static const Color _lightOnSecondaryContainer = Color(
+    0xFF001F25,
+  ); // Deep Reef
+
+  // Tertiary Colors (Lifevest Orange)
+  static const Color _lightTertiary = Color(0xFFFF6F00); // Lifevest Orange
+  static const Color _lightOnTertiary = Color(0xFF210A00); // Deep Brown
+  static const Color _lightTertiaryContainer = Color(0xFFFFDCC2); // Sunset Glow
+  static const Color _lightOnTertiaryContainer = Color(
+    0xFF3E1800,
+  ); // Burnt Orange
+
+  // Error Colors
+  static const Color _lightError = Color(0xFFBA1A1A);
+  static const Color _lightOnError = Color(0xFFFFFFFF);
+
+  // Surface & Background Colors
+  static const Color _lightSurface = Color(0xFFFFFFFF);
+  static const Color _lightOnSurface = Color(0xFF191C1C); // Ink Grey
+  static const Color _lightSurfaceVariant = Color(
+    0xFFDAE4E5,
+  ); // Neutral Variant
+  static const Color _lightOnSurfaceVariant = Color(0xFF3F4949); // Text Variant
+  static const Color _lightOutline = Color(0xFF6F7979); // Outline Grey
+  static const Color _lightBackground = Color(0xFFF5FDFE); // Mist
+
+  // ============================================
+  // DARK MODE - Archipelago Blue Theme
+  // Optimized for OLED displays and night commuting comfort
+  // ============================================
+
+  // Primary Colors (Cyan Aqua - pastel for dark mode)
+  static const Color _darkPrimary = Color(0xFF4DD0E1); // Cyan Aqua
+  static const Color _darkOnPrimary = Color(0xFF00363A); // Deep Teal
+  static const Color _darkPrimaryContainer = Color(0xFF004F52); // Teal Depth
+  static const Color _darkOnPrimaryContainer = Color(0xFFE0F7FA); // Cyan Light
+
+  // Secondary Colors (Reef Blue)
+  static const Color _darkSecondary = Color(0xFF80DEEA); // Reef Blue
+  static const Color _darkOnSecondary = Color(0xFF00363D); // Deep Reef
+  static const Color _darkSecondaryContainer = Color(
+    0xFF004F58,
+  ); // Pacific Depth
+  static const Color _darkOnSecondaryContainer = Color(0xFFD6F7FC); // Reef Mist
+
+  // Tertiary Colors (Coral)
+  static const Color _darkTertiary = Color(0xFFFFB74D); // Coral
+  static const Color _darkOnTertiary = Color(0xFF452300); // Deep Brown
+  static const Color _darkTertiaryContainer = Color(0xFF633300); // Orange Depth
+  static const Color _darkOnTertiaryContainer = Color(0xFFFFDCC2); // Peach
+
+  // Error Colors
+  static const Color _darkError = Color(0xFFFFB4AB); // Soft Error
+  static const Color _darkOnError = Color(0xFF690005); // Dark Red
+
+  // Surface & Background Colors
+  static const Color _darkSurface = Color(0xFF001F25); // Deep Sea
+  static const Color _darkOnSurface = Color(0xFFE0E3E3); // Soft White
+  static const Color _darkSurfaceVariant = Color(0xFF3F4949); // Dark Metal
+  static const Color _darkOnSurfaceVariant = Color(0xFFBEC8C9); // Metal Text
+  static const Color _darkOutline = Color(0xFF899393); // Soft Outline
+  static const Color _darkBackground = Color(
+    0xFF001216,
+  ); // Abyss (OLED friendly)
 
   /// Light theme for the application.
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: _seedColor,
-        secondary: _secondaryColor,
-        tertiary: _tertiaryColor,
-        brightness: Brightness.light,
-        surface: const Color(0xFFFFFFFF),
-        surfaceContainerLowest: const Color(0xFFF8F9FA), // Background
+      colorScheme: const ColorScheme.light(
+        primary: _lightPrimary,
+        onPrimary: _lightOnPrimary,
+        primaryContainer: _lightPrimaryContainer,
+        onPrimaryContainer: _lightOnPrimaryContainer,
+        secondary: _lightSecondary,
+        onSecondary: _lightOnSecondary,
+        secondaryContainer: _lightSecondaryContainer,
+        onSecondaryContainer: _lightOnSecondaryContainer,
+        tertiary: _lightTertiary,
+        onTertiary: _lightOnTertiary,
+        tertiaryContainer: _lightTertiaryContainer,
+        onTertiaryContainer: _lightOnTertiaryContainer,
+        error: _lightError,
+        onError: _lightOnError,
+        surface: _lightSurface,
+        onSurface: _lightOnSurface,
+        surfaceContainerLowest: _lightBackground, // App background
+        surfaceContainerHighest: _lightSurfaceVariant,
+        onSurfaceVariant: _lightOnSurfaceVariant,
+        outline: _lightOutline,
+        outlineVariant: _lightSurfaceVariant,
       ),
 
       // Typography
@@ -75,7 +167,7 @@ class AppTheme {
             0, // Flat by default for modern look, outline handles separation
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFFE0E0E0), width: 1),
+          side: const BorderSide(color: _lightSurfaceVariant, width: 1),
         ),
         margin: EdgeInsets.zero,
       ),
@@ -97,19 +189,19 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _seedColor, width: 2),
+          borderSide: const BorderSide(color: _lightPrimary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _tertiaryColor, width: 1),
+          borderSide: const BorderSide(color: _lightError, width: 1),
         ),
         labelStyle: const TextStyle(color: Color(0xFF757575)),
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: _seedColor,
-          foregroundColor: Colors.white,
+          backgroundColor: _lightPrimary,
+          foregroundColor: _lightOnPrimary,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: const StadiumBorder(),
@@ -119,10 +211,10 @@ class AppTheme {
 
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: _seedColor,
+          foregroundColor: _lightPrimary,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: const StadiumBorder(),
-          side: const BorderSide(color: _seedColor),
+          side: const BorderSide(color: _lightPrimary),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
       ),
@@ -132,21 +224,21 @@ class AppTheme {
         elevation: 0,
         centerTitle: false,
         titleTextStyle: TextStyle(
-          color: Color(0xFF1A1C1E),
+          color: _lightOnSurface,
           fontSize: 22,
           fontWeight: FontWeight.bold,
         ),
-        iconTheme: IconThemeData(color: Color(0xFF1A1C1E)),
+        iconTheme: IconThemeData(color: _lightOnSurface),
       ),
 
       navigationBarTheme: NavigationBarThemeData(
         elevation: 0,
-        backgroundColor: const Color(0xFFF0F4FF), // Very light blue tint
-        indicatorColor: _seedColor.withValues(alpha: 0.2),
+        backgroundColor: _lightPrimaryContainer,
+        indicatorColor: _lightPrimary.withValues(alpha: 0.2),
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: _seedColor);
+            return const IconThemeData(color: _lightPrimary);
           }
           return const IconThemeData(color: Color(0xFF757575));
         }),
@@ -157,58 +249,38 @@ class AppTheme {
     );
   }
 
-  /// Dark theme using Material 3 standard colors from research.
-  /// Background: #141218 (dark purple-grey, NOT pure black)
-  /// Uses M3 surface container system for proper elevation hierarchy.
+  /// Dark theme for the application.
+  /// Optimized for OLED displays and night commuting comfort.
   static ThemeData get darkTheme {
-    // M3 Standard Dark Mode Colors (from research doc)
-    const Color m3DarkBackground = Color(0xFF141218);
-    const Color m3DarkSurface = Color(0xFF141218);
-    const Color m3DarkSurfaceContainerLowest = Color(0xFF0F0D13);
-    const Color m3DarkSurfaceContainerLow = Color(0xFF1D1B20);
-    const Color m3DarkSurfaceContainer = Color(0xFF211F26);
-    const Color m3DarkSurfaceContainerHigh = Color(0xFF2B2930);
-    const Color m3DarkSurfaceContainerHighest = Color(0xFF36343B);
-    const Color m3DarkOnSurface = Color(0xFFE6E0E9);
-    const Color m3DarkOnSurfaceVariant = Color(0xFFCAC4D0);
-    const Color m3DarkOutline = Color(0xFF938F99);
-    const Color m3DarkOutlineVariant = Color(0xFF49454F);
-
-    // Pastel colors for dark mode (derived from PH flag colors)
-    const Color m3DarkPrimary = Color(0xFFB8C9FF); // Soft pastel blue
-    const Color m3DarkOnPrimary = Color(0xFF002C71);
-    const Color m3DarkPrimaryContainer = Color(0xFF1B4496);
-    const Color m3DarkOnPrimaryContainer = Color(0xFFD9E2FF);
-    const Color m3DarkSecondary = Color(0xFFE5C54C); // Soft pastel yellow
-    const Color m3DarkOnSecondary = Color(0xFF3B2F00);
-    const Color m3DarkTertiary = Color(0xFFFFB4AB); // Soft pastel red
-    const Color m3DarkOnTertiary = Color(0xFF561E18);
-    const Color m3DarkError = Color(0xFFF2B8B5); // M3 soft error red
-
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: m3DarkBackground,
+      scaffoldBackgroundColor: _darkBackground,
       colorScheme: const ColorScheme.dark(
-        primary: m3DarkPrimary,
-        onPrimary: m3DarkOnPrimary,
-        primaryContainer: m3DarkPrimaryContainer,
-        onPrimaryContainer: m3DarkOnPrimaryContainer,
-        secondary: m3DarkSecondary,
-        onSecondary: m3DarkOnSecondary,
-        tertiary: m3DarkTertiary,
-        onTertiary: m3DarkOnTertiary,
-        error: m3DarkError,
-        surface: m3DarkSurface,
-        onSurface: m3DarkOnSurface,
-        onSurfaceVariant: m3DarkOnSurfaceVariant,
-        surfaceContainerLowest: m3DarkSurfaceContainerLowest,
-        surfaceContainerLow: m3DarkSurfaceContainerLow,
-        surfaceContainer: m3DarkSurfaceContainer,
-        surfaceContainerHigh: m3DarkSurfaceContainerHigh,
-        surfaceContainerHighest: m3DarkSurfaceContainerHighest,
-        outline: m3DarkOutline,
-        outlineVariant: m3DarkOutlineVariant,
+        primary: _darkPrimary,
+        onPrimary: _darkOnPrimary,
+        primaryContainer: _darkPrimaryContainer,
+        onPrimaryContainer: _darkOnPrimaryContainer,
+        secondary: _darkSecondary,
+        onSecondary: _darkOnSecondary,
+        secondaryContainer: _darkSecondaryContainer,
+        onSecondaryContainer: _darkOnSecondaryContainer,
+        tertiary: _darkTertiary,
+        onTertiary: _darkOnTertiary,
+        tertiaryContainer: _darkTertiaryContainer,
+        onTertiaryContainer: _darkOnTertiaryContainer,
+        error: _darkError,
+        onError: _darkOnError,
+        surface: _darkSurface,
+        onSurface: _darkOnSurface,
+        surfaceContainerLowest: _darkBackground,
+        surfaceContainerLow: Color(0xFF001A1F),
+        surfaceContainer: _darkSurface,
+        surfaceContainerHigh: Color(0xFF002A32),
+        surfaceContainerHighest: Color(0xFF003640),
+        onSurfaceVariant: _darkOnSurfaceVariant,
+        outline: _darkOutline,
+        outlineVariant: _darkSurfaceVariant,
       ),
 
       // Typography - MUST match light theme for consistent layout
@@ -256,17 +328,17 @@ class AppTheme {
       // Card theme - MUST match light theme structure for consistent layout
       cardTheme: CardThemeData(
         elevation: 0, // Same as light theme
-        color: m3DarkSurfaceContainer,
+        color: _darkSurface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: m3DarkOutlineVariant, width: 1),
+          side: const BorderSide(color: _darkSurfaceVariant, width: 1),
         ),
         margin: EdgeInsets.zero, // Same as light theme
       ),
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: m3DarkSurfaceContainerHigh,
+        fillColor: const Color(0xFF002A32),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
@@ -277,14 +349,14 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: m3DarkPrimary, width: 2),
+          borderSide: const BorderSide(color: _darkPrimary, width: 2),
         ),
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: m3DarkPrimary,
-          foregroundColor: m3DarkOnPrimary,
+          backgroundColor: _darkPrimary,
+          foregroundColor: _darkOnPrimary,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: const StadiumBorder(),
@@ -295,38 +367,38 @@ class AppTheme {
       // Outlined button theme - MUST match light theme for consistent layout
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: m3DarkPrimary,
+          foregroundColor: _darkPrimary,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: const StadiumBorder(),
-          side: const BorderSide(color: m3DarkPrimary),
+          side: const BorderSide(color: _darkPrimary),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
       ),
 
       // AppBar theme - MUST match light theme for consistent layout
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
         titleTextStyle: TextStyle(
-          color: m3DarkOnSurface,
+          color: _darkOnSurface,
           fontSize: 22,
           fontWeight: FontWeight.bold,
         ),
-        iconTheme: IconThemeData(color: m3DarkOnSurface),
+        iconTheme: IconThemeData(color: _darkOnSurface),
       ),
 
       navigationBarTheme: NavigationBarThemeData(
         elevation: 0, // Same as light theme
-        backgroundColor: m3DarkSurfaceContainer,
-        indicatorColor: m3DarkPrimary.withValues(alpha: 0.2),
+        backgroundColor: _darkSurface,
+        indicatorColor: _darkPrimary.withValues(alpha: 0.2),
         labelBehavior: NavigationDestinationLabelBehavior
             .alwaysShow, // Same as light theme
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: m3DarkPrimary);
+            return const IconThemeData(color: _darkPrimary);
           }
-          return const IconThemeData(color: m3DarkOnSurfaceVariant);
+          return const IconThemeData(color: _darkOnSurfaceVariant);
         }),
       ),
 

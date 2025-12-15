@@ -12,6 +12,7 @@ import '../../models/fare_formula.dart';
 import '../../models/transport_mode.dart';
 import '../../repositories/fare_repository.dart';
 import '../../services/settings_service.dart';
+import '../widgets/app_logo_widget.dart';
 
 /// Modern settings screen with grouped sections and Material 3 styling.
 /// Follows 8dp grid system and uses theme colors from AppTheme.
@@ -331,12 +332,40 @@ class _SettingsScreenState extends State<SettingsScreen>
                   _buildSettingsCard(
                     context,
                     children: [
-                      _buildAboutTile(
-                        context,
-                        title: 'PH Fare Calculator',
-                        subtitle: 'Version $_appVersion (Build $_buildNumber)',
-                        icon: Icons.calculate_rounded,
+                      // App logo and name
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            const AppLogoWidget(
+                              size: AppLogoSize.medium,
+                              showShadow: false,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'PH Fare Calculator',
+                                    style: theme.textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Version $_appVersion (Build $_buildNumber)',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const Divider(height: 1, indent: 16, endIndent: 16),
                       const Divider(height: 1, indent: 56),
                       _buildAboutTile(
                         context,
