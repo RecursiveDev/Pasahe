@@ -2,7 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Flutter](https://img.shields.io/badge/Built%20with-Flutter-blue.svg)](https://flutter.dev/)
-[![Status](https://img.shields.io/badge/Status-Active-success.svg)]()
+[![CI](https://github.com/MasuRii/ph-fare-calculator/actions/workflows/ci.yml/badge.svg)](https://github.com/MasuRii/ph-fare-calculator/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/MasuRii/ph-fare-calculator/releases)
 
 **PH Fare Calculator** is a cross-platform mobile application designed to help tourists, expats, and locals estimate public transport costs across the Philippines.
 
@@ -11,6 +12,8 @@ Unlike city-centric navigation apps, this tool focuses on **"How much?"** rather
 ## 🚀 Key Features
 
 - **Nationwide Coverage:** Works in Metro Manila, Cebu, Davao, and rural provinces.
+- **Modular Offline Maps:** Download maps by island group (Luzon, Visayas, Mindanao) to save storage space while ensuring functionality without internet.
+- **Material 3 Design:** A completely redesigned UI/UX that follows modern Material Design guidelines for better accessibility and aesthetics.
 - **Hybrid Calculation Engine:**
   - **Dynamic:** Uses **OSRM (Open Source Routing Machine)** to calculate road distance for Jeeps, Taxis, Buses, and Tricycles.
   - **Static:** Uses embedded Lookup Tables for fixed-price modes like MRT/LRT (Trains) and Ferries.
@@ -29,6 +32,8 @@ Unlike city-centric navigation apps, this tool focuses on **"How much?"** rather
 - **State Management & DI:** `injectable` + `get_it` for dependency injection.
 - **Routing:** **OSRM** (Open Source Routing Machine) for road distances.
 - **Geocoding:** **OpenStreetMap (Nominatim)** via `http` for place search and reverse geocoding.
+- **Offline Maps:** `flutter_map_tile_caching` for downloading and storing map regions.
+- **Connectivity:** `connectivity_plus` for smart online/offline network detection.
 - **Local Storage:** `hive` for persisting saved routes and `shared_preferences` for user settings.
 - **Maps:** `flutter_map` with `latlong2`.
 
@@ -53,14 +58,17 @@ Distance formulas fail here (e.g., Rail distance ≠ Road distance).
 ```
 lib/
 ├── src/
-│   ├── core/               # Core logic (HybridEngine, DI, Errors)
-│   ├── models/             # Data models (FareResult, Location, TransportMode, etc.)
-│   ├── presentation/       # Flutter UI
-│   │   ├── screens/        # MainScreen, Settings, OfflineMenu, etc.
-│   │   └── widgets/        # Reusable components (FareResultCard, etc.)
-│   ├── repositories/       # Data access layers
+│   ├── core/               # Core logic (HybridEngine, DI, Errors, Theme)
+│   ├── models/             # Data models (FareResult, Location, MapRegion, etc.)
+│   ├── presentation/       # Flutter UI (Material 3)
+│   │   ├── controllers/    # State management controllers
+│   │   ├── screens/        # MainScreen, Settings, RegionDownload, etc.
+│   │   └── widgets/        # Reusable components
+│   ├── repositories/       # Data access layers (Fare, Region)
 │   ├── services/           # External services
+│   │   ├── connectivity/   # Network status detection
 │   │   ├── geocoding/      # OpenStreetMap/Nominatim implementation
+│   │   ├── offline/        # Offline map management
 │   │   └── routing/        # OSRM & Haversine routing services
 │   └── l10n/               # Localization (English/Tagalog)
 └── main.dart
@@ -70,7 +78,7 @@ lib/
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/yourusername/ph-fare-calculator.git
+    git clone https://github.com/MasuRii/ph-fare-calculator.git
     cd ph-fare-calculator
     ```
 
@@ -93,6 +101,14 @@ lib/
 ## ⚠️ Disclaimer
 
 This app provides **estimates only**. Official fares are regulated by the LTFRB/DOTr and are subject to change without notice. This app is not affiliated with any government agency. The "Tourist Trap" indicator is an estimate based on high-traffic pricing models and does not constitute a legal accusation.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 *Built with ❤️ for Philippine Commuters.*
