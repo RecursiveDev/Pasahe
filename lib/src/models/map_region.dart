@@ -214,9 +214,9 @@ class MapRegion extends HiveObject {
 
   /// Gets the center of the region.
   LatLng get center => LatLng(
-        (southWestLat + northEastLat) / 2,
-        (southWestLng + northEastLng) / 2,
-      );
+    (southWestLat + northEastLat) / 2,
+    (southWestLng + northEastLng) / 2,
+  );
 
   /// Returns true if this is a parent island group.
   bool get isParent => type == RegionType.islandGroup;
@@ -244,7 +244,9 @@ class MapRegion extends HiveObject {
       maxZoom: json['maxZoom'] as int? ?? 14,
       estimatedTileCount: json['estimatedTileCount'] as int? ?? 0,
       estimatedSizeMB: json['estimatedSizeMB'] as int? ?? 0,
-      type: typeStr == 'island_group' ? RegionType.islandGroup : RegionType.island,
+      type: typeStr == 'island_group'
+          ? RegionType.islandGroup
+          : RegionType.island,
       parentId: json['parentId'] as String?,
       priority: json['priority'] as int? ?? 100,
     );

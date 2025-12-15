@@ -197,9 +197,9 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
       await _loadStorageInfo();
       setState(() {});
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${group.name} maps deleted')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('${group.name} maps deleted')));
       }
     }
   }
@@ -219,27 +219,111 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
     });
   }
 
+  Future<void> _clearAllData() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear All Offline Data?'),
+        content: const Text(
+          'Are you sure you want to delete all offline map data? '
+          'You will need internet to view any map areas again.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Clear All'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _offlineMapService.clearAllTiles();
+      await _loadRegions();
+      await _loadStorageInfo();
+      setState(() {});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('All offline map data cleared'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isDownloading = _offlineMapService.isDownloading;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Offline Maps'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            tooltip: 'Help',
-            onPressed: _showHelpDialog,
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: 'Options',
+            onSelected: (value) {
+              if (value == 'clear_all') {
+                _clearAllData();
+              } else if (value == 'help') {
+                _showHelpDialog();
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'clear_all',
+                enabled: !isDownloading,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.delete_sweep,
+                      color: isDownloading
+                          ? colorScheme.onSurface.withValues(alpha: 0.38)
+                          : colorScheme.error,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Clear All Data',
+                      style: TextStyle(
+                        color: isDownloading
+                            ? colorScheme.onSurface.withValues(alpha: 0.38)
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'help',
+                child: Row(
+                  children: [
+                    Icon(Icons.help_outline),
+                    SizedBox(width: 8),
+                    Text('Help'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
-              ? _buildErrorState(colorScheme)
-              : _buildContent(theme, colorScheme),
+          ? _buildErrorState(colorScheme)
+          : _buildContent(theme, colorScheme),
     );
   }
 
@@ -355,17 +439,17 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
   ) {
     final isExpanded = _expandedGroups.contains(group.id);
     final islands = _islandsByGroup[group.id] ?? [];
-    final downloadedCount =
-        islands.where((i) => i.status.isAvailableOffline).length;
-    final totalSize =
-        islands.fold<int>(0, (sum, i) => sum + i.estimatedSizeMB);
+    final downloadedCount = islands
+        .where((i) => i.status.isAvailableOffline)
+        .length;
+    final totalSize = islands.fold<int>(0, (sum, i) => sum + i.estimatedSizeMB);
 
     // Determine group status based on children
     final allDownloaded =
-        islands.isNotEmpty &&
-        islands.every((i) => i.status.isAvailableOffline);
-    final anyDownloading =
-        islands.any((i) => i.status == DownloadStatus.downloading);
+        islands.isNotEmpty && islands.every((i) => i.status.isAvailableOffline);
+    final anyDownloading = islands.any(
+      (i) => i.status == DownloadStatus.downloading,
+    );
     final partiallyDownloaded = downloadedCount > 0 && !allDownloaded;
 
     Color? cardBackground;
@@ -409,11 +493,16 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      color: colorScheme.primaryContainer.withValues(
+                        alpha: 0.3,
+                      ),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child:
-                        Icon(Icons.map, size: 24, color: colorScheme.primary),
+                    child: Icon(
+                      Icons.map,
+                      size: 24,
+                      color: colorScheme.primary,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   // Group info
@@ -564,16 +653,30 @@ class _RegionDownloadScreenState extends State<RegionDownloadScreen> {
                 ),
                 if (island.status == DownloadStatus.downloading) ...[
                   const SizedBox(height: 4),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(2),
-                    child: LinearProgressIndicator(
-                      value: island.downloadProgress,
-                      minHeight: 4,
-                      backgroundColor: colorScheme.surfaceContainerLow,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        colorScheme.primary,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(2),
+                          child: LinearProgressIndicator(
+                            value: island.downloadProgress,
+                            minHeight: 4,
+                            backgroundColor: colorScheme.surfaceContainerLow,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              colorScheme.primary,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${(island.downloadProgress * 100).round()}%',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ] else ...[
                   Text(

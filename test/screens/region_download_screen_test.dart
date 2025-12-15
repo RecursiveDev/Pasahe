@@ -180,7 +180,10 @@ void main() {
           ),
         ];
 
-        final totalSize = islands.fold<int>(0, (sum, i) => sum + i.estimatedSizeMB);
+        final totalSize = islands.fold<int>(
+          0,
+          (sum, i) => sum + i.estimatedSizeMB,
+        );
         expect(totalSize, 680);
       });
 
@@ -230,7 +233,9 @@ void main() {
           ),
         ];
 
-        final downloadedCount = islands.where((i) => i.status.isAvailableOffline).length;
+        final downloadedCount = islands
+            .where((i) => i.status.isAvailableOffline)
+            .length;
         expect(downloadedCount, 2);
 
         final allDownloaded = islands.every((i) => i.status.isAvailableOffline);
@@ -274,7 +279,9 @@ void main() {
         ];
 
         expect(
-          allDownloadedIslands.every((i) => i.status == DownloadStatus.downloaded),
+          allDownloadedIslands.every(
+            (i) => i.status == DownloadStatus.downloaded,
+          ),
           isTrue,
         );
 
@@ -499,7 +506,9 @@ void main() {
           ),
         ];
 
-        final downloadedCount = islands.where((i) => i.status.isAvailableOffline).length;
+        final downloadedCount = islands
+            .where((i) => i.status.isAvailableOffline)
+            .length;
         final allDownloaded = downloadedCount == islands.length;
         final partiallyDownloaded = downloadedCount > 0 && !allDownloaded;
 
@@ -540,7 +549,9 @@ void main() {
           ),
         ];
 
-        final downloadedCount = islands.where((i) => i.status.isAvailableOffline).length;
+        final downloadedCount = islands
+            .where((i) => i.status.isAvailableOffline)
+            .length;
         final allDownloaded = downloadedCount == islands.length;
         final partiallyDownloaded = downloadedCount > 0 && !allDownloaded;
 
@@ -581,7 +592,9 @@ void main() {
           ),
         ];
 
-        final downloadedCount = islands.where((i) => i.status.isAvailableOffline).length;
+        final downloadedCount = islands
+            .where((i) => i.status.isAvailableOffline)
+            .length;
         final allDownloaded = downloadedCount == islands.length;
 
         expect(allDownloaded, isTrue);

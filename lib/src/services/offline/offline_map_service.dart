@@ -29,6 +29,12 @@ class OfflineMapService {
   /// Whether a download is currently in progress.
   bool _isDownloading = false;
 
+  /// Whether cancellation has been requested for the current download.
+  bool _cancelRequested = false;
+
+  /// The region currently being downloaded (for status reset on cancel).
+  MapRegion? _currentDownloadingRegion;
+
   /// Whether the service has been initialized.
   bool _isInitialized = false;
 
@@ -134,9 +140,7 @@ class OfflineMapService {
 
   /// Gets all island groups (parent regions).
   Future<List<MapRegion>> getIslandGroups() async {
-    return _allRegions
-        .where((r) => r.type == RegionType.islandGroup)
-        .toList()
+    return _allRegions.where((r) => r.type == RegionType.islandGroup).toList()
       ..sort((a, b) => a.priority.compareTo(b.priority));
   }
 
@@ -168,6 +172,9 @@ class OfflineMapService {
   Stream<RegionDownloadProgress> downloadRegion(MapRegion region) async* {
     _ensureInitialized();
 
+    // Reset cancellation flag at the very start, before any early returns
+    _cancelRequested = false;
+
     // Check connectivity first
     final status = await _connectivityService.currentStatus;
     if (status == ConnectivityStatus.offline) {
@@ -181,6 +188,7 @@ class OfflineMapService {
     }
 
     _isDownloading = true;
+    _currentDownloadingRegion = region;
     region.status = DownloadStatus.downloading;
 
     // Create the downloadable region
@@ -245,17 +253,34 @@ class OfflineMapService {
         }
       }
     } catch (e) {
-      yield RegionDownloadProgress(
-        region: region,
-        tilesDownloaded: tilesDownloaded,
-        totalTiles: totalTiles,
-        bytesDownloaded: bytesDownloaded,
-        errorMessage: e.toString(),
-      );
-      region.status = DownloadStatus.error;
-      region.errorMessage = e.toString();
+      // Only set error status if not cancelled
+      if (!_cancelRequested) {
+        yield RegionDownloadProgress(
+          region: region,
+          tilesDownloaded: tilesDownloaded,
+          totalTiles: totalTiles,
+          bytesDownloaded: bytesDownloaded,
+          errorMessage: e.toString(),
+        );
+        region.status = DownloadStatus.error;
+        region.errorMessage = e.toString();
+      }
     } finally {
+      // Check if download was cancelled (stream ended without completion)
+      if (_cancelRequested && region.status == DownloadStatus.downloading) {
+        region.status = DownloadStatus.notDownloaded;
+        region.downloadProgress = 0.0;
+        region.tilesDownloaded = 0;
+        region.errorMessage = null;
+        await _regionsBox?.put(region.id, region);
+
+        // Update parent group status if applicable
+        if (region.parentId != null) {
+          await _updateGroupStatus(region.parentId!);
+        }
+      }
       _isDownloading = false;
+      _currentDownloadingRegion = null;
     }
   }
 
@@ -265,13 +290,19 @@ class OfflineMapService {
   Future<void> downloadIslandGroup(String groupId) async {
     _ensureInitialized();
 
+    // Reset cancellation flag at the very start to allow new downloads
+    _cancelRequested = false;
+
     final children = await getIslandsForGroup(groupId);
 
     if (children.isEmpty) {
       throw ArgumentError('No islands found for group: $groupId');
     }
 
-    int totalTiles = children.fold<int>(0, (sum, r) => sum + r.estimatedTileCount);
+    int totalTiles = children.fold<int>(
+      0,
+      (sum, r) => sum + r.estimatedTileCount,
+    );
     int downloadedTiles = 0;
 
     final group = getRegionById(groupId);
@@ -281,6 +312,11 @@ class OfflineMapService {
     }
 
     for (int i = 0; i < children.length; i++) {
+      // Check if cancellation was requested before starting next child
+      if (_cancelRequested) {
+        break;
+      }
+
       final child = children[i];
 
       if (child.status == DownloadStatus.downloaded) {
@@ -303,10 +339,15 @@ class OfflineMapService {
         }
       }
 
+      // Check if download was cancelled
+      if (_cancelRequested) {
+        break;
+      }
+
       downloadedTiles += child.tilesDownloaded;
     }
 
-    // Update parent group status
+    // Update parent group status (handles both completion and cancellation)
     await _updateGroupStatus(groupId);
   }
 
@@ -335,8 +376,9 @@ class OfflineMapService {
       group.status = DownloadStatus.error;
     } else {
       // Calculate partial progress
-      final downloadedCount =
-          children.where((c) => c.status == DownloadStatus.downloaded).length;
+      final downloadedCount = children
+          .where((c) => c.status == DownloadStatus.downloaded)
+          .length;
       group.downloadProgress = downloadedCount / children.length;
       group.status = DownloadStatus.notDownloaded;
     }
@@ -368,11 +410,20 @@ class OfflineMapService {
   }
 
   /// Pauses the current download.
+  ///
+  /// Sets the region status to [DownloadStatus.paused] instead of resetting it.
   Future<void> pauseDownload() async {
     _ensureInitialized();
-    if (_isDownloading) {
+    if (_isDownloading && _currentDownloadingRegion != null) {
+      // For pause, we set status to paused instead of notDownloaded
+      _currentDownloadingRegion!.status = DownloadStatus.paused;
+      await _regionsBox?.put(
+        _currentDownloadingRegion!.id,
+        _currentDownloadingRegion!,
+      );
       await _store!.download.cancel();
       _isDownloading = false;
+      _currentDownloadingRegion = null;
     }
   }
 
@@ -385,11 +436,15 @@ class OfflineMapService {
   }
 
   /// Cancels the current download.
+  ///
+  /// Sets a cancellation flag and resets the region status to [DownloadStatus.notDownloaded].
   Future<void> cancelDownload() async {
     _ensureInitialized();
     if (_isDownloading) {
+      _cancelRequested = true;
       await _store!.download.cancel();
-      _isDownloading = false;
+      // Note: The actual status reset happens in downloadRegion's finally block
+      // after the stream terminates due to cancellation
     }
   }
 
@@ -495,7 +550,8 @@ class OfflineMapService {
   /// Checks if a point is within any downloaded region.
   bool isPointCached(LatLng point) {
     for (final region in _allRegions) {
-      if (region.status.isAvailableOffline && region.type == RegionType.island) {
+      if (region.status.isAvailableOffline &&
+          region.type == RegionType.island) {
         if (point.latitude >= region.southWestLat &&
             point.latitude <= region.northEastLat &&
             point.longitude >= region.southWestLng &&

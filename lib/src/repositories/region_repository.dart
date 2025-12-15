@@ -40,9 +40,7 @@ class RegionRepository {
   /// sorted by priority (lower = first).
   Future<List<MapRegion>> getIslandGroups() async {
     final regions = await loadAllRegions();
-    return regions
-        .where((r) => r.type == RegionType.islandGroup)
-        .toList()
+    return regions.where((r) => r.type == RegionType.islandGroup).toList()
       ..sort((a, b) => a.priority.compareTo(b.priority));
   }
 

@@ -172,16 +172,21 @@ void main() {
       });
 
       test('filters island groups correctly', () {
-        final islandGroups =
-            allRegions.where((r) => r.type == RegionType.islandGroup).toList();
+        final islandGroups = allRegions
+            .where((r) => r.type == RegionType.islandGroup)
+            .toList();
 
         expect(islandGroups.length, 2);
-        expect(islandGroups.map((r) => r.id), containsAll(['luzon', 'visayas']));
+        expect(
+          islandGroups.map((r) => r.id),
+          containsAll(['luzon', 'visayas']),
+        );
       });
 
       test('filters islands for parent correctly', () {
-        final luzonIslands =
-            allRegions.where((r) => r.parentId == 'luzon').toList();
+        final luzonIslands = allRegions
+            .where((r) => r.parentId == 'luzon')
+            .toList();
 
         expect(luzonIslands.length, 2);
         expect(
@@ -265,19 +270,25 @@ void main() {
       });
 
       test('calculates total size for group', () {
-        final luzonIslands =
-            regions.where((r) => r.parentId == 'luzon').toList();
-        final totalSize =
-            luzonIslands.fold<int>(0, (sum, r) => sum + r.estimatedSizeMB);
+        final luzonIslands = regions
+            .where((r) => r.parentId == 'luzon')
+            .toList();
+        final totalSize = luzonIslands.fold<int>(
+          0,
+          (sum, r) => sum + r.estimatedSizeMB,
+        );
 
         expect(totalSize, 680);
       });
 
       test('calculates total tile count for group', () {
-        final luzonIslands =
-            regions.where((r) => r.parentId == 'luzon').toList();
-        final totalTiles =
-            luzonIslands.fold<int>(0, (sum, r) => sum + r.estimatedTileCount);
+        final luzonIslands = regions
+            .where((r) => r.parentId == 'luzon')
+            .toList();
+        final totalTiles = luzonIslands.fold<int>(
+          0,
+          (sum, r) => sum + r.estimatedTileCount,
+        );
 
         expect(totalTiles, 68000);
       });
@@ -349,14 +360,16 @@ void main() {
         expect(regions.length, 3);
 
         // Island groups
-        final groups =
-            regions.where((r) => r.type == RegionType.islandGroup).toList();
+        final groups = regions
+            .where((r) => r.type == RegionType.islandGroup)
+            .toList();
         expect(groups.length, 1);
         expect(groups.first.id, 'luzon');
 
         // Islands for Luzon
-        final luzonIslands =
-            regions.where((r) => r.parentId == 'luzon').toList();
+        final luzonIslands = regions
+            .where((r) => r.parentId == 'luzon')
+            .toList();
         expect(luzonIslands.length, 2);
 
         // Check hierarchy
