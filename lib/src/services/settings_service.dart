@@ -20,6 +20,11 @@ class SettingsService {
   static const String _keyLastLatitude = 'last_known_latitude';
   static const String _keyLastLongitude = 'last_known_longitude';
   static const String _keyLastLocationName = 'last_known_location_name';
+  static const String _keyOfflineModeEnabled = 'offline_mode_enabled';
+  static const String _keyAutoCacheEnabled = 'auto_cache_enabled';
+  static const String _keyAutoCacheWifiOnly = 'auto_cache_wifi_only';
+  static const String _keyOfflineModeMigrated = 'offline_mode_migrated';
+
 
   /// Notifier for theme mode changes. Values: 'system', 'light', 'dark'
   /// Default is 'light' for first-time users.
@@ -252,4 +257,53 @@ class SettingsService {
 
     return Location(name: name, latitude: latitude, longitude: longitude);
   }
+
+  /// Get the offline mode enabled preference.
+  Future<bool> getOfflineModeEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyOfflineModeEnabled) ?? false;
+  }
+
+  /// Set the offline mode enabled preference.
+  Future<void> setOfflineModeEnabled(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyOfflineModeEnabled, value);
+  }
+
+  /// Get the auto-cache enabled preference.
+  Future<bool> getAutoCacheEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyAutoCacheEnabled) ?? true;
+  }
+
+  /// Set the auto-cache enabled preference.
+  Future<void> setAutoCacheEnabled(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyAutoCacheEnabled, value);
+  }
+
+  /// Get the auto-cache wifi only preference.
+  Future<bool> getAutoCacheWifiOnly() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyAutoCacheWifiOnly) ?? true;
+  }
+
+  /// Set the auto-cache wifi only preference.
+  Future<void> setAutoCacheWifiOnly(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyAutoCacheWifiOnly, value);
+  }
+
+  /// Check if the user has migrated to the offline mode version.
+  Future<bool> hasMigratedToOfflineMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyOfflineModeMigrated) ?? false;
+  }
+
+  /// Set the offline mode migration flag.
+  Future<void> setMigratedToOfflineMode(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyOfflineModeMigrated, value);
+  }
 }
+

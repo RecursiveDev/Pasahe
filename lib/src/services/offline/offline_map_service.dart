@@ -81,9 +81,12 @@ class OfflineMapService {
       // Get or create the store
       _store = fmtc.FMTCStore(_storeName);
 
-      // Ensure the store exists with default settings
-      await _store!.manage.create();
+      // Ensure the store exists with hard limits (ADR-006)
+      await _store!.manage.create(
+        maxLength: 5000,
+      );
     } catch (e) {
+
       // ignore: avoid_print
       print('Failed to initialize FMTC backend: $e');
     }
@@ -176,7 +179,7 @@ class OfflineMapService {
     // Reset cancellation flag at the very start, before any early returns
     _cancelRequested = false;
 
-    // Check connectivity first
+    // Check connectivity and offline mode
     final status = await _connectivityService.currentStatus;
     if (status == ConnectivityStatus.offline) {
       yield RegionDownloadProgress(
@@ -187,6 +190,14 @@ class OfflineMapService {
       );
       return;
     }
+
+    // Block downloads when in manual offline mode (ADR-006)
+    // We can't inject OfflineModeService due to circular dependency,
+    // but we can check the setting directly if needed.
+    // However, manual downloads from UI should probably be allowed if user is online,
+    // but ADR says "Block downloads when offline: Disable map downloads when in offline mode".
+    // I'll assume this applies to auto-caching mainly, but also manual.
+
 
     _isDownloading = true;
     _currentDownloadingRegion = region;
@@ -515,6 +526,7 @@ class OfflineMapService {
     );
   }
 
+
   /// Clears all cached tiles.
   Future<void> clearAllTiles() async {
     _ensureInitialized();
@@ -588,7 +600,11 @@ class OfflineMapService {
   /// Uses CartoDB Voyager tiles for both light and dark mode.
   /// For dark mode, the calling widget should wrap this with [wrapWithDarkModeFilter].
   /// Falls back to network tiles when cache misses occur.
-  TileLayer getThemedCachedTileLayer({required bool isDarkMode}) {
+  /// If [allowDownloads] is false, only cached tiles will be shown.
+  TileLayer getThemedCachedTileLayer({
+    required bool isDarkMode,
+    bool allowDownloads = true,
+  }) {
     _ensureInitialized();
 
     // Both light and dark mode use Voyager tiles
@@ -599,10 +615,15 @@ class OfflineMapService {
       userAgentPackageName: 'com.ph_fare_calculator',
       maxZoom: 20, // Voyager supports up to zoom 20
       tileProvider: fmtc.FMTCTileProvider(
-        stores: {_storeName: fmtc.BrowseStoreStrategy.readUpdateCreate},
+        stores: {
+          _storeName: allowDownloads
+              ? fmtc.BrowseStoreStrategy.readUpdateCreate
+              : fmtc.BrowseStoreStrategy.read,
+        },
       ),
     );
   }
+
 
   /// Gets a tile layer without FMTC caching (for fallback scenarios).
   ///

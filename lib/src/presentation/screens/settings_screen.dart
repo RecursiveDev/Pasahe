@@ -11,15 +11,26 @@ import '../../models/discount_type.dart';
 import '../../models/fare_formula.dart';
 import '../../models/transport_mode.dart';
 import '../../repositories/fare_repository.dart';
+import '../../services/offline/offline_map_service.dart';
+import '../../services/offline/offline_mode_service.dart';
 import '../../services/settings_service.dart';
 import '../widgets/app_logo_widget.dart';
+
 
 /// Modern settings screen with grouped sections and Material 3 styling.
 /// Follows 8dp grid system and uses theme colors from AppTheme.
 class SettingsScreen extends StatefulWidget {
   final SettingsService? settingsService;
+  final OfflineModeService? offlineModeService;
+  final OfflineMapService? offlineMapService;
 
-  const SettingsScreen({super.key, this.settingsService});
+  const SettingsScreen({
+    super.key,
+    this.settingsService,
+    this.offlineModeService,
+    this.offlineMapService,
+  });
+
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -28,6 +39,8 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen>
     with SingleTickerProviderStateMixin {
   late final SettingsService _settingsService;
+  late final OfflineModeService _offlineModeService;
+  late final OfflineMapService _offlineMapService;
   late final FareRepository _fareRepository;
   late final AnimationController _animationController;
 
@@ -37,6 +50,12 @@ class _SettingsScreenState extends State<SettingsScreen>
   DiscountType _discountType = DiscountType.standard;
   Locale _currentLocale = const Locale('en');
   bool _isLoading = true;
+
+  bool _offlineModeEnabled = false;
+  bool _autoCacheEnabled = true;
+  bool _autoCacheWifiOnly = true;
+  String _cacheSizeFormatted = '0.0 MB';
+
 
   Set<String> _hiddenTransportModes = {};
   bool _hasSetTransportModePreferences = false;
@@ -50,19 +69,44 @@ class _SettingsScreenState extends State<SettingsScreen>
   void initState() {
     super.initState();
     _settingsService = widget.settingsService ?? getIt<SettingsService>();
+    _offlineModeService = widget.offlineModeService ?? getIt<OfflineModeService>();
+    _offlineMapService = widget.offlineMapService ?? getIt<OfflineMapService>();
     _fareRepository = getIt<FareRepository>();
+
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+    _offlineModeService.addListener(_onOfflineModeChanged);
     _loadSettings();
+  }
+
+  void _onOfflineModeChanged() {
+    if (mounted) {
+      _updateOfflineState();
+    }
+  }
+
+  Future<void> _updateOfflineState() async {
+    final storageInfo = await _offlineMapService.getStorageUsage();
+    if (mounted) {
+      setState(() {
+        _offlineModeEnabled = _offlineModeService.offlineModeEnabled;
+        _autoCacheEnabled = _offlineModeService.autoCacheEnabled;
+        _autoCacheWifiOnly = _offlineModeService.autoCacheWifiOnly;
+        _cacheSizeFormatted = storageInfo.mapCacheFormatted;
+      });
+    }
   }
 
   @override
   void dispose() {
+    _offlineModeService.removeListener(_onOfflineModeChanged);
     _animationController.dispose();
     super.dispose();
   }
+
 
   Future<void> _loadSettings() async {
     final provincialMode = await _settingsService.getProvincialMode();
@@ -74,6 +118,12 @@ class _SettingsScreenState extends State<SettingsScreen>
         .hasSetTransportModePreferences();
     final locale = await _settingsService.getLocale();
     final formulas = await _fareRepository.getAllFormulas();
+
+    final offlineModeEnabled = _offlineModeService.offlineModeEnabled;
+    final autoCacheEnabled = _offlineModeService.autoCacheEnabled;
+    final autoCacheWifiOnly = _offlineModeService.autoCacheWifiOnly;
+    final storageInfo = await _offlineMapService.getStorageUsage();
+
 
     // Load package info with fallback for test environment
     String version = '2.0.0';
@@ -110,8 +160,13 @@ class _SettingsScreenState extends State<SettingsScreen>
         _groupedFormulas = grouped;
         _appVersion = version;
         _buildNumber = buildNumber;
+        _offlineModeEnabled = offlineModeEnabled;
+        _autoCacheEnabled = autoCacheEnabled;
+        _autoCacheWifiOnly = autoCacheWifiOnly;
+        _cacheSizeFormatted = storageInfo.mapCacheFormatted;
         _isLoading = false;
       });
+
       _animationController.forward();
     }
   }
@@ -326,8 +381,93 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                   const SizedBox(height: 24),
 
+                  // Offline Mode Section
+                  _buildSectionHeader(
+                    context,
+                    icon: Icons.offline_bolt_rounded,
+                    title: 'Offline Mode',
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSettingsCard(
+                    context,
+                    children: [
+                      _buildSwitchTile(
+                        context,
+                        title: 'Enable Offline Mode',
+                        subtitle: 'Use cached data when no internet connection',
+                        value: _offlineModeEnabled,
+                        icon: Icons.offline_pin_rounded,
+                         onChanged: (value) async {
+                          await _offlineModeService.setAutoCacheEnabled(value);
+                        },
+                      ),
+                      if (_autoCacheEnabled) ...[
+                        const Divider(height: 1, indent: 56),
+                        _buildSwitchTile(
+                          context,
+                          title: 'WiFi Only',
+                          subtitle: 'Only auto-download maps when on WiFi',
+                          value: _autoCacheWifiOnly,
+                          icon: Icons.wifi_rounded,
+                          onChanged: (value) async {
+                            await _offlineModeService.setAutoCacheWifiOnly(
+                              value,
+                            );
+                          },
+                        ),
+                      ],
+                      const Divider(height: 1, indent: 56),
+                      _buildCacheManagementTile(context),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Accuracy Indicators',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            _buildAccuracyExplanation(
+                              context,
+                              icon: Icons.wifi_rounded,
+                              color: Colors.green,
+                              label: 'Precise (Online)',
+                              description:
+                                  'Based on real-time road data and current conditions.',
+                            ),
+                            const SizedBox(height: 8),
+                            _buildAccuracyExplanation(
+                              context,
+                              icon: Icons.cached_rounded,
+                              color: Colors.orange,
+                              label: 'Estimated (Cached)',
+                              description:
+                                  'Based on previously cached route data.',
+                            ),
+                            const SizedBox(height: 8),
+                            _buildAccuracyExplanation(
+                              context,
+                              icon: Icons.offline_bolt_rounded,
+                              color: Colors.blue,
+                              label: 'Approximate (Offline)',
+                              description:
+                                  'Based on straight-line distance calculations.',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
                   // About Section
                   _buildSectionHeader(
+
                     context,
                     icon: Icons.info_outline_rounded,
                     title: 'About',
@@ -1105,7 +1245,68 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
+  /// Builds a tile for map cache management.
+  Widget _buildCacheManagementTile(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          Icons.storage_rounded,
+          color: colorScheme.onPrimaryContainer,
+          size: 24,
+        ),
+      ),
+      title: const Text('Map Cache Size'),
+      subtitle: Text(_cacheSizeFormatted),
+      trailing: TextButton(
+        onPressed: _showClearCacheDialog,
+        child: const Text('Clear'),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+    );
+  }
+
+  Future<void> _showClearCacheDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Map Cache?'),
+        content: const Text(
+          'This will delete all automatically cached map tiles. Downloaded regions will remain.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _offlineMapService.clearAllTiles();
+      await _updateOfflineState();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Map cache cleared')),
+        );
+      }
+    }
+  }
+
   IconData _getIconForCategory(String category) {
+
     switch (category.toLowerCase()) {
       case 'road':
         return Icons.directions_car_rounded;
@@ -1146,4 +1347,43 @@ class _SettingsScreenState extends State<SettingsScreen>
         return Icons.agriculture_rounded;
     }
   }
+
+  /// Builds an accuracy explanation row.
+  Widget _buildAccuracyExplanation(
+    BuildContext context, {
+    required IconData icon,
+    required Color color,
+    required String label,
+    required String description,
+  }) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: color),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+              Text(
+                description,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
+

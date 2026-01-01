@@ -4,6 +4,8 @@ import 'package:injectable/injectable.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../models/location.dart';
 import '../../core/errors/failures.dart';
+import '../offline/offline_mode_service.dart';
+import 'geocoding_cache_service.dart';
 
 abstract class GeocodingService {
   Future<List<Location>> getLocations(String query);
@@ -14,17 +16,51 @@ abstract class GeocodingService {
 @LazySingleton(as: GeocodingService)
 class OpenStreetMapGeocodingService implements GeocodingService {
   final http.Client _client;
+  final GeocodingCacheService _cacheService;
+  final OfflineModeService _offlineModeService;
 
-  OpenStreetMapGeocodingService() : _client = http.Client();
+  OpenStreetMapGeocodingService(
+    this._cacheService,
+    this._offlineModeService,
+  ) : _client = http.Client();
 
   @override
   Future<List<Location>> getLocations(String query) async {
-    if (query.trim().isEmpty) return [];
+    final trimmedQuery = query.trim();
+    if (trimmedQuery.isEmpty) return [];
+
+    // 1. Support coordinate-based location selection (lat,lng)
+    final coordsLocation = _parseCoordinates(trimmedQuery);
+    if (coordsLocation != null) {
+      return [coordsLocation];
+    }
+
+    final cacheKey = trimmedQuery.toLowerCase();
+
+    // 2. Try to get from cache
+    final cachedResults = await _cacheService.getCachedResults(cacheKey);
+
+    // 3. If offline, return cached results or throw failure
+    if (_offlineModeService.isCurrentlyOffline) {
+      if (cachedResults != null && cachedResults.isNotEmpty) {
+        return cachedResults;
+      }
+      throw const NetworkFailure(
+        'Offline: Search results not cached for this location.',
+      );
+    }
+
+    // 4. If online, use cached results if available to save API calls
+    // but still allow falling back to network if needed.
+    // However, per requirements, we should integrate cache.
+    if (cachedResults != null && cachedResults.isNotEmpty) {
+      return cachedResults;
+    }
 
     // Nominatim API usage policy requires a User-Agent.
     // Limiting to Philippines (countrycodes=ph) as per app context.
     final url = Uri.parse(
-      'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&addressdetails=1&limit=5&countrycodes=ph',
+      'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(trimmedQuery)}&format=json&addressdetails=1&limit=5&countrycodes=ph',
     );
 
     try {
@@ -38,9 +74,14 @@ class OpenStreetMapGeocodingService implements GeocodingService {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         final results = data.map((json) => Location.fromJson(json)).toList();
+        
         if (results.isEmpty) {
           throw LocationNotFoundFailure();
         }
+
+        // Cache the successful search results
+        await _cacheService.cacheResults(cacheKey, results);
+        
         return results;
       } else {
         throw ServerFailure('Failed to load locations: ${response.statusCode}');
@@ -56,6 +97,23 @@ class OpenStreetMapGeocodingService implements GeocodingService {
     double latitude,
     double longitude,
   ) async {
+    final cacheKey = '${latitude.toStringAsFixed(6)},${longitude.toStringAsFixed(6)}';
+
+    // 1. Try to get from cache
+    final cachedResults = await _cacheService.getCachedResults(cacheKey);
+    if (cachedResults != null && cachedResults.isNotEmpty) {
+      return cachedResults.first;
+    }
+
+    // 2. If offline, return coordinate-based location name
+    if (_offlineModeService.isCurrentlyOffline) {
+      return Location(
+        name: '${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}',
+        latitude: latitude,
+        longitude: longitude,
+      );
+    }
+
     try {
       // Reverse geocode using Nominatim
       final url = Uri.parse(
@@ -91,11 +149,16 @@ class OpenStreetMapGeocodingService implements GeocodingService {
           }
         }
 
-        return Location(
+        final location = Location(
           name: displayName,
           latitude: latitude,
           longitude: longitude,
         );
+
+        // Cache the reverse geocoding result
+        await _cacheService.cacheResults(cacheKey, [location]);
+
+        return location;
       } else {
         throw ServerFailure(
           'Failed to reverse geocode location: ${response.statusCode}',
@@ -106,6 +169,29 @@ class OpenStreetMapGeocodingService implements GeocodingService {
       throw NetworkFailure();
     }
   }
+
+  /// Parses a string for coordinates in "lat,lng" format.
+  Location? _parseCoordinates(String query) {
+    final parts = query.split(',');
+    if (parts.length == 2) {
+      final lat = double.tryParse(parts[0].trim());
+      final lon = double.tryParse(parts[1].trim());
+      if (lat != null &&
+          lon != null &&
+          lat >= -90 &&
+          lat <= 90 &&
+          lon >= -180 &&
+          lon <= 180) {
+        return Location(
+          name: '${lat.toStringAsFixed(6)}, ${lon.toStringAsFixed(6)}',
+          latitude: lat,
+          longitude: lon,
+        );
+      }
+    }
+    return null;
+  }
+
 
   @override
   Future<Location> getCurrentLocationAddress() async {

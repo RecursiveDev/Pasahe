@@ -160,7 +160,11 @@ class MockConnectivityService implements ConnectivityService {
   ConnectivityStatus get lastKnownStatus => mockStatus;
 
   @override
+  bool get isWifi => true;
+
+  @override
   Future<void> initialize() async {}
+
 
   @override
   Future<bool> isServiceReachable(String url, {Duration? timeout}) async =>

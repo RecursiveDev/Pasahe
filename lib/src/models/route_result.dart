@@ -1,17 +1,26 @@
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
+import 'accuracy_level.dart';
 
 part 'route_result.g.dart';
 
 /// Indicates the source of a route calculation result.
+@HiveType(typeId: 11)
 enum RouteSource {
   /// Route was calculated from OSRM (online road routing).
+  @HiveField(0)
   osrm,
 
   /// Route was retrieved from local cache.
+  @HiveField(1)
   cache,
 
+  /// Route was calculated using Train/Ferry graph routing.
+  @HiveField(2)
+  graph,
+
   /// Route was calculated using Haversine formula (straight-line fallback).
+  @HiveField(3)
   haversine,
 }
 
@@ -24,6 +33,8 @@ extension RouteSourceX on RouteSource {
         return 'Road route';
       case RouteSource.cache:
         return 'Cached route';
+      case RouteSource.graph:
+        return 'Fixed route';
       case RouteSource.haversine:
         return 'Estimated (straight-line)';
     }
@@ -31,6 +42,19 @@ extension RouteSourceX on RouteSource {
 
   /// Returns true if this route follows actual roads.
   bool get isRoadBased => this == RouteSource.osrm || this == RouteSource.cache;
+
+  /// Returns the default accuracy level for this source.
+  AccuracyLevel get defaultAccuracy {
+    switch (this) {
+      case RouteSource.osrm:
+      case RouteSource.graph:
+        return AccuracyLevel.precise;
+      case RouteSource.cache:
+        return AccuracyLevel.estimated;
+      case RouteSource.haversine:
+        return AccuracyLevel.approximate;
+    }
+  }
 }
 
 /// Represents the result of a routing calculation.
@@ -73,6 +97,14 @@ class RouteResult extends HiveObject {
   @HiveField(7)
   final List<double>? destCoords;
 
+  /// The accuracy level of this route result.
+  @HiveField(8)
+  final int? _accuracyIndex;
+
+  /// Warning message for cross-region routes.
+  @HiveField(9)
+  final String? warning;
+
   /// Creates a new [RouteResult].
   RouteResult({
     required this.distance,
@@ -83,13 +115,18 @@ class RouteResult extends HiveObject {
     this.expiresAt,
     this.originCoords,
     this.destCoords,
+    AccuracyLevel? accuracy,
+    this.warning,
     // Optional internal fields for Hive deserialization
     List<List<double>>? geometryData,
     int? sourceIndex,
+    int? accuracyIndex,
   }) : _geometryData =
-           geometryData ??
-           geometry.map((p) => [p.latitude, p.longitude]).toList(),
-       _sourceIndex = sourceIndex ?? source.index;
+            geometryData ??
+            geometry.map((p) => [p.latitude, p.longitude]).toList(),
+        _sourceIndex = sourceIndex ?? source.index,
+        _accuracyIndex = accuracyIndex ?? (accuracy ?? source.defaultAccuracy).index;
+
 
   /// Creates a RouteResult with empty geometry (for fallback services).
   factory RouteResult.withoutGeometry({
@@ -131,7 +168,11 @@ class RouteResult extends HiveObject {
   /// Gets the source of this route result.
   RouteSource get source => RouteSource.values[_sourceIndex];
 
+  /// Gets the accuracy level of this route result.
+  AccuracyLevel get accuracy => AccuracyLevel.values[_accuracyIndex ?? source.defaultAccuracy.index];
+
   /// Returns true if this route has valid geometry for display.
+
   bool get hasGeometry => _geometryData.isNotEmpty;
 
   /// Returns true if this cached route has expired.
@@ -160,6 +201,8 @@ class RouteResult extends HiveObject {
       expiresAt: expiresAt,
       originCoords: originCoords,
       destCoords: destCoords,
+      accuracyIndex: _accuracyIndex,
+      warning: warning,
     );
   }
 
@@ -174,6 +217,8 @@ class RouteResult extends HiveObject {
       expiresAt: expiresAt,
       originCoords: originCoords,
       destCoords: destCoords,
+      accuracyIndex: AccuracyLevel.estimated.index,
+      warning: warning,
     );
   }
 
@@ -188,6 +233,8 @@ class RouteResult extends HiveObject {
       'expiresAt': expiresAt?.toIso8601String(),
       'originCoords': originCoords,
       'destCoords': destCoords,
+      'accuracy': _accuracyIndex,
+      'warning': warning,
     };
   }
 
@@ -222,8 +269,11 @@ class RouteResult extends HiveObject {
                 .map((c) => (c as num).toDouble())
                 .toList()
           : null,
+      accuracyIndex: json['accuracy'] as int?,
+      warning: json['warning'] as String?,
     );
   }
+
 
   @override
   String toString() {

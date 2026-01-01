@@ -5,6 +5,8 @@ import 'package:latlong2/latlong.dart';
 import '../../core/di/injection.dart';
 import '../../core/theme/transit_colors.dart';
 import '../../services/offline/offline_map_service.dart';
+import '../../services/offline/offline_mode_service.dart';
+
 
 /// A modern, accessible map selection widget.
 ///
@@ -268,10 +270,13 @@ class _MapSelectionWidgetState extends State<MapSelectionWidget>
     if (widget.useCachedTiles) {
       try {
         final offlineMapService = getIt<OfflineMapService>();
+        final offlineModeService = getIt<OfflineModeService>();
         tileLayer = offlineMapService.getThemedCachedTileLayer(
           isDarkMode: isDarkMode,
+          allowDownloads: offlineModeService.shouldAllowDownloads,
         );
       } catch (_) {
+
         // Fall back to network tiles if service not initialized
         tileLayer = OfflineMapService.getNetworkTileLayer(
           isDarkMode: isDarkMode,

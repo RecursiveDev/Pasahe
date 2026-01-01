@@ -14,7 +14,8 @@ import 'routing_service.dart';
 ///
 /// The distance calculated is typically shorter than actual road distance,
 /// so fare calculations based on this should be clearly marked as estimates.
-@lazySingleton
+@Named('haversine')
+@LazySingleton(as: RoutingService)
 class HaversineRoutingService implements RoutingService {
   /// Earth's radius in meters.
   static const double _earthRadius = 6371000;

@@ -3,9 +3,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:ph_fare_calculator/src/core/theme/app_theme.dart';
 import 'package:ph_fare_calculator/src/l10n/app_localizations.dart';
+import 'package:ph_fare_calculator/src/models/accuracy_level.dart';
 import 'package:ph_fare_calculator/src/models/map_region.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/splash_screen.dart';
+import 'package:ph_fare_calculator/src/services/geocoding/geocoding_cache_service.dart';
+import 'package:ph_fare_calculator/src/services/offline/offline_mode_service.dart';
 import 'package:ph_fare_calculator/src/services/settings_service.dart';
+import 'package:ph_fare_calculator/src/core/di/injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
@@ -16,6 +20,10 @@ Future<void> main() async {
   Hive.registerAdapter(DownloadStatusAdapter());
   Hive.registerAdapter(RegionTypeAdapter());
   Hive.registerAdapter(MapRegionAdapter());
+  Hive.registerAdapter(AccuracyLevelAdapter());
+
+  // Initialize dependencies
+  await configureDependencies();
 
   // Pre-initialize static notifiers from SharedPreferences to avoid race condition
   // This ensures ValueListenableBuilders have correct values when the widget tree is built
@@ -26,8 +34,17 @@ Future<void> main() async {
   SettingsService.themeModeNotifier.value = themeMode;
   SettingsService.localeNotifier.value = Locale(languageCode);
 
+  // Initialize geocoding cache service
+  final geocodingCacheService = getIt<GeocodingCacheService>();
+  await geocodingCacheService.initialize();
+
+  // Initialize offline mode service
+  final offlineModeService = getIt<OfflineModeService>();
+  await offlineModeService.initialize();
+
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

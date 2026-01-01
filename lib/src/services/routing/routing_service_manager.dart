@@ -20,8 +20,8 @@ import 'routing_service.dart';
 /// All successful OSRM routes are cached for future offline use.
 @LazySingleton(as: RoutingService)
 class RoutingServiceManager implements RoutingService {
-  final OsrmRoutingService _osrmService;
-  final HaversineRoutingService _haversineService;
+  final RoutingService _osrmService;
+  final RoutingService _haversineService;
   final RouteCacheService _cacheService;
   final ConnectivityService _connectivityService;
 
@@ -35,8 +35,8 @@ class RoutingServiceManager implements RoutingService {
   /// [preferCache] - If true, returns cached routes without trying OSRM.
   ///                 Defaults to true for performance and offline support.
   RoutingServiceManager(
-    this._osrmService,
-    this._haversineService,
+    @Named('osrm') this._osrmService,
+    @Named('haversine') this._haversineService,
     this._cacheService,
     this._connectivityService,
   ) : preferCache = true;

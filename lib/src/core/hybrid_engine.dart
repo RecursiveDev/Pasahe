@@ -6,19 +6,20 @@ import '../models/transport_mode.dart';
 import '../models/fare_formula.dart';
 import '../models/static_fare.dart';
 import '../models/discount_type.dart';
-import '../services/routing/routing_service.dart';
+import '../repositories/routing_repository.dart';
 import '../services/settings_service.dart';
 import '../models/fare_result.dart';
 
 @lazySingleton
 class HybridEngine {
-  final RoutingService _routingService;
+  final RoutingRepository _routingRepository;
   final SettingsService _settingsService;
   Map<String, List<StaticFare>> _trainFares = {};
   List<StaticFare> _ferryFares = [];
   bool _isInitialized = false;
 
-  HybridEngine(this._routingService, this._settingsService);
+  HybridEngine(this._routingRepository, this._settingsService);
+
 
   /// Initializes the engine by loading static matrix data.
   Future<void> initialize() async {
@@ -201,15 +202,17 @@ class HybridEngine {
     int discountedCount = 0,
   }) async {
     try {
-      // 1. Get route result from routing service
-      final routeResult = await _routingService.getRoute(
-        originLat,
-        originLng,
-        destLat,
-        destLng,
+      // 1. Get route result from routing repository
+      final routeResult = await _routingRepository.getRoute(
+        originLat: originLat,
+        originLng: originLng,
+        destLat: destLat,
+        destLng: destLng,
+        preferredMode: TransportMode.fromString(formula.mode),
       );
 
       // 2. Extract distance in meters and convert to kilometers
+
       final distanceInKm = routeResult.distance / 1000.0;
 
       // 3. Apply Variance (1.15) as per PRD

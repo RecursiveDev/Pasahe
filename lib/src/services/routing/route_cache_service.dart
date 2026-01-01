@@ -16,8 +16,9 @@ class RouteCacheService {
   /// The Hive box name for storing cached routes.
   static const String _boxName = 'route_cache';
 
-  /// Cache expiry duration (7 days as per architecture plan).
-  static const Duration cacheExpiry = Duration(days: 7);
+  /// Cache expiry duration (24 hours as per requirements).
+  static const Duration cacheExpiry = Duration(hours: 24);
+
 
   /// The Hive box instance for route caching.
   Box<String>? _box;

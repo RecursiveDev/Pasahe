@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:ph_fare_calculator/src/models/fare_formula.dart';
 import 'package:ph_fare_calculator/src/models/fare_result.dart';
+import 'package:ph_fare_calculator/src/models/route_result.dart';
 import 'package:ph_fare_calculator/src/models/saved_route.dart';
+import 'package:ph_fare_calculator/src/models/accuracy_level.dart';
 import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
 
 void main() {
@@ -29,6 +31,12 @@ void main() {
     }
     if (!Hive.isAdapterRegistered(3)) {
       Hive.registerAdapter(IndicatorLevelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(4)) {
+      Hive.registerAdapter(AccuracyLevelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(11)) {
+      Hive.registerAdapter(RouteSourceAdapter());
     }
 
     fareRepository = FareRepository();

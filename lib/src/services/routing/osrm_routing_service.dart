@@ -15,7 +15,8 @@ import 'routing_service.dart';
 ///
 /// OSRM provides accurate road distances and complete polyline geometry
 /// that follows actual roads, unlike straight-line Haversine calculations.
-@lazySingleton
+@Named('osrm')
+@LazySingleton(as: RoutingService)
 class OsrmRoutingService implements RoutingService {
   /// Default OSRM public server URL.
   static const String _defaultBaseUrl = AppConstants.kOsrmBaseUrl;

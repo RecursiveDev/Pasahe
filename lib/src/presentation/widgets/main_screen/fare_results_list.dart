@@ -68,7 +68,10 @@ class FareResultsList extends StatelessWidget {
               isRecommended: result.isRecommended,
               passengerCount: result.passengerCount,
               totalFare: result.totalFare,
+              accuracy: result.accuracy,
+              routeSource: result.routeSource,
               // Show base name + subtype chip (consistent across views)
+
             ),
           ),
         );
@@ -139,6 +142,8 @@ class FareResultsList extends StatelessWidget {
                     isRecommended: result.isRecommended,
                     passengerCount: result.passengerCount,
                     totalFare: result.totalFare,
+                    accuracy: result.accuracy,
+                    routeSource: result.routeSource,
                     // Show base name + subtype chip (consistent with flat list)
                   ),
                 ),

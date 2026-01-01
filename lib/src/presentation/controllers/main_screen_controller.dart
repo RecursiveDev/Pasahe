@@ -1,35 +1,41 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:injectable/injectable.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../core/di/injection.dart';
 import '../../core/errors/failures.dart';
 import '../../core/hybrid_engine.dart';
+import '../../models/accuracy_level.dart';
 import '../../models/discount_type.dart';
+
 import '../../models/fare_formula.dart';
 import '../../models/fare_result.dart';
 import '../../models/location.dart';
 import '../../models/route_result.dart';
 import '../../models/saved_route.dart';
 import '../../repositories/fare_repository.dart';
+import '../../repositories/routing_repository.dart';
 import '../../services/fare_comparison_service.dart';
 import '../../services/geocoding/geocoding_service.dart';
-import '../../services/routing/routing_service.dart';
+import '../../services/offline/offline_mode_service.dart';
 import '../../services/settings_service.dart';
 
-/// State controller for MainScreen following the ChangeNotifier pattern.
-/// Extracts all state and business logic from the MainScreen widget.
+@lazySingleton
 class MainScreenController extends ChangeNotifier {
   // Dependencies
   final GeocodingService _geocodingService;
   final HybridEngine _hybridEngine;
   final FareRepository _fareRepository;
-  final RoutingService _routingService;
+  final RoutingRepository _routingRepository;
   final SettingsService _settingsService;
   final FareComparisonService _fareComparisonService;
+  final OfflineModeService _offlineModeService;
+
 
   // Location state
+
   Location? _originLocation;
   Location? _destinationLocation;
   LatLng? _originLatLng;
@@ -60,20 +66,16 @@ class MainScreenController extends ChangeNotifier {
   Timer? _destinationDebounceTimer;
 
   // Constructor with dependency injection
-  MainScreenController({
-    GeocodingService? geocodingService,
-    HybridEngine? hybridEngine,
-    FareRepository? fareRepository,
-    RoutingService? routingService,
-    SettingsService? settingsService,
-    FareComparisonService? fareComparisonService,
-  }) : _geocodingService = geocodingService ?? getIt<GeocodingService>(),
-       _hybridEngine = hybridEngine ?? getIt<HybridEngine>(),
-       _fareRepository = fareRepository ?? getIt<FareRepository>(),
-       _routingService = routingService ?? getIt<RoutingService>(),
-       _settingsService = settingsService ?? getIt<SettingsService>(),
-       _fareComparisonService =
-           fareComparisonService ?? getIt<FareComparisonService>();
+  MainScreenController(
+    this._geocodingService,
+    this._hybridEngine,
+    this._fareRepository,
+    this._routingRepository,
+    this._settingsService,
+    this._fareComparisonService,
+    this._offlineModeService,
+  );
+
 
   // Getters
   Location? get originLocation => _originLocation;
@@ -119,7 +121,10 @@ class MainScreenController extends ChangeNotifier {
     _availableFormulas = formulas;
     _isLoading = false;
 
+    _offlineModeService.addListener(_onOfflineModeChanged);
+
     if (lastLocation != null) {
+
       _originLocation = lastLocation;
       _originLatLng = LatLng(lastLocation.latitude, lastLocation.longitude);
     }
@@ -277,14 +282,15 @@ class MainScreenController extends ChangeNotifier {
     try {
       debugPrint('MainScreenController: Calculating route...');
 
-      final result = await _routingService.getRoute(
-        _originLocation!.latitude,
-        _originLocation!.longitude,
-        _destinationLocation!.latitude,
-        _destinationLocation!.longitude,
+      final result = await _routingRepository.getRoute(
+        originLat: _originLocation!.latitude,
+        originLng: _originLocation!.longitude,
+        destLat: _destinationLocation!.latitude,
+        destLng: _destinationLocation!.longitude,
       );
 
       _routeResult = result;
+
       _routePoints = result.geometry;
 
       debugPrint(
@@ -320,8 +326,13 @@ class MainScreenController extends ChangeNotifier {
       final trafficFactor = await _settingsService.getTrafficFactor();
       final hasSetPrefs = await _settingsService.hasSetTransportModePreferences();
       final hiddenModes = await _settingsService.getHiddenTransportModes();
+      
+      // Capture current state to ensure consistency across the calculation loop
+      final currentRoute = _routeResult;
+      final isOffline = _offlineModeService.isCurrentlyOffline;
 
       final visibleFormulas = _availableFormulas.where((formula) {
+
         final modeSubTypeKey = '${formula.mode}::${formula.subType}';
         
         if (!hasSetPrefs) {
@@ -372,8 +383,11 @@ class MainScreenController extends ChangeNotifier {
             isRecommended: false,
             passengerCount: _passengerCount,
             totalFare: fare,
+            accuracy: _getEffectiveAccuracy(currentRoute, isOffline),
+            routeSource: currentRoute?.source ?? RouteSource.osrm,
           ),
         );
+
       }
 
       final sortedResults = _fareComparisonService.sortFares(
@@ -389,8 +403,11 @@ class MainScreenController extends ChangeNotifier {
           isRecommended: true,
           passengerCount: sortedResults[0].passengerCount,
           totalFare: sortedResults[0].totalFare,
+          accuracy: sortedResults[0].accuracy,
+          routeSource: sortedResults[0].routeSource,
         );
       }
+
 
       _fareResults = sortedResults;
       _isCalculating = false;
@@ -505,6 +522,8 @@ class MainScreenController extends ChangeNotifier {
         isRecommended: false,
         passengerCount: result.passengerCount,
         totalFare: result.totalFare,
+        accuracy: result.accuracy,
+        routeSource: result.routeSource,
       );
     }).toList();
 
@@ -515,13 +534,56 @@ class MainScreenController extends ChangeNotifier {
       isRecommended: true,
       passengerCount: _fareResults[0].passengerCount,
       totalFare: _fareResults[0].totalFare,
+      accuracy: _fareResults[0].accuracy,
+      routeSource: _fareResults[0].routeSource,
     );
+
+  }
+
+  /// Handles offline mode changes by refreshing results with appropriate accuracy levels.
+  void _onOfflineModeChanged() {
+    if (_fareResults.isNotEmpty) {
+      final isOffline = _offlineModeService.isCurrentlyOffline;
+      _fareResults = _fareResults.map((result) {
+        return FareResult(
+          transportMode: result.transportMode,
+          fare: result.fare,
+          indicatorLevel: result.indicatorLevel,
+          isRecommended: result.isRecommended,
+          passengerCount: result.passengerCount,
+          totalFare: result.totalFare,
+          accuracy: _getEffectiveAccuracy(_routeResult, isOffline),
+          routeSource: result.routeSource,
+        );
+      }).toList();
+    }
+    notifyListeners();
+  }
+
+  /// Determines the effective accuracy level based on current offline state and route metadata.
+  AccuracyLevel _getEffectiveAccuracy(RouteResult? route, bool isOffline) {
+    if (isOffline) {
+      if (route == null) return AccuracyLevel.approximate;
+      
+      // If we have an explicitly estimated/cached route, keep it
+      if (route.accuracy == AccuracyLevel.estimated) {
+        return AccuracyLevel.estimated;
+      }
+      
+      // Everything else in offline mode is approximate (Offline)
+      return AccuracyLevel.approximate;
+    }
+    
+    // Online mode uses whatever accuracy the route result provides
+    return route?.accuracy ?? AccuracyLevel.precise;
   }
 
   @override
   void dispose() {
+    _offlineModeService.removeListener(_onOfflineModeChanged);
     _originDebounceTimer?.cancel();
     _destinationDebounceTimer?.cancel();
     super.dispose();
   }
+
 }

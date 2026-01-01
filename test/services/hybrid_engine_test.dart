@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ph_fare_calculator/src/core/hybrid_engine.dart';
 import 'package:ph_fare_calculator/src/models/fare_formula.dart';
-import 'package:ph_fare_calculator/src/services/settings_service.dart';
 import 'package:ph_fare_calculator/src/models/transport_mode.dart';
+import 'package:ph_fare_calculator/src/services/settings_service.dart';
 
 import '../helpers/mocks.dart';
 
@@ -10,13 +10,13 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late HybridEngine hybridEngine;
-  late MockRoutingService mockRoutingService;
+  late MockRoutingRepository mockRoutingRepo;
   late MockSettingsService mockSettingsService;
 
   setUp(() {
-    mockRoutingService = MockRoutingService();
+    mockRoutingRepo = MockRoutingRepository();
     mockSettingsService = MockSettingsService();
-    hybridEngine = HybridEngine(mockRoutingService, mockSettingsService);
+    hybridEngine = HybridEngine(mockRoutingRepo, mockSettingsService);
   });
 
   group('HybridEngine - Dynamic Fares', () {
@@ -37,7 +37,7 @@ void main() {
 
     test('calculateDynamicFare calculates correct basic fare', () async {
       // 5km distance
-      mockRoutingService.distanceToReturn = 5000.0;
+      mockRoutingRepo.distanceToReturn = 5000.0;
 
       final fare = await hybridEngine.calculateDynamicFare(
         originLat: 14.0,
@@ -57,7 +57,7 @@ void main() {
     test(
       'calculateDynamicFare applies provincial multiplier for Jeepney',
       () async {
-        mockRoutingService.distanceToReturn = 5000.0;
+        mockRoutingRepo.distanceToReturn = 5000.0;
         mockSettingsService.provincialMode = true;
 
         final fare = await hybridEngine.calculateDynamicFare(
@@ -77,7 +77,7 @@ void main() {
     test(
       'calculateDynamicFare applies traffic factor for Taxi (High)',
       () async {
-        mockRoutingService.distanceToReturn = 5000.0;
+        mockRoutingRepo.distanceToReturn = 5000.0;
         mockSettingsService.trafficFactor = TrafficFactor.high;
 
         final fare = await hybridEngine.calculateDynamicFare(
@@ -97,7 +97,7 @@ void main() {
     );
 
     test('calculateDynamicFare respects minimum fare', () async {
-      mockRoutingService.distanceToReturn = 100.0; // Very short distance
+      mockRoutingRepo.distanceToReturn = 100.0; // Very short distance
 
       // Create a formula where minimum fare is higher than calculated fare
       final highMinFormula = FareFormula(

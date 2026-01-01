@@ -23,13 +23,15 @@ class FareResultAdapter extends TypeAdapter<FareResult> {
       isRecommended: fields[3] == null ? false : fields[3] as bool,
       passengerCount: fields[4] == null ? 1 : fields[4] as int,
       totalFare: fields[5] == null ? 0.0 : fields[5] as double,
+      accuracy: fields[6] as AccuracyLevel,
+      routeSource: fields[7] as RouteSource,
     );
   }
 
   @override
   void write(BinaryWriter writer, FareResult obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.transportMode)
       ..writeByte(1)
@@ -41,7 +43,11 @@ class FareResultAdapter extends TypeAdapter<FareResult> {
       ..writeByte(4)
       ..write(obj.passengerCount)
       ..writeByte(5)
-      ..write(obj.totalFare);
+      ..write(obj.totalFare)
+      ..writeByte(6)
+      ..write(obj.accuracy)
+      ..writeByte(7)
+      ..write(obj.routeSource);
   }
 
   @override

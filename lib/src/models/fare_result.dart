@@ -1,4 +1,6 @@
 import 'package:hive/hive.dart';
+import 'accuracy_level.dart';
+import 'route_result.dart';
 
 part 'fare_result.g.dart';
 
@@ -29,6 +31,14 @@ class FareResult {
   @HiveField(5, defaultValue: 0.0)
   final double totalFare;
 
+  /// Accuracy level of the calculation.
+  @HiveField(6)
+  final AccuracyLevel accuracy;
+
+  /// Source of the route calculation.
+  @HiveField(7)
+  final RouteSource routeSource;
+
   FareResult({
     required this.transportMode,
     required this.fare,
@@ -36,5 +46,8 @@ class FareResult {
     this.isRecommended = false,
     this.passengerCount = 1,
     required this.totalFare,
+    this.accuracy = AccuracyLevel.precise,
+    this.routeSource = RouteSource.osrm,
   });
 }
+

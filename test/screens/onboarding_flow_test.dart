@@ -10,17 +10,24 @@ import 'package:ph_fare_calculator/src/core/hybrid_engine.dart';
 import 'package:ph_fare_calculator/src/l10n/app_localizations.dart';
 import 'package:ph_fare_calculator/src/models/fare_formula.dart';
 import 'package:ph_fare_calculator/src/models/fare_result.dart';
+import 'package:ph_fare_calculator/src/models/accuracy_level.dart';
+import 'package:ph_fare_calculator/src/models/route_result.dart';
 import 'package:ph_fare_calculator/src/models/saved_route.dart';
+import 'package:ph_fare_calculator/src/presentation/controllers/main_screen_controller.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/onboarding_screen.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/splash_screen.dart';
 import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
+import 'package:ph_fare_calculator/src/repositories/routing_repository.dart';
 import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
 import 'package:ph_fare_calculator/src/services/fare_comparison_service.dart';
 import 'package:ph_fare_calculator/src/services/geocoding/geocoding_service.dart';
 import 'package:ph_fare_calculator/src/services/routing/routing_service.dart';
 import 'package:ph_fare_calculator/src/services/settings_service.dart';
+import 'package:ph_fare_calculator/src/services/offline/offline_map_service.dart';
+import 'package:ph_fare_calculator/src/services/offline/offline_mode_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 
 import '../helpers/mocks.dart';
 import 'main_screen_test.dart'; // Import MockFareComparisonService from here
@@ -38,6 +45,17 @@ void main() {
   setUp(() async {
     await GetIt.instance.reset();
     SharedPreferences.setMockInitialValues({});
+    
+    tempDir = await Directory.systemTemp.createTemp('hive_test_onboarding_');
+
+    // Mock Path Provider for SplashScreen to use the temp dir
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.flutter.io/path_provider'),
+          (MethodCall methodCall) async {
+            return tempDir.path;
+          },
+        );
 
     // Setup mocks
     mockFareRepository = MockFareRepository();
@@ -62,18 +80,33 @@ void main() {
     GetIt.instance.registerSingleton<ConnectivityService>(
       mockConnectivityService,
     );
+    GetIt.instance.registerSingleton<OfflineModeService>(MockOfflineModeService());
+    GetIt.instance.registerSingleton<OfflineMapService>(MockOfflineMapService());
 
-    // Mock Path Provider for SplashScreen to use the temp dir
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel('plugins.flutter.io/path_provider'),
-          (MethodCall methodCall) async {
-            return tempDir.path;
-          },
-        );
+    GetIt.instance.registerSingleton<RoutingRepository>(
+      RoutingRepository(
+        mockRoutingService,
+        MockRouteCacheService(),
+        MockTrainFerryGraphService(),
+        mockRoutingService,
+        mockConnectivityService,
+        GetIt.instance<OfflineModeService>(),
+      ),
+    );
+    GetIt.instance.registerSingleton<MainScreenController>(
+      MainScreenController(
+        mockGeocodingService,
+        mockHybridEngine,
+        mockFareRepository,
+        GetIt.instance<RoutingRepository>(),
+        mockSettingsService,
+        mockFareComparisonService,
+        GetIt.instance<OfflineModeService>(),
+      ),
+    );
+
 
     // Setup Hive for MainScreen to not crash if it gets built
-    tempDir = await Directory.systemTemp.createTemp('hive_test_onboarding_');
     Hive.init(tempDir.path);
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(FareFormulaAdapter());
@@ -82,6 +115,12 @@ void main() {
     if (!Hive.isAdapterRegistered(2)) Hive.registerAdapter(FareResultAdapter());
     if (!Hive.isAdapterRegistered(3)) {
       Hive.registerAdapter(IndicatorLevelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(4)) {
+      Hive.registerAdapter(AccuracyLevelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(11)) {
+      Hive.registerAdapter(RouteSourceAdapter());
     }
   });
 

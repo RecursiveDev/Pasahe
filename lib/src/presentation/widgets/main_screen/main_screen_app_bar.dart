@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/di/injection.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../services/offline/offline_mode_service.dart';
 import '../../screens/offline_menu_screen.dart';
 import '../../screens/settings_screen.dart';
 import '../app_logo_widget.dart';
+
 
 /// Modern app bar widget for the main screen.
 class MainScreenAppBar extends StatelessWidget {
@@ -41,7 +44,35 @@ class MainScreenAppBar extends StatelessWidget {
               ],
             ),
           ),
+          ListenableBuilder(
+            listenable: getIt<OfflineModeService>(),
+            builder: (context, child) {
+              final offlineService = getIt<OfflineModeService>();
+              final isEnabled = offlineService.offlineModeEnabled;
+              return Semantics(
+                label: 'Toggle offline mode',
+                button: true,
+                child: IconButton(
+                  icon: Icon(
+                    isEnabled
+                        ? Icons.offline_bolt_rounded
+                        : Icons.offline_bolt_outlined,
+                    color: isEnabled
+                        ? colorScheme.primary
+                        : colorScheme.onSurfaceVariant,
+                  ),
+                  tooltip: isEnabled
+                      ? 'Offline Mode Enabled'
+                      : 'Enable Offline Mode',
+                  onPressed: () {
+                    offlineService.setOfflineModeEnabled(!isEnabled);
+                  },
+                ),
+              );
+            },
+          ),
           Semantics(
+
             label: 'Open offline reference menu',
             button: true,
             child: IconButton(

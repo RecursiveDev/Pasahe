@@ -6,7 +6,10 @@ import 'package:ph_fare_calculator/src/l10n/app_localizations.dart';
 import 'package:ph_fare_calculator/src/models/fare_formula.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/settings_screen.dart';
 import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
+import 'package:ph_fare_calculator/src/services/offline/offline_map_service.dart';
+import 'package:ph_fare_calculator/src/services/offline/offline_mode_service.dart';
 import 'package:ph_fare_calculator/src/services/settings_service.dart';
+
 
 import '../helpers/mocks.dart';
 
@@ -15,21 +18,23 @@ void main() {
 
   late MockSettingsService mockSettingsService;
   late MockFareRepository mockFareRepository;
+  late MockOfflineModeService mockOfflineModeService;
+  late MockOfflineMapService mockOfflineMapService;
 
   setUp(() {
     mockSettingsService = MockSettingsService();
     mockFareRepository = MockFareRepository();
+    mockOfflineModeService = MockOfflineModeService();
+    mockOfflineMapService = MockOfflineMapService();
 
     final getIt = GetIt.instance;
-    if (getIt.isRegistered<SettingsService>()) {
-      getIt.unregister<SettingsService>();
-    }
-    if (getIt.isRegistered<FareRepository>()) {
-      getIt.unregister<FareRepository>();
-    }
+    getIt.reset();
     getIt.registerSingleton<SettingsService>(mockSettingsService);
     getIt.registerSingleton<FareRepository>(mockFareRepository);
+    getIt.registerSingleton<OfflineModeService>(mockOfflineModeService);
+    getIt.registerSingleton<OfflineMapService>(mockOfflineMapService);
   });
+
 
   tearDown(() async {
     await GetIt.instance.reset();
@@ -164,11 +169,15 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 1));
 
     // Scroll down to see About section
-    await tester.drag(find.byType(ListView), const Offset(0, -800));
+    final sourceCodeFinder = find.text('Source Code');
+    await tester.scrollUntilVisible(
+      sourceCodeFinder,
+      200.0,
+    );
     await tester.pumpAndSettle();
 
     // Verify the Source Code tile exists
-    expect(find.text('Source Code'), findsOneWidget);
+    expect(sourceCodeFinder, findsOneWidget);
     expect(find.text('View on GitHub'), findsOneWidget);
   });
 }

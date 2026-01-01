@@ -7,12 +7,14 @@ import '../../core/di/injection.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/connectivity_status.dart';
 import '../../models/fare_formula.dart';
+import '../../presentation/controllers/main_screen_controller.dart';
 import '../../repositories/fare_repository.dart';
 import '../../services/connectivity/connectivity_service.dart';
 import '../../services/fare_comparison_service.dart';
+import '../../services/offline/offline_mode_service.dart';
 import '../../services/settings_service.dart';
-import '../controllers/main_screen_controller.dart';
 import '../widgets/main_screen/calculate_fare_button.dart';
+import '../widgets/main_screen/cross_region_warning_banner.dart';
 import '../widgets/main_screen/error_message_banner.dart';
 import '../widgets/main_screen/fare_results_header.dart';
 import '../widgets/main_screen/fare_results_list.dart';
@@ -29,7 +31,9 @@ import 'map_picker_screen.dart';
 /// Main screen for the PH Fare Calculator app.
 /// Refactored to use modular widgets and a controller for state management.
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final OfflineModeService? offlineModeService;
+
+  const MainScreen({super.key, this.offlineModeService});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -37,10 +41,12 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   late final MainScreenController _controller;
+  late final OfflineModeService _offlineModeService;
   late final ConnectivityService _connectivityService;
   late final SettingsService _settingsService;
   late final FareRepository _fareRepository;
   final TextEditingController _originTextController = TextEditingController();
+
   final TextEditingController _destinationTextController =
       TextEditingController();
   StreamSubscription<ConnectivityStatus>? _connectivitySubscription;
@@ -58,8 +64,11 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = MainScreenController();
+    _controller = getIt<MainScreenController>();
+    _offlineModeService =
+        widget.offlineModeService ?? getIt<OfflineModeService>();
     _connectivityService = getIt<ConnectivityService>();
+
     _settingsService = getIt<SettingsService>();
     _fareRepository = getIt<FareRepository>();
     _controller.addListener(_onControllerChanged);
@@ -83,7 +92,8 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _loadTransportModeCounts() async {
     try {
       final allFormulas = await _fareRepository.getAllFormulas();
-      final hasSetPrefs = await _settingsService.hasSetTransportModePreferences();
+      final hasSetPrefs = await _settingsService
+          .hasSetTransportModePreferences();
       final hiddenModes = await _settingsService.getHiddenTransportModes();
 
       // Count unique mode-subtype combinations
@@ -96,10 +106,14 @@ class _MainScreenState extends State<MainScreen> {
       if (!hasSetPrefs) {
         // New user - count default enabled modes that exist in formulas
         final defaultModes = SettingsService.getDefaultEnabledModes();
-        enabledCount = allModeKeys.where((key) => defaultModes.contains(key)).length;
+        enabledCount = allModeKeys
+            .where((key) => defaultModes.contains(key))
+            .length;
       } else {
         // Existing user - count modes not in hidden set
-        enabledCount = allModeKeys.where((key) => !hiddenModes.contains(key)).length;
+        enabledCount = allModeKeys
+            .where((key) => !hiddenModes.contains(key))
+            .length;
       }
 
       if (mounted) {
@@ -179,8 +193,20 @@ class _MainScreenState extends State<MainScreen> {
         child: Column(
           children: [
             const MainScreenAppBar(),
-            if (_connectivityStatus.isOffline || _connectivityStatus.isLimited)
-              OfflineStatusBanner(status: _connectivityStatus),
+            ListenableBuilder(
+              listenable: _offlineModeService,
+              builder: (context, child) {
+                if (_offlineModeService.isCurrentlyOffline ||
+                    _connectivityStatus.isLimited) {
+                  return OfflineStatusBanner(status: _connectivityStatus);
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+            if (_controller.routeResult?.warning != null)
+              CrossRegionWarningBanner(
+                message: _controller.routeResult!.warning!,
+              ),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),

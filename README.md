@@ -3,9 +3,21 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Flutter](https://img.shields.io/badge/Built%20with-Flutter-blue.svg)](https://flutter.dev/)
 [![CI](https://github.com/MasuRii/ph-fare-calculator/actions/workflows/ci.yml/badge.svg)](https://github.com/MasuRii/ph-fare-calculator/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](https://github.com/MasuRii/ph-fare-calculator/releases)
+[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/MasuRii/ph-fare-calculator/releases)
 
 **PH Fare Calculator** is a cross-platform mobile application designed to help tourists, expats, and locals estimate public transport costs across the Philippines.
+
+## 📱 Offline Mode Features
+
+The application now supports comprehensive offline functionality, ensuring you can calculate fares even in remote areas without internet coverage:
+
+- **Regional Map Downloads**: Download vector-based map tiles for Luzon, Visayas, or Mindanao.
+- **Persistent Geocoding**: Previously searched locations are cached locally using Hive for instant retrieval offline.
+- **Smart Fallback Routing**: When internet is lost, the app automatically switches from OSRM (Road Distance) to Haversine (Direct Distance) routing to provide fare estimates.
+- **Static Matrix Access**: Train (MRT/LRT) and Ferry fare matrices are bundled with the app, ensuring 100% availability.
+- **Background Caching**: Intelligent caching of map tiles as you browse, making recently viewed areas available offline automatically.
+- **Connectivity Awareness**: Real-time detection of 4G/5G/WiFi status with automatic mode switching.
+
 
 Unlike city-centric navigation apps, this tool focuses on **"How much?"** rather than "How to?". It solves the complex problem of Philippine geography by combining distance-based formulas (for roads) with static fare matrices (for trains and ferries).
 

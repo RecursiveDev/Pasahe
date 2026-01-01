@@ -9,6 +9,8 @@ import '../../core/errors/failures.dart';
 import '../../models/location.dart';
 import '../../services/geocoding/geocoding_service.dart';
 import '../../services/offline/offline_map_service.dart';
+import '../../services/offline/offline_mode_service.dart';
+
 import '../widgets/offline_indicator.dart';
 
 /// A modern full-screen map picker with floating UI elements and animations.
@@ -35,13 +37,18 @@ class _MapPickerScreenState extends State<MapPickerScreen>
     with SingleTickerProviderStateMixin {
   late final MapController _mapController;
   late final GeocodingService _geocodingService;
+  late final OfflineModeService _offlineModeService;
+  late final OfflineMapService _offlineMapService;
+  
   LatLng? _selectedLocation;
   bool _isMapMoving = false;
+  bool _isMapAvailable = true;
   final ValueNotifier<bool> _isSearchingLocation = ValueNotifier<bool>(false);
   final ValueNotifier<bool> _isLoadingAddress = ValueNotifier<bool>(false);
   String _addressText = 'Move map to select location';
 
   /// Debounce timer for reverse geocoding to avoid excessive API calls
+
   /// during rapid map movements
   Timer? _geocodeDebounceTimer;
 
@@ -61,9 +68,19 @@ class _MapPickerScreenState extends State<MapPickerScreen>
     super.initState();
     _mapController = MapController();
     _geocodingService = getIt<GeocodingService>();
+    _offlineModeService = getIt<OfflineModeService>();
+    _offlineMapService = getIt<OfflineMapService>();
+    
     _selectedLocation = widget.initialLocation ?? _defaultCenter;
 
+    // Listen to offline mode changes
+    _offlineModeService.addListener(_onOfflineModeChanged);
+
+    // Initial map availability check
+    _checkMapAvailability(_selectedLocation!);
+
     // Initialize pin animation controller
+
     _pinAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -93,11 +110,36 @@ class _MapPickerScreenState extends State<MapPickerScreen>
 
   @override
   void dispose() {
+    _offlineModeService.removeListener(_onOfflineModeChanged);
     _geocodeDebounceTimer?.cancel();
+
     _pinAnimationController.dispose();
     _isSearchingLocation.dispose();
     _isLoadingAddress.dispose();
     super.dispose();
+  }
+
+  void _onOfflineModeChanged() {
+    if (mounted) {
+      setState(() {
+        // Trigger UI rebuild for offline mode changes
+        _updateAddress(_selectedLocation!);
+      });
+    }
+  }
+
+  void _checkMapAvailability(LatLng location) {
+    if (!_offlineModeService.isCurrentlyOffline) {
+      if (!_isMapAvailable) {
+        setState(() => _isMapAvailable = true);
+      }
+      return;
+    }
+
+    final isAvailable = _offlineMapService.isPointCached(location);
+    if (isAvailable != _isMapAvailable) {
+      setState(() => _isMapAvailable = isAvailable);
+    }
   }
 
   void _handleMapEvent(MapEvent event) {
@@ -107,21 +149,25 @@ class _MapPickerScreenState extends State<MapPickerScreen>
       // Cancel any pending geocode request when movement starts
       _geocodeDebounceTimer?.cancel();
     } else if (event is MapEventMoveEnd) {
+      final center = _mapController.camera.center;
       setState(() {
         _isMapMoving = false;
-        _selectedLocation = _mapController.camera.center;
+        _selectedLocation = center;
       });
       _pinAnimationController.reverse();
-      _debouncedUpdateAddress(_mapController.camera.center);
+      _checkMapAvailability(center);
+      _debouncedUpdateAddress(center);
     } else if (event is MapEventMove) {
       // Update position during movement
+      final center = _mapController.camera.center;
       setState(() {
-        _selectedLocation = _mapController.camera.center;
+        _selectedLocation = center;
       });
     }
   }
 
   /// Debounced reverse geocoding to reduce API calls during rapid map movements.
+
   /// Cancels any pending request and schedules a new one after the debounce period.
   void _debouncedUpdateAddress(LatLng location) {
     // Cancel any existing pending request
@@ -139,7 +185,7 @@ class _MapPickerScreenState extends State<MapPickerScreen>
   void _updateAddress(LatLng location) async {
     // Perform reverse geocoding to get the human-readable address
     _isLoadingAddress.value = true;
-    
+
     try {
       final address = await _geocodingService.getAddressFromLatLng(
         location.latitude,
@@ -163,6 +209,7 @@ class _MapPickerScreenState extends State<MapPickerScreen>
     }
   }
 
+
   void _confirmLocation() {
     if (_selectedLocation != null) {
       Navigator.pop(context, _selectedLocation);
@@ -176,10 +223,12 @@ class _MapPickerScreenState extends State<MapPickerScreen>
     setState(() {
       _selectedLocation = _defaultCenter;
     });
+    _checkMapAvailability(_defaultCenter);
     _updateAddress(_defaultCenter);
   }
 
   Future<List<Location>> _searchLocations(String query) async {
+
     if (query.trim().isEmpty) {
       _isSearchingLocation.value = false;
       return [];
@@ -229,8 +278,13 @@ class _MapPickerScreenState extends State<MapPickerScreen>
           // Center pin with animation
           _buildAnimatedCenterPin(colorScheme),
 
-          // Floating search bar at top
-          _buildFloatingSearchBar(theme, colorScheme),
+          // Map availability warning (only when offline)
+          if (_offlineModeService.isCurrentlyOffline && !_isMapAvailable)
+            _buildMapAvailabilityWarning(theme, colorScheme),
+
+          // Floating search bar at top (hidden in offline mode)
+          if (!_offlineModeService.isCurrentlyOffline)
+            _buildFloatingSearchBar(theme, colorScheme),
 
           // Offline indicator badge (top right)
           Positioned(
@@ -239,17 +293,83 @@ class _MapPickerScreenState extends State<MapPickerScreen>
             child: const OfflineIndicatorBadge(),
           ),
 
+          // Offline help text (if offline)
+          if (_offlineModeService.isCurrentlyOffline)
+            _buildOfflineHelpText(theme, colorScheme),
+
           // Bottom location card
           _buildBottomLocationCard(theme, colorScheme),
         ],
       ),
       // Current location FAB
+
       floatingActionButton: _buildCurrentLocationFab(colorScheme),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
+  Widget _buildMapAvailabilityWarning(ThemeData theme, ColorScheme colorScheme) {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 72,
+      left: 16,
+      right: 16,
+      child: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(12),
+        color: colorScheme.errorContainer,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: colorScheme.error),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Map not available offline here. Please move to a cached region.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onErrorContainer,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOfflineHelpText(ThemeData theme, ColorScheme colorScheme) {
+    return Positioned(
+      bottom: 250, // Above current location FAB
+      left: 16,
+      right: 16,
+      child: IgnorePointer(
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: colorScheme.surface.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: colorScheme.primary.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Text(
+              'Offline Mode: Drag map to select coordinates',
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   PreferredSizeWidget _buildAppBar(
+
     BuildContext context,
     ThemeData theme,
     ColorScheme colorScheme,
@@ -334,10 +454,13 @@ class _MapPickerScreenState extends State<MapPickerScreen>
 
     try {
       final offlineMapService = getIt<OfflineMapService>();
+      final offlineModeService = getIt<OfflineModeService>();
       tileLayer = offlineMapService.getThemedCachedTileLayer(
         isDarkMode: isDarkMode,
+        allowDownloads: offlineModeService.shouldAllowDownloads,
       );
     } catch (_) {
+
       // Fall back to network tiles if service not initialized
       tileLayer = OfflineMapService.getNetworkTileLayer(isDarkMode: isDarkMode);
     }
@@ -649,7 +772,9 @@ class _MapPickerScreenState extends State<MapPickerScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Selected Location',
+                              _offlineModeService.isCurrentlyOffline
+                                  ? 'Selected Coordinates'
+                                  : 'Selected Location',
                               style: theme.textTheme.labelLarge?.copyWith(
                                 color: colorScheme.onSurfaceVariant,
                               ),
@@ -662,7 +787,9 @@ class _MapPickerScreenState extends State<MapPickerScreen>
                                 builder: (context, isLoading, child) {
                                   if (_isMapMoving) {
                                     return Text(
-                                      'Moving...',
+                                      _offlineModeService.isCurrentlyOffline
+                                          ? 'Updating...'
+                                          : 'Moving...',
                                       key: const ValueKey('moving'),
                                       style: theme.textTheme.bodyLarge?.copyWith(
                                         fontWeight: FontWeight.w600,
@@ -671,7 +798,8 @@ class _MapPickerScreenState extends State<MapPickerScreen>
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     );
-                                  } else if (isLoading) {
+                                  } else if (isLoading &&
+                                      !_offlineModeService.isCurrentlyOffline) {
                                     return Row(
                                       key: const ValueKey('loading'),
                                       mainAxisSize: MainAxisSize.min,
@@ -700,7 +828,13 @@ class _MapPickerScreenState extends State<MapPickerScreen>
                                       key: ValueKey(_addressText),
                                       style: theme.textTheme.bodyLarge?.copyWith(
                                         fontWeight: FontWeight.w600,
-                                        color: colorScheme.onSurface,
+                                        color: _offlineModeService.isCurrentlyOffline
+                                            ? colorScheme.primary
+                                            : colorScheme.onSurface,
+                                        fontFamily:
+                                            _offlineModeService.isCurrentlyOffline
+                                                ? 'monospace'
+                                                : null,
                                       ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -709,6 +843,7 @@ class _MapPickerScreenState extends State<MapPickerScreen>
                                 },
                               ),
                             ),
+
                           ],
                         ),
                       ),
@@ -765,6 +900,8 @@ class _MapPickerScreenState extends State<MapPickerScreen>
   }
 
   Widget _buildCurrentLocationFab(ColorScheme colorScheme) {
+    // Only show current location FAB if we are online OR if current location might be cached
+    // For simplicity, we show it and let the user see if it's cached
     return Padding(
       padding: const EdgeInsets.only(bottom: 200), // Above bottom card
       child: Semantics(
@@ -781,6 +918,7 @@ class _MapPickerScreenState extends State<MapPickerScreen>
       ),
     );
   }
+
 }
 
 /// Custom animated builder widget for pin animations

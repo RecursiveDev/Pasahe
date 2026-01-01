@@ -40,7 +40,11 @@ class ConnectivityService {
   /// The last known connectivity status.
   ConnectivityStatus _lastStatus = ConnectivityStatus.offline;
 
+  /// Whether the current connection is WiFi.
+  bool _isWifi = false;
+
   /// Whether the service has been initialized.
+
   bool _isInitialized = false;
 
   /// Creates a new [ConnectivityService] instance for production use.
@@ -69,22 +73,26 @@ class ConnectivityService {
   }
 
   /// Returns the last known connectivity status without performing a new check.
-  ///
-  /// This is useful when you need a synchronous value and can tolerate
-  /// a potentially stale result.
   ConnectivityStatus get lastKnownStatus => _lastStatus;
 
+  /// Returns true if the device is currently connected via WiFi.
+  bool get isWifi => _isWifi;
+
   /// Initializes the connectivity service and starts listening for changes.
+
   ///
   /// This should be called once during app startup. Subsequent calls are no-ops.
   Future<void> initialize() async {
     if (_isInitialized) return;
 
     // Get initial status
-    _lastStatus = await currentStatus;
+    final results = await _connectivity.checkConnectivity();
+    _lastStatus = _mapConnectivityResults(results);
+    _isWifi = results.contains(ConnectivityResult.wifi);
     _statusController.add(_lastStatus);
 
     // Listen for changes
+
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
       _handleConnectivityChange,
       onError: _handleConnectivityError,
@@ -96,8 +104,10 @@ class ConnectivityService {
   /// Handles connectivity change events from the plugin.
   void _handleConnectivityChange(List<ConnectivityResult> results) {
     final newStatus = _mapConnectivityResults(results);
+    _isWifi = results.contains(ConnectivityResult.wifi);
 
     // Only emit if status actually changed
+
     if (newStatus != _lastStatus) {
       _lastStatus = newStatus;
       _statusController.add(newStatus);

@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
+import 'package:ph_fare_calculator/src/core/constants/region_constants.dart';
+import 'package:ph_fare_calculator/src/core/hybrid_engine.dart';
+import 'package:ph_fare_calculator/src/l10n/app_localizations.dart';
 import 'package:ph_fare_calculator/src/models/fare_formula.dart';
 import 'package:ph_fare_calculator/src/models/fare_result.dart';
 import 'package:ph_fare_calculator/src/models/location.dart';
+import 'package:ph_fare_calculator/src/models/transport_mode.dart';
+import 'package:ph_fare_calculator/src/presentation/controllers/main_screen_controller.dart';
 import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
 import 'package:ph_fare_calculator/src/presentation/widgets/fare_result_card.dart';
-import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
-import 'package:ph_fare_calculator/src/services/geocoding/geocoding_service.dart';
-import 'package:ph_fare_calculator/src/services/routing/routing_service.dart';
-import 'package:ph_fare_calculator/src/services/settings_service.dart';
-import 'package:ph_fare_calculator/src/core/hybrid_engine.dart';
 import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
+import 'package:ph_fare_calculator/src/repositories/routing_repository.dart';
+import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
 import 'package:ph_fare_calculator/src/services/fare_comparison_service.dart';
-import 'package:ph_fare_calculator/src/core/constants/region_constants.dart';
+import 'package:ph_fare_calculator/src/services/geocoding/geocoding_service.dart';
+import 'package:ph_fare_calculator/src/services/offline/offline_map_service.dart';
+import 'package:ph_fare_calculator/src/services/offline/offline_mode_service.dart';
+import 'package:ph_fare_calculator/src/services/settings_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ph_fare_calculator/src/models/transport_mode.dart';
 
 import '../helpers/mocks.dart';
 
@@ -67,7 +70,7 @@ void main() {
   late MockGeocodingService mockGeocodingService;
   late MockHybridEngine mockHybridEngine;
   late MockFareRepository mockFareRepository;
-  late MockRoutingService mockRoutingService;
+  late MockRoutingRepository mockRoutingRepo;
   late MockSettingsService mockSettingsService;
   late MockFareComparisonService mockFareComparisonService;
   late MockConnectivityService mockConnectivityService;
@@ -78,7 +81,7 @@ void main() {
     mockGeocodingService = MockGeocodingService();
     mockHybridEngine = MockHybridEngine();
     mockFareRepository = MockFareRepository();
-    mockRoutingService = MockRoutingService();
+    mockRoutingRepo = MockRoutingRepository();
     mockSettingsService = MockSettingsService();
     mockFareComparisonService = MockFareComparisonService();
     mockConnectivityService = MockConnectivityService();
@@ -87,12 +90,25 @@ void main() {
     final getIt = GetIt.instance;
 
     getIt.registerSingleton<GeocodingService>(mockGeocodingService);
-    getIt.registerSingleton<RoutingService>(mockRoutingService);
+    getIt.registerSingleton<RoutingRepository>(mockRoutingRepo);
     getIt.registerSingleton<SettingsService>(mockSettingsService);
     getIt.registerSingleton<HybridEngine>(mockHybridEngine);
     getIt.registerSingleton<FareRepository>(mockFareRepository);
     getIt.registerSingleton<FareComparisonService>(mockFareComparisonService);
     getIt.registerSingleton<ConnectivityService>(mockConnectivityService);
+    getIt.registerSingleton<OfflineModeService>(MockOfflineModeService());
+    getIt.registerSingleton<OfflineMapService>(MockOfflineMapService());
+    getIt.registerSingleton<MainScreenController>(
+      MainScreenController(
+        mockGeocodingService,
+        mockHybridEngine,
+        mockFareRepository,
+        mockRoutingRepo,
+        mockSettingsService,
+        mockFareComparisonService,
+        getIt<OfflineModeService>(),
+      ),
+    );
 
     // Setup default mock behaviors
     mockFareRepository.formulasToReturn = [

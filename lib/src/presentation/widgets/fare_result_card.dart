@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/transit_colors.dart';
+import '../../models/accuracy_level.dart';
 import '../../models/fare_result.dart';
+import '../../models/route_result.dart';
 import '../../models/transport_mode.dart';
+
 
 /// A modern, accessible fare result card widget.
 ///
@@ -15,6 +18,8 @@ class FareResultCard extends StatelessWidget {
   final bool isRecommended;
   final int passengerCount;
   final double totalFare;
+  final AccuracyLevel accuracy;
+  final RouteSource routeSource;
   final double? distanceKm;
   final int? estimatedMinutes;
   final String? discountLabel;
@@ -28,11 +33,14 @@ class FareResultCard extends StatelessWidget {
     this.isRecommended = false,
     this.passengerCount = 1,
     required this.totalFare,
+    this.accuracy = AccuracyLevel.precise,
+    this.routeSource = RouteSource.osrm,
     this.distanceKm,
     this.estimatedMinutes,
     this.discountLabel,
     this.onTap,
   });
+
 
   /// Returns the status color based on indicator level.
   Color _getStatusColor(BuildContext context) {
@@ -186,7 +194,63 @@ class FareResultCard extends StatelessWidget {
     return buffer.toString();
   }
 
+  /// Builds a styled chip for the route source.
+  Widget _buildRouteSourceBadge(BuildContext context, Color statusColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
+      ),
+      child: Text(
+        routeSource.description,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              fontSize: 9,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
+      ),
+    );
+  }
+
+  /// Builds the accuracy indicator.
+  Widget _buildAccuracyIndicator(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: accuracy.color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: accuracy.color.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            accuracy.icon,
+            size: 14,
+            color: accuracy.color,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            accuracy.label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: accuracy.color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Builds the circular transport icon container.
+
   Widget _buildTransportIcon(BuildContext context, Color statusColor) {
     return Container(
       width: 48,
@@ -228,10 +292,15 @@ class FareResultCard extends StatelessWidget {
             ),
             if (subtype != null)
               _buildSubtypeChip(context, subtype, statusColor),
+            _buildRouteSourceBadge(context, statusColor),
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
+        // Accuracy indicator
+        _buildAccuracyIndicator(context),
+        const SizedBox(height: 8),
         // Distance and time info row
+
         Row(
           children: [
             if (distanceKm != null) ...[
