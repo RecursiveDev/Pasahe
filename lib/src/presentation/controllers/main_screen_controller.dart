@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import '../../core/di/injection.dart';
 import '../../core/errors/failures.dart';
 import '../../core/hybrid_engine.dart';
+import '../../models/discount_type.dart';
 import '../../models/fare_formula.dart';
 import '../../models/fare_result.dart';
 import '../../models/location.dart';
@@ -140,9 +141,22 @@ class MainScreenController extends ChangeNotifier {
     return _settingsService.hasSetDiscountType();
   }
 
-  /// Set user discount type preference
-  Future<void> setUserDiscountType(dynamic discountType) async {
+  /// Set user discount type preference and update local passenger state.
+  Future<void> setUserDiscountType(DiscountType discountType) async {
     await _settingsService.setUserDiscountType(discountType);
+
+    // Update local passenger counts based on the selected discount type
+    // Assuming a total of 1 passenger when first setting the preference
+    if (discountType == DiscountType.discounted) {
+      _regularPassengers = 0;
+      _discountedPassengers = 1;
+    } else {
+      _regularPassengers = 1;
+      _discountedPassengers = 0;
+    }
+    _passengerCount = _regularPassengers + _discountedPassengers;
+
+    notifyListeners();
   }
 
   /// Search locations with debounce for autocomplete

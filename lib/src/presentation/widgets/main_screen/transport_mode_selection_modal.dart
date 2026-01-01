@@ -68,6 +68,23 @@ class _TransportModeSelectionModalState
   void initState() {
     super.initState();
     _groupedFormulas = _groupFormulas();
+    _loadSavedPreferences();
+  }
+
+  /// Loads saved transport mode preferences and initializes selected modes.
+  /// Modes that are NOT in the hidden set should be marked as selected.
+  Future<void> _loadSavedPreferences() async {
+    final hiddenModes = await widget.settingsService.getHiddenTransportModes();
+
+    setState(() {
+      for (final formula in widget.availableFormulas) {
+        final modeSubTypeKey = '${formula.mode}::${formula.subType}';
+        // Mode is selected if it's NOT hidden
+        if (!hiddenModes.contains(modeSubTypeKey)) {
+          _selectedModes.add(modeSubTypeKey);
+        }
+      }
+    });
   }
 
   Map<String, List<FareFormula>> _groupFormulas() {

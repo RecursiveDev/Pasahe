@@ -222,8 +222,11 @@ class _LocationFieldState extends State<_LocationField> {
       final results = await widget.onSearchLocations(query);
       return results;
     } finally {
-      // Clear loading state after fetching (success or error)
-      _isSearching.value = false;
+      // Delay clearing the loading state until after the current frame completes
+      // so the autocomplete options have time to render before the spinner disappears.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _isSearching.value = false;
+      });
     }
   }
 
