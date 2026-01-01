@@ -1,140 +1,120 @@
 # GitHub Actions Workflow: Build and Release APK
 # Triggers on push to main branch, builds Flutter APK, and creates GitHub Release
-# Auto-names APK with version, build number, and commit SHA
 
-name: Build and Release APK
+name: 📦 Build & Release APK
 
 on:
   push:
     branches:
       - main
 
-# Prevent concurrent runs on the same branch
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
-  contents: write  # Required for creating releases
+  contents: write
 
 jobs:
   build-and-release:
-    name: Build APK and Create Release
+    name: 🚀 Build & Release
     runs-on: ubuntu-latest
     
     steps:
       # ============================================
-      # CHECKOUT & SETUP
+      # CHECKOUT & VERSION EXTRACTION
       # ============================================
-      - name: Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for changelog generation
+          fetch-depth: 0
 
-      - name: Extract version from pubspec.yaml
+      - name: 🔍 Extract version info
         id: version
         run: |
-          # Extract full version string (e.g., 1.0.0+1)
+          # Extract version from pubspec.yaml
           FULL_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | tr -d ' \r')
-          echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
-          
-          # Extract version name (e.g., 1.0.0)
           VERSION_NAME=$(echo "$FULL_VERSION" | cut -d'+' -f1)
-          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
-          
-          # Extract build number (e.g., 1)
           BUILD_NUMBER=$(echo "$FULL_VERSION" | cut -d'+' -f2)
+          
+          # Default build number if not specified
           if [ -z "$BUILD_NUMBER" ] || [ "$BUILD_NUMBER" = "$FULL_VERSION" ]; then
             BUILD_NUMBER="1"
           fi
-          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
           
-          # Get short commit SHA
+          # Get commit info
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          BUILD_DATE=$(date -u +"%B %d, %Y")
+          
+          # Set outputs
+          echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
           echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "build_date=$BUILD_DATE" >> $GITHUB_OUTPUT
+          echo "tag_name=v${VERSION_NAME}" >> $GITHUB_OUTPUT
           
-          # Generate APK filename
-          APK_NAME="ph-fare-calculator-v${VERSION_NAME}+${BUILD_NUMBER}-${SHORT_SHA}.apk"
-          echo "apk_name=$APK_NAME" >> $GITHUB_OUTPUT
-          
-          # Generate tag name
-          TAG_NAME="v${VERSION_NAME}"
-          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-          
-          # Generate build timestamp
-          BUILD_TIME=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          echo "build_time=$BUILD_TIME" >> $GITHUB_OUTPUT
-          
-          echo "::notice::Version: $VERSION_NAME, Build: $BUILD_NUMBER, SHA: $SHORT_SHA"
+          echo "::notice::📱 Version $VERSION_NAME (Build $BUILD_NUMBER)"
 
-      - name: Check if tag exists and generate unique tag
+      - name: 🏷️ Resolve release tag
         id: tag_check
         run: |
           BASE_TAG="${{ steps.version.outputs.tag_name }}"
-          UNIQUE_TAG="$BASE_TAG"
           
-          # Check if tag exists
-          if git ls-remote --tags origin | grep -q "refs/tags/$BASE_TAG$"; then
-            echo "Tag $BASE_TAG already exists, generating unique tag..."
-            # Append build number and timestamp to make unique
-            TIMESTAMP=$(date +%Y%m%d%H%M%S)
-            UNIQUE_TAG="${BASE_TAG}-build${{ steps.version.outputs.build_number }}-${TIMESTAMP}"
+          if git ls-remote --tags origin | grep -q "refs/tags/${BASE_TAG}$"; then
+            # Tag exists - append build number for uniqueness
+            UNIQUE_TAG="${BASE_TAG}.${BUILD_NUMBER}"
             echo "is_duplicate=true" >> $GITHUB_OUTPUT
           else
+            UNIQUE_TAG="$BASE_TAG"
             echo "is_duplicate=false" >> $GITHUB_OUTPUT
           fi
           
           echo "unique_tag=$UNIQUE_TAG" >> $GITHUB_OUTPUT
-          echo "::notice::Using tag: $UNIQUE_TAG"
+          echo "::notice::🏷️ Release tag: $UNIQUE_TAG"
+        env:
+          BUILD_NUMBER: ${{ steps.version.outputs.build_number }}
 
       # ============================================
       # JAVA & FLUTTER SETUP
       # ============================================
-      - name: Set up Java JDK 17
+      - name: ☕ Set up Java JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'
 
-      - name: Set up Flutter SDK
+      - name: 💙 Set up Flutter SDK
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      - name: Verify Flutter installation
-        run: |
-          flutter --version
-          flutter doctor -v
+      - name: ✅ Verify Flutter installation
+        run: flutter --version
 
       # ============================================
       # BUILD
       # ============================================
-      - name: Get Flutter dependencies
+      - name: 📦 Get Flutter dependencies
         run: flutter pub get
 
-      - name: Create .env file for CI
-        run: |
-          # Create empty .env file required by pubspec.yaml assets
-          touch .env
-          echo "Created .env placeholder for CI build"
+      - name: 📝 Create .env placeholder
+        run: touch .env
 
-      - name: Generate code with build_runner
-        run: |
-          # Generate Hive adapters and other generated files
-          dart run build_runner build --delete-conflicting-outputs
-          echo "Code generation completed"
+      - name: ⚙️ Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Run Flutter analyze
+      - name: 🔍 Run Flutter analyze
         run: flutter analyze --no-fatal-infos
-        continue-on-error: true  # Don't fail on lint warnings
+        continue-on-error: true
 
-      - name: Run Flutter tests
+      - name: 🧪 Run tests
         run: flutter test
-        continue-on-error: true  # Continue even if tests fail (for now)
+        continue-on-error: true
 
-      - name: Build production release APKs (per-ABI)
+      - name: 🏗️ Build release APKs
         run: |
           flutter build apk --release \
             --split-per-abi \
@@ -143,138 +123,121 @@ jobs:
             --build-name=${{ steps.version.outputs.version_name }} \
             --build-number=${{ steps.version.outputs.build_number }}
 
-      - name: Rename APKs with version info
+      - name: 📋 Prepare APK files
         id: apk_files
         run: |
           VERSION="${{ steps.version.outputs.version_name }}"
-          BUILD="${{ steps.version.outputs.build_number }}"
-          SHA="${{ steps.version.outputs.short_sha }}"
           APK_DIR="build/app/outputs/flutter-apk"
           
-          # Rename each architecture-specific APK
+          # User-friendly APK names
           mv "${APK_DIR}/app-arm64-v8a-release.apk" \
-             "${APK_DIR}/ph-fare-calculator-v${VERSION}+${BUILD}-${SHA}-arm64-v8a.apk"
+             "${APK_DIR}/PH-Fare-Calculator-v${VERSION}-arm64.apk"
           
           mv "${APK_DIR}/app-armeabi-v7a-release.apk" \
-             "${APK_DIR}/ph-fare-calculator-v${VERSION}+${BUILD}-${SHA}-armeabi-v7a.apk"
+             "${APK_DIR}/PH-Fare-Calculator-v${VERSION}-arm32.apk"
           
           mv "${APK_DIR}/app-x86_64-release.apk" \
-             "${APK_DIR}/ph-fare-calculator-v${VERSION}+${BUILD}-${SHA}-x86_64.apk"
+             "${APK_DIR}/PH-Fare-Calculator-v${VERSION}-x86_64.apk"
           
-          # Output APK filenames for later steps
-          echo "apk_arm64=ph-fare-calculator-v${VERSION}+${BUILD}-${SHA}-arm64-v8a.apk" >> $GITHUB_OUTPUT
-          echo "apk_armv7=ph-fare-calculator-v${VERSION}+${BUILD}-${SHA}-armeabi-v7a.apk" >> $GITHUB_OUTPUT
-          echo "apk_x86_64=ph-fare-calculator-v${VERSION}+${BUILD}-${SHA}-x86_64.apk" >> $GITHUB_OUTPUT
+          # Set outputs
+          echo "apk_arm64=PH-Fare-Calculator-v${VERSION}-arm64.apk" >> $GITHUB_OUTPUT
+          echo "apk_arm32=PH-Fare-Calculator-v${VERSION}-arm32.apk" >> $GITHUB_OUTPUT
+          echo "apk_x86_64=PH-Fare-Calculator-v${VERSION}-x86_64.apk" >> $GITHUB_OUTPUT
           
-          echo "APKs renamed:"
           ls -la "${APK_DIR}"/*.apk
 
       # ============================================
       # RELEASE
       # ============================================
-      - name: Generate release notes
+      - name: 📝 Generate release notes
         id: release_notes
         run: |
-          # Create release notes file
-          cat > RELEASE_NOTES.md << 'EOF'
-          ## 📱 PH Fare Calculator Release
+          VERSION="${{ steps.version.outputs.version_name }}"
+          BUILD_DATE="${{ steps.version.outputs.build_date }}"
+          SHORT_SHA="${{ steps.version.outputs.short_sha }}"
           
-          ### Version Information
-          - **Version:** ${{ steps.version.outputs.version_name }}
-          - **Build Number:** ${{ steps.version.outputs.build_number }}
-          - **Full Version:** ${{ steps.version.outputs.full_version }}
-          
-          ### Build Information
-          - **Build Date:** ${{ steps.version.outputs.build_time }}
-          - **Commit:** [`${{ steps.version.outputs.short_sha }}`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
-          - **Branch:** `${{ github.ref_name }}`
-          - **Workflow Run:** [#${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-          
-          ### APK Details
-          | Architecture | Filename |
-          |-------------|----------|
-          | **ARM64 (arm64-v8a)** | `${{ steps.apk_files.outputs.apk_arm64 }}` |
-          | **ARM32 (armeabi-v7a)** | `${{ steps.apk_files.outputs.apk_armv7 }}` |
-          | **x86_64** | `${{ steps.apk_files.outputs.apk_x86_64 }}` |
-          
-          ## ✨ What's New
-          EOF
-          
-          # Determine range
+          # Determine commit range
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -n "$LAST_TAG" ]; then
             RANGE="${LAST_TAG}..HEAD"
-            echo "Generating notes for range: $RANGE"
           else
             RANGE="HEAD~10..HEAD"
-            echo "No previous tag found, using last 10 commits"
           fi
           
-          # Features
-          echo "🚀 **New Features:**" >> RELEASE_NOTES.md
-          FEATURES=$(git log ${RANGE} --grep="✨\|feat" --pretty=format:"- %s" --no-merges || echo "")
+          # Start building release notes
+          cat > RELEASE_NOTES.md << EOF
+          ## 📱 What's New in v${VERSION}
+          
+          EOF
+          
+          # Get features (commits starting with ✨ or feat)
+          FEATURES=$(git log ${RANGE} --pretty=format:"%s" --no-merges | grep -E "^(✨|feat)" | sed -E 's/^✨ (feat[^:]*: )?//' | sed -E 's/^feat[^:]*: //' | sed 's/^/- /' | head -10)
           if [ -n "$FEATURES" ]; then
+            echo "### ✨ New Features" >> RELEASE_NOTES.md
             echo "$FEATURES" >> RELEASE_NOTES.md
-          else
-            echo "- General improvements and updates" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
           fi
-          echo "" >> RELEASE_NOTES.md
           
-          # Bug Fixes
-          echo "🐛 **Bug Fixes:**" >> RELEASE_NOTES.md
-          FIXES=$(git log ${RANGE} --grep="🐛\|fix" --pretty=format:"- %s" --no-merges || echo "")
+          # Get bug fixes (commits starting with 🐛 or fix)
+          FIXES=$(git log ${RANGE} --pretty=format:"%s" --no-merges | grep -E "^(🐛|fix)" | sed -E 's/^🐛 (fix[^:]*: )?//' | sed -E 's/^fix[^:]*: //' | sed 's/^/- /' | head -10)
           if [ -n "$FIXES" ]; then
+            echo "### 🐛 Bug Fixes" >> RELEASE_NOTES.md
             echo "$FIXES" >> RELEASE_NOTES.md
-          else
-            echo "- Stability improvements" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
           fi
-          echo "" >> RELEASE_NOTES.md
           
-          # Improvements
-          echo "🎨 **Improvements:**" >> RELEASE_NOTES.md
-          IMPROVEMENTS=$(git log ${RANGE} --grep="🎨\|♻️\|🏗\|💄\|refactor\|perf" --pretty=format:"- %s" --no-merges || echo "")
+          # Get improvements (commits with refactor emojis or keywords)
+          IMPROVEMENTS=$(git log ${RANGE} --pretty=format:"%s" --no-merges | grep -E "^(♻️|🎨|💄|🏗|refactor|perf)" | sed -E 's/^(♻️|🎨|💄|🏗) (refactor[^:]*: |perf[^:]*: )?//' | sed -E 's/^(refactor|perf)[^:]*: //' | sed 's/^/- /' | head -5)
           if [ -n "$IMPROVEMENTS" ]; then
+            echo "### 🎨 Improvements" >> RELEASE_NOTES.md
             echo "$IMPROVEMENTS" >> RELEASE_NOTES.md
-          else
-            echo "- UI refinements and performance tweaks" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
           fi
           
-          echo "" >> RELEASE_NOTES.md
-          echo "---" >> RELEASE_NOTES.md
-          echo "_Built with Flutter on GitHub Actions_" >> RELEASE_NOTES.md
+          # Add download guide
+          cat >> RELEASE_NOTES.md << EOF
+          ---
           
-          # Output for debugging
-          echo "Generated release notes:"
+          ### 📥 Download Guide
+          
+          | Your Device | Recommended Download |
+          |-------------|---------------------|
+          | 🆕 Modern phones (2016+) | **arm64** - Most Android devices |
+          | 📱 Older phones (pre-2016) | **arm32** - Legacy devices |
+          | 💻 Emulators & Chromebooks | **x86_64** |
+          
+          > 💡 **Tip:** Not sure? Download the **arm64** version first - it works on most devices!
+          
+          ---
+          📅 Released on ${BUILD_DATE} • Commit [\`${SHORT_SHA}\`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+          EOF
+          
           cat RELEASE_NOTES.md
 
-      - name: Create GitHub Release
+      - name: 🚀 Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag_check.outputs.unique_tag }}
-          name: "PH Fare Calculator ${{ steps.version.outputs.version_name }} (${{ steps.version.outputs.build_time }})"
+          name: "📱 PH Fare Calculator v${{ steps.version.outputs.version_name }}"
           body_path: RELEASE_NOTES.md
           draft: false
           prerelease: false
-          generate_release_notes: true  # Also include GitHub's auto-generated notes
-          append_body: true  # Append our notes to GitHub's auto-generated ones
           files: |
             build/app/outputs/flutter-apk/${{ steps.apk_files.outputs.apk_arm64 }}
-            build/app/outputs/flutter-apk/${{ steps.apk_files.outputs.apk_armv7 }}
+            build/app/outputs/flutter-apk/${{ steps.apk_files.outputs.apk_arm32 }}
             build/app/outputs/flutter-apk/${{ steps.apk_files.outputs.apk_x86_64 }}
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Release summary
+      - name: 📊 Release summary
         run: |
-          echo "## 🎉 Release Created Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎉 Release Published!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Tag** | \`${{ steps.tag_check.outputs.unique_tag }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Version** | ${{ steps.version.outputs.version_name }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Build** | ${{ steps.version.outputs.build_number }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **APKs** | arm64-v8a, armeabi-v7a, x86_64 |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Commit** | \`${{ steps.version.outputs.short_sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version** | v${{ steps.version.outputs.version_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Tag** | ${{ steps.tag_check.outputs.unique_tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Date** | ${{ steps.version.outputs.build_date }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📦 [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.tag_check.outputs.unique_tag }})" >> $GITHUB_STEP_SUMMARY
