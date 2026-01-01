@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Flutter](https://img.shields.io/badge/Built%20with-Flutter-blue.svg)](https://flutter.dev/)
 [![CI](https://github.com/MasuRii/ph-fare-calculator/actions/workflows/ci.yml/badge.svg)](https://github.com/MasuRii/ph-fare-calculator/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/MasuRii/ph-fare-calculator/releases)
+[![Version](https://img.shields.io/badge/version-2.4.0-blue.svg)](https://github.com/MasuRii/ph-fare-calculator/releases)
 
 **PH Fare Calculator** is a cross-platform mobile application designed to help tourists, expats, and locals estimate public transport costs across the Philippines.
 
@@ -26,6 +26,8 @@ Unlike city-centric navigation apps, this tool focuses on **"How much?"** rather
 - **Nationwide Coverage:** Works in Metro Manila, Cebu, Davao, and rural provinces.
 - **Modular Offline Maps:** Download maps by island group (Luzon, Visayas, Mindanao) to save storage space while ensuring functionality without internet.
 - **Material 3 Design:** A completely redesigned UI/UX that follows modern Material Design guidelines for better accessibility and aesthetics.
+- **Dark Mode (2025 M3 Standards):** Full dark mode implementation using Material Design 3 #121212 baseline with 7-layer surface container system for optimal eye comfort and accessibility.
+- **Transport Icon Service:** Unique icons for all 12 Philippine transport modes (Jeepney, Bus, Taxi, Train, Ferry, Tricycle, UV Express, Van, Motorcycle, EDSA Carousel, Pedicab, Kuliglig) with TransportIconStyle enum supporting 4 variants (filled, rounded, outlined, sharp).
 - **Hybrid Calculation Engine:**
   - **Dynamic:** Uses **OSRM (Open Source Routing Machine)** to calculate road distance for Jeeps, Taxis, Buses, and Tricycles.
   - **Static:** Uses embedded Lookup Tables for fixed-price modes like MRT/LRT (Trains) and Ferries.
@@ -37,6 +39,28 @@ Unlike city-centric navigation apps, this tool focuses on **"How much?"** rather
 - **Smart Filtering:** "Provincial" mode toggle that adjusts fare calculation logic (e.g., 20% variance for provincial routes).
 - **Offline Reference:** View saved routes and static fare matrices (Cheat Sheets) without an internet connection using **Hive** local storage.
 - **Discount Support:** Built-in support for Student, Senior Citizen, and PWD discounts (20% off).
+
+## 📋 Recent Changes (v2.4.0)
+
+This release focuses on documentation improvements and security hardening to achieve A+ documentation assessment standards.
+
+### Visual Improvements
+- **Dark Mode Migration to 2025 M3 Standards:** Implemented Material Design 3 dark theme with #121212 baseline color, replacing the previous dark cyan theme for better eye comfort and accessibility compliance.
+- **7-Layer Surface Container System:** Added comprehensive surface hierarchy with surfaceContainerLowest through surfaceBright roles for improved visual depth and accessibility.
+- **Transport Icon Service:** Created centralized `TransportIconService` providing unique icons for all 12 Philippine transport modes:
+  - Jeepney, Bus (Ordinary/Aircon), Taxi, Train, Ferry, Tricycle, UV Express, Van, Motorcycle, EDSA Carousel, Pedicab, Kuliglig
+  - `TransportIconStyle` enum with 4 variants: filled, rounded, outlined, sharp
+  - Accessibility-friendly semantic labels for all icons
+
+### Security Enhancements
+- **Environment Configuration:** Removed `.env` file from assets directory to eliminate any potential exposure risk in production builds.
+- **Null Safety:** Implemented comprehensive null safety patterns in fare formula parsing to prevent runtime exceptions.
+- **Security Audit:** Completed comprehensive security audit documenting findings and remediation steps.
+
+### Documentation Updates
+- Created `docs/security/SECURITY_AUDIT_2026-01-01.md` with executive summary, findings, and remediation status
+- Updated `docs/architecture/TRANSPORT_ICONS_DESIGN.md` with complete API design for icon service
+- Added dark mode research documentation in `docs/research/mobile-dark-mode-standards-2025-01-01.md`
 
 ## 🛠 Tech Stack
 

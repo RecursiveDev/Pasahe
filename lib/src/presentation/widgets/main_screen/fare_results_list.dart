@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../models/fare_result.dart';
 import '../../../models/transport_mode.dart';
+import '../../../core/constants/transport_icons.dart';
+import '../../../core/constants/transport_icon_style.dart';
 import '../../../services/fare_comparison_service.dart';
 import '../fare_result_card.dart';
 
@@ -181,10 +183,11 @@ class _TransportModeHeader extends StatelessWidget {
               color: colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              _getTransportModeIcon(mode),
+            child: TransportIconService.getIconWidget(
+              mode,
               color: colorScheme.primary,
               size: 20,
+              style: TransportIconStyle.rounded,
             ),
           ),
           const SizedBox(width: 12),
@@ -199,33 +202,5 @@ class _TransportModeHeader extends StatelessWidget {
       ),
     );
   }
-
-  IconData _getTransportModeIcon(TransportMode mode) {
-    switch (mode) {
-      case TransportMode.jeepney:
-        return Icons.directions_bus;
-      case TransportMode.bus:
-        return Icons.directions_bus_filled;
-      case TransportMode.taxi:
-        return Icons.local_taxi;
-      case TransportMode.train:
-        return Icons.train;
-      case TransportMode.ferry:
-        return Icons.directions_boat;
-      case TransportMode.tricycle:
-        return Icons.electric_rickshaw;
-      case TransportMode.uvExpress:
-        return Icons.airport_shuttle;
-      case TransportMode.van:
-        return Icons.airport_shuttle;
-      case TransportMode.motorcycle:
-        return Icons.two_wheeler;
-      case TransportMode.edsaCarousel:
-        return Icons.directions_bus;
-      case TransportMode.pedicab:
-        return Icons.pedal_bike;
-      case TransportMode.kuliglig:
-        return Icons.agriculture;
-    }
-  }
 }
+

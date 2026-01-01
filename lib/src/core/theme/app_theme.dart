@@ -81,15 +81,20 @@ class AppTheme {
   static const Color _darkError = Color(0xFFFFB4AB); // Soft Error
   static const Color _darkOnError = Color(0xFF690005); // Dark Red
 
-  // Surface & Background Colors
-  static const Color _darkSurface = Color(0xFF001F25); // Deep Sea
+  // Surface & Background Colors - 2025 Material Design 3 Standards
+  // Moved from Abyss/Deep Sea to recommended dark grey tones for better comfort
+  static const Color _darkSurface = Color(0xFF121212); // Primary Surface
   static const Color _darkOnSurface = Color(0xFFE0E3E3); // Soft White
-  static const Color _darkSurfaceVariant = Color(0xFF3F4949); // Dark Metal
+  static const Color _darkSurfaceVariant = Color(0xFF2C2C2C); // Container Highest
   static const Color _darkOnSurfaceVariant = Color(0xFFBEC8C9); // Metal Text
   static const Color _darkOutline = Color(0xFF899393); // Soft Outline
-  static const Color _darkBackground = Color(
-    0xFF001216,
-  ); // Abyss (OLED friendly)
+  static const Color _darkBackground = Color(0xFF121212); // Baseline Background
+
+  // Surface Container Roles (M3 2025)
+  static const Color _darkSurfaceContainerLow = Color(0xFF161616);
+  static const Color _darkSurfaceContainer = Color(0xFF1A1A1A);
+  static const Color _darkSurfaceContainerHigh = Color(0xFF232323);
+  static const Color _darkSurfaceBright = Color(0xFF3A3A3A);
 
   /// Light theme for the application.
   static ThemeData get lightTheme {
@@ -274,10 +279,11 @@ class AppTheme {
         surface: _darkSurface,
         onSurface: _darkOnSurface,
         surfaceContainerLowest: _darkBackground,
-        surfaceContainerLow: Color(0xFF001A1F),
-        surfaceContainer: _darkSurface,
-        surfaceContainerHigh: Color(0xFF002A32),
-        surfaceContainerHighest: Color(0xFF003640),
+        surfaceContainerLow: _darkSurfaceContainerLow,
+        surfaceContainer: _darkSurfaceContainer,
+        surfaceContainerHigh: _darkSurfaceContainerHigh,
+        surfaceContainerHighest: _darkSurfaceVariant,
+        surfaceBright: _darkSurfaceBright,
         onSurfaceVariant: _darkOnSurfaceVariant,
         outline: _darkOutline,
         outlineVariant: _darkSurfaceVariant,
@@ -328,7 +334,7 @@ class AppTheme {
       // Card theme - MUST match light theme structure for consistent layout
       cardTheme: CardThemeData(
         elevation: 0, // Same as light theme
-        color: _darkSurface,
+        color: _darkSurfaceContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: _darkSurfaceVariant, width: 1),
@@ -338,7 +344,7 @@ class AppTheme {
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF002A32),
+        fillColor: _darkSurfaceContainerHigh,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
@@ -390,7 +396,7 @@ class AppTheme {
 
       navigationBarTheme: NavigationBarThemeData(
         elevation: 0, // Same as light theme
-        backgroundColor: _darkSurface,
+        backgroundColor: _darkSurfaceContainer,
         indicatorColor: _darkPrimary.withValues(alpha: 0.2),
         labelBehavior: NavigationDestinationLabelBehavior
             .alwaysShow, // Same as light theme

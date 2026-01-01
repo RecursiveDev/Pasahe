@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/transit_colors.dart';
+import '../../core/constants/transport_icon_style.dart';
+import '../../core/constants/transport_icons.dart';
 import '../../models/accuracy_level.dart';
 import '../../models/fare_result.dart';
 import '../../models/route_result.dart';
 import '../../models/transport_mode.dart';
+
 
 
 /// A modern, accessible fare result card widget.
@@ -56,34 +59,8 @@ class FareResultCard extends StatelessWidget {
     }
   }
 
-  /// Returns the transport mode icon.
-  IconData _getTransportIcon() {
-    switch (transportMode.toLowerCase()) {
-      case 'jeepney':
-        return Icons.directions_bus;
-      case 'bus':
-        return Icons.directions_bus_filled;
-      case 'taxi':
-        return Icons.local_taxi;
-      case 'grab':
-      case 'grab car':
-        return Icons.car_rental;
-      case 'tricycle':
-        return Icons.electric_rickshaw;
-      case 'train':
-      case 'mrt':
-      case 'lrt':
-        return Icons.train;
-      case 'ferry':
-        return Icons.directions_boat;
-      case 'uv express':
-        return Icons.airport_shuttle;
-      default:
-        return Icons.commute;
-    }
-  }
-
   /// Returns readable status label.
+
   String _getStatusLabel() {
     switch (indicatorLevel) {
       case IndicatorLevel.standard:
@@ -252,6 +229,7 @@ class FareResultCard extends StatelessWidget {
   /// Builds the circular transport icon container.
 
   Widget _buildTransportIcon(BuildContext context, Color statusColor) {
+    final mode = TransportMode.fromString(transportMode);
     return Container(
       width: 48,
       height: 48,
@@ -259,9 +237,15 @@ class FareResultCard extends StatelessWidget {
         color: statusColor.withValues(alpha: 0.15),
         shape: BoxShape.circle,
       ),
-      child: Icon(_getTransportIcon(), color: statusColor, size: 24),
+      child: TransportIconService.getIconWidget(
+        mode,
+        color: statusColor,
+        size: 24,
+        style: TransportIconStyle.rounded,
+      ),
     );
   }
+
 
   /// Builds the info section with mode name and details.
   Widget _buildInfoSection(BuildContext context, Color statusColor) {

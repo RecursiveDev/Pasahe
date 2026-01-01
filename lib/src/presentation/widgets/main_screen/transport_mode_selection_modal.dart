@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../models/fare_formula.dart';
 import '../../../models/transport_mode.dart';
 import '../../../services/settings_service.dart';
+import '../../../core/constants/transport_icons.dart';
+import '../../../core/constants/transport_icon_style.dart';
 
 /// A modal bottom sheet that allows users to select which transport modes
 /// to enable for fare calculations. This is shown when a new user attempts
@@ -178,10 +180,11 @@ class _TransportModeSelectionModalState
                         color: colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(
-                        Icons.directions_bus_rounded,
+                      child: TransportIconService.getIconWidget(
+                        TransportMode.bus,
                         color: colorScheme.onPrimaryContainer,
                         size: 24,
+                        style: TransportIconStyle.rounded,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -449,10 +452,11 @@ class _TransportModeSelectionModalState
                   color: colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Icon(
-                  _getIconForMode(mode),
+                child: TransportIconService.getIconWidget(
+                  mode,
                   size: 20,
                   color: colorScheme.onPrimaryContainer,
+                  style: TransportIconStyle.rounded,
                 ),
               ),
               const SizedBox(width: 12),
@@ -524,40 +528,17 @@ class _TransportModeSelectionModalState
       case 'road':
         return Icons.directions_car_rounded;
       case 'rail':
-        return Icons.train_rounded;
+        return TransportIconService.getIconWithStyle(
+          TransportMode.train,
+          style: TransportIconStyle.rounded,
+        );
       case 'water':
-        return Icons.directions_boat_rounded;
+        return TransportIconService.getIconWithStyle(
+          TransportMode.ferry,
+          style: TransportIconStyle.rounded,
+        );
       default:
         return Icons.help_outline_rounded;
-    }
-  }
-
-  IconData _getIconForMode(TransportMode mode) {
-    switch (mode) {
-      case TransportMode.jeepney:
-        return Icons.directions_bus_rounded;
-      case TransportMode.bus:
-        return Icons.airport_shuttle_rounded;
-      case TransportMode.taxi:
-        return Icons.local_taxi_rounded;
-      case TransportMode.train:
-        return Icons.train_rounded;
-      case TransportMode.ferry:
-        return Icons.directions_boat_rounded;
-      case TransportMode.tricycle:
-        return Icons.pedal_bike_rounded;
-      case TransportMode.uvExpress:
-        return Icons.local_shipping_rounded;
-      case TransportMode.van:
-        return Icons.airport_shuttle_rounded;
-      case TransportMode.motorcycle:
-        return Icons.two_wheeler_rounded;
-      case TransportMode.edsaCarousel:
-        return Icons.directions_bus_filled_rounded;
-      case TransportMode.pedicab:
-        return Icons.directions_bike_rounded;
-      case TransportMode.kuliglig:
-        return Icons.agriculture_rounded;
     }
   }
 }

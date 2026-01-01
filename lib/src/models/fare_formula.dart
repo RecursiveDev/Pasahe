@@ -42,7 +42,7 @@ class FareFormula {
   factory FareFormula.fromJson(Map<String, dynamic> json) {
     return FareFormula(
       mode: json['mode'] ?? 'Unknown',
-      subType: json['sub_type'],
+      subType: json['sub_type'] ?? 'Standard',
       baseFare: (json['base_fare'] as num).toDouble(),
       perKmRate: (json['per_km'] as num).toDouble(),
       provincialMultiplier: json['provincial_multiplier'] != null

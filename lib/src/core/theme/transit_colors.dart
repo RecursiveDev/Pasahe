@@ -203,7 +203,7 @@ class TransitColors extends ThemeExtension<TransitColors> {
 
   /// Dark mode transit colors - highly desaturated/pastel for M3 dark mode
   /// These colors are significantly muted to avoid eye strain on the
-  /// #141218 dark background and follow M3 tonal principles.
+  /// #121212 dark background and follow 2025 M3 tonal principles.
   static const dark = TransitColors(
     lrt1: Color(0xFFA8D5AA), // Desaturated pastel green
     lrt2: Color(0xFFD4B8E0), // Desaturated pastel purple

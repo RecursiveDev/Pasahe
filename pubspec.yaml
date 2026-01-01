@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and build number is used as the build suffix.
-version: 2.3.0+1
+version: 2.4.0
 
 environment:
   sdk: ^3.9.2
@@ -98,7 +98,6 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - .env
     - assets/data/
     - assets/data/regions.json
   #   - images/a_dot_burr.jpeg
@@ -136,14 +135,14 @@ flutter_launcher_icons:
   ios: true
   
   # Path to the source icon (1024x1024 recommended)
-  image_path: "assets/icons/app_icon.png"
+  image_path: "assets/icons/PHFareCalculatorLogo/icon-1024x1024.png"
   
   # Remove alpha channel for iOS (required for App Store)
   remove_alpha_ios: true
   
   # Android adaptive icon configuration
   adaptive_icon_background: "#0038A8"  # Philippine flag blue
-  adaptive_icon_foreground: "assets/icons/app_icon_foreground.png"
+  adaptive_icon_foreground: "assets/icons/PHFareCalculatorLogo/icon-512x512.png"
   
   # Minimum SDK version for adaptive icons
   min_sdk_android: 21

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-01-01
+
+### Added
+- **Transport Icon Service**: Unique icons for all 12 Philippine transport modes with `TransportIconStyle` support.
+- **7-Layer Surface Container System**: Implemented Material 3 surface hierarchy for improved visual depth.
+- **Security Audit Documentation**: Comprehensive security audit in `docs/security/`.
+
+### Changed
+- **Dark Mode Migration**: Updated to 2025 M3 standards with #121212 baseline.
+- **Security Hardening**: Removed `.env` from assets and improved null safety in `fare_formula.dart`.
+
 ## [2.3.0+1] - 2025-01-01
 
 ### Added
