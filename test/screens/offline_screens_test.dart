@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
-import 'package:ph_fare_calculator/src/models/fare_formula.dart';
-import 'package:ph_fare_calculator/src/models/fare_result.dart';
-import 'package:ph_fare_calculator/src/models/saved_route.dart';
-import 'package:ph_fare_calculator/src/presentation/screens/offline_menu_screen.dart';
-import 'package:ph_fare_calculator/src/presentation/screens/reference_screen.dart';
-import 'package:ph_fare_calculator/src/presentation/screens/saved_routes_screen.dart';
-import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
+import 'package:pasahe/src/models/fare_formula.dart';
+import 'package:pasahe/src/models/fare_result.dart';
+import 'package:pasahe/src/models/saved_route.dart';
+import 'package:pasahe/src/presentation/screens/offline_menu_screen.dart';
+import 'package:pasahe/src/presentation/screens/reference_screen.dart';
+import 'package:pasahe/src/presentation/screens/saved_routes_screen.dart';
+import 'package:pasahe/src/repositories/fare_repository.dart';
 
 import '../helpers/mocks.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/services/settings_service.dart';
-import 'package:ph_fare_calculator/src/models/location.dart';
+import 'package:pasahe/src/services/settings_service.dart';
+import 'package:pasahe/src/models/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

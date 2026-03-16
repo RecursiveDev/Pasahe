@@ -28,7 +28,7 @@ import '../widgets/main_screen/transport_mode_selection_modal.dart';
 import '../widgets/main_screen/travel_options_bar.dart';
 import 'map_picker_screen.dart';
 
-/// Main screen for the PH Fare Calculator app.
+/// Main screen for the Pasahe app.
 /// Refactored to use modular widgets and a controller for state management.
 class MainScreen extends StatefulWidget {
   final OfflineModeService? offlineModeService;

@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to PH Fare Calculator'**
+  /// **'Welcome to Pasahe'**
   String get welcomeTitle;
 
   /// No description provided for @selectLanguage.
@@ -125,7 +125,7 @@ abstract class AppLocalizations {
   /// No description provided for @fareEstimatorTitle.
   ///
   /// In en, this message translates to:
-  /// **'PH Fare Calculator'**
+  /// **'Pasahe'**
   String get fareEstimatorTitle;
 
   /// No description provided for @originLabel.

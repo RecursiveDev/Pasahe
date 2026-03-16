@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:ph_fare_calculator/src/models/connectivity_status.dart';
-import 'package:ph_fare_calculator/src/models/route_result.dart';
-import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
-import 'package:ph_fare_calculator/src/services/routing/haversine_routing_service.dart';
-import 'package:ph_fare_calculator/src/services/routing/osrm_routing_service.dart';
-import 'package:ph_fare_calculator/src/services/routing/route_cache_service.dart';
-import 'package:ph_fare_calculator/src/services/routing/routing_service_manager.dart';
-import 'package:ph_fare_calculator/src/core/errors/failures.dart';
+import 'package:pasahe/src/models/connectivity_status.dart';
+import 'package:pasahe/src/models/route_result.dart';
+import 'package:pasahe/src/services/connectivity/connectivity_service.dart';
+import 'package:pasahe/src/services/routing/haversine_routing_service.dart';
+import 'package:pasahe/src/services/routing/osrm_routing_service.dart';
+import 'package:pasahe/src/services/routing/route_cache_service.dart';
+import 'package:pasahe/src/services/routing/routing_service_manager.dart';
+import 'package:pasahe/src/core/errors/failures.dart';
 
 // Mock classes for testing
 class MockOsrmRoutingService implements OsrmRoutingService {

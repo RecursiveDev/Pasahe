@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
-import 'package:ph_fare_calculator/src/core/di/injection.dart';
-import 'package:ph_fare_calculator/src/presentation/widgets/app_logo_widget.dart';
-import 'package:ph_fare_calculator/src/services/settings_service.dart';
+import 'package:pasahe/src/core/di/injection.dart';
+import 'package:pasahe/src/presentation/widgets/app_logo_widget.dart';
+import 'package:pasahe/src/services/settings_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
+import 'package:pasahe/src/presentation/screens/main_screen.dart';
 
 /// Modern onboarding screen with Jeepney-inspired design.
 /// Implements the UI/UX design specification with:

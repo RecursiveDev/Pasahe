@@ -55,7 +55,7 @@ class FirstTimePassengerPrompt extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Welcome to PH Fare Calculator',
+                'Welcome to Pasahe',
                 style: textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),

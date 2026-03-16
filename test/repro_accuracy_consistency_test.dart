@@ -1,15 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/presentation/controllers/main_screen_controller.dart';
-import 'package:ph_fare_calculator/src/services/fare_comparison_service.dart';
-import 'package:ph_fare_calculator/src/models/location.dart';
-import 'package:ph_fare_calculator/src/models/route_result.dart';
-import 'package:ph_fare_calculator/src/models/accuracy_level.dart';
-import 'package:ph_fare_calculator/src/models/fare_formula.dart';
-import 'package:ph_fare_calculator/src/models/discount_type.dart';
-import 'package:ph_fare_calculator/src/services/settings_service.dart';
-import 'package:ph_fare_calculator/src/models/transport_mode.dart';
-import 'package:ph_fare_calculator/src/services/transport_mode_filter_service.dart';
-import 'package:ph_fare_calculator/src/core/constants/region_constants.dart';
+import 'package:pasahe/src/presentation/controllers/main_screen_controller.dart';
+import 'package:pasahe/src/services/fare_comparison_service.dart';
+import 'package:pasahe/src/models/location.dart';
+import 'package:pasahe/src/models/route_result.dart';
+import 'package:pasahe/src/models/accuracy_level.dart';
+import 'package:pasahe/src/models/fare_formula.dart';
+import 'package:pasahe/src/models/discount_type.dart';
+import 'package:pasahe/src/services/settings_service.dart';
+import 'package:pasahe/src/models/transport_mode.dart';
+import 'package:pasahe/src/services/transport_mode_filter_service.dart';
+import 'package:pasahe/src/core/constants/region_constants.dart';
 
 import 'helpers/mocks.dart';
 

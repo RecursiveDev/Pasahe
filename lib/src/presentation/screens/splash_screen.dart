@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:ph_fare_calculator/src/core/di/injection.dart';
-import 'package:ph_fare_calculator/src/models/fare_formula.dart';
-import 'package:ph_fare_calculator/src/models/fare_result.dart';
-import 'package:ph_fare_calculator/src/models/saved_route.dart';
-import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
-import 'package:ph_fare_calculator/src/presentation/screens/onboarding_screen.dart';
-import 'package:ph_fare_calculator/src/presentation/widgets/app_logo_widget.dart';
-import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
-import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
-import 'package:ph_fare_calculator/src/services/settings_service.dart';
+import 'package:pasahe/src/core/di/injection.dart';
+import 'package:pasahe/src/models/fare_formula.dart';
+import 'package:pasahe/src/models/fare_result.dart';
+import 'package:pasahe/src/models/saved_route.dart';
+import 'package:pasahe/src/presentation/screens/main_screen.dart';
+import 'package:pasahe/src/presentation/screens/onboarding_screen.dart';
+import 'package:pasahe/src/presentation/widgets/app_logo_widget.dart';
+import 'package:pasahe/src/repositories/fare_repository.dart';
+import 'package:pasahe/src/services/connectivity/connectivity_service.dart';
+import 'package:pasahe/src/services/settings_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Modern splash screen with Jeepney-inspired design and smooth animations.
@@ -252,7 +252,7 @@ class _SplashScreenState extends State<SplashScreen>
     final colorScheme = Theme.of(context).colorScheme;
 
     return Semantics(
-      label: 'PH Fare Calculator loading screen',
+      label: 'Pasahe loading screen',
       child: Scaffold(
         body: Container(
           width: double.infinity,
@@ -310,13 +310,13 @@ class _SplashScreenState extends State<SplashScreen>
   Widget _buildAnimatedTitle() {
     final colorScheme = Theme.of(context).colorScheme;
     return Semantics(
-      label: 'PH Fare Calculator',
+      label: 'Pasahe',
       child: SlideTransition(
         position: _textSlide,
         child: FadeTransition(
           opacity: _textOpacity,
           child: Text(
-            'PH Fare Calculator',
+            'Pasahe',
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,

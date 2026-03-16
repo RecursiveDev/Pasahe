@@ -5,5 +5,5 @@ class AppConstants {
 
   /// GitHub repository URL.
   static const String repositoryUrl =
-      'https://github.com/MasuRii/PH-Fare-Calculator';
+      'https://github.com/RecursiveDev/Pasahe';
 }

@@ -491,7 +491,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'PH Fare Calculator',
+                                    'Pasahe',
                                     style: theme.textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -518,7 +518,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                         icon: Icons.description_rounded,
                         onTap: () => showLicensePage(
                           context: context,
-                          applicationName: 'PH Fare Calculator',
+                          applicationName: 'Pasahe',
                           applicationVersion: '$_appVersion+$_buildNumber',
                         ),
                       ),

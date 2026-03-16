@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/models/accuracy_level.dart';
-import 'package:ph_fare_calculator/src/models/connectivity_status.dart';
-import 'package:ph_fare_calculator/src/models/map_region.dart';
-import 'package:ph_fare_calculator/src/services/offline/offline_mode_service.dart';
+import 'package:pasahe/src/models/accuracy_level.dart';
+import 'package:pasahe/src/models/connectivity_status.dart';
+import 'package:pasahe/src/models/map_region.dart';
+import 'package:pasahe/src/services/offline/offline_mode_service.dart';
 
 import '../helpers/mocks.dart';
 

@@ -1,4 +1,4 @@
-package com.ph_fare_calculator
+package com.pasahe
 
 import io.flutter.embedding.android.FlutterActivity
 

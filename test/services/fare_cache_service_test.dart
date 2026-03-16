@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
-import 'package:ph_fare_calculator/src/models/fare_formula.dart';
-import 'package:ph_fare_calculator/src/models/fare_result.dart';
-import 'package:ph_fare_calculator/src/models/route_result.dart';
-import 'package:ph_fare_calculator/src/models/saved_route.dart';
-import 'package:ph_fare_calculator/src/models/accuracy_level.dart';
-import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
+import 'package:pasahe/src/models/fare_formula.dart';
+import 'package:pasahe/src/models/fare_result.dart';
+import 'package:pasahe/src/models/route_result.dart';
+import 'package:pasahe/src/models/saved_route.dart';
+import 'package:pasahe/src/models/accuracy_level.dart';
+import 'package:pasahe/src/repositories/fare_repository.dart';
 
 void main() {
   late FareRepository fareRepository;

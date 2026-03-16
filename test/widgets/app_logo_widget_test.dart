@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/presentation/widgets/app_logo_widget.dart';
+import 'package:pasahe/src/presentation/widgets/app_logo_widget.dart';
 
 void main() {
   // Helper function to wrap widget in MaterialApp for testing
@@ -82,7 +82,7 @@ void main() {
 
         // Find the Semantics widget which wraps the outer Container
         final semanticsFinder = find.bySemanticsLabel(
-          'PH Fare Calculator logo',
+          'Pasahe logo',
         );
         expect(semanticsFinder, findsOneWidget);
 
@@ -288,7 +288,7 @@ void main() {
         await tester.pumpWidget(createWidgetUnderTest());
 
         expect(
-          find.bySemanticsLabel('PH Fare Calculator logo'),
+          find.bySemanticsLabel('Pasahe logo'),
           findsOneWidget,
         );
       });
@@ -299,7 +299,7 @@ void main() {
         // Test small
         await tester.pumpWidget(createWidgetUnderTest(size: AppLogoSize.small));
         expect(
-          find.bySemanticsLabel('PH Fare Calculator logo'),
+          find.bySemanticsLabel('Pasahe logo'),
           findsOneWidget,
         );
 
@@ -308,14 +308,14 @@ void main() {
           createWidgetUnderTest(size: AppLogoSize.medium),
         );
         expect(
-          find.bySemanticsLabel('PH Fare Calculator logo'),
+          find.bySemanticsLabel('Pasahe logo'),
           findsOneWidget,
         );
 
         // Test large
         await tester.pumpWidget(createWidgetUnderTest(size: AppLogoSize.large));
         expect(
-          find.bySemanticsLabel('PH Fare Calculator logo'),
+          find.bySemanticsLabel('Pasahe logo'),
           findsOneWidget,
         );
       });

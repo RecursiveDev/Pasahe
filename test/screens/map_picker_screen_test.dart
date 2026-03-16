@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:ph_fare_calculator/src/presentation/screens/map_picker_screen.dart';
-import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
-import 'package:ph_fare_calculator/src/services/geocoding/geocoding_service.dart';
-import 'package:ph_fare_calculator/src/services/offline/offline_map_service.dart';
-import 'package:ph_fare_calculator/src/services/offline/offline_mode_service.dart';
+import 'package:pasahe/src/presentation/screens/map_picker_screen.dart';
+import 'package:pasahe/src/services/connectivity/connectivity_service.dart';
+import 'package:pasahe/src/services/geocoding/geocoding_service.dart';
+import 'package:pasahe/src/services/offline/offline_map_service.dart';
+import 'package:pasahe/src/services/offline/offline_mode_service.dart';
 
 import '../helpers/mocks.dart';
 

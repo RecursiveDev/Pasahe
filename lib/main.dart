@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:ph_fare_calculator/src/core/theme/app_theme.dart';
-import 'package:ph_fare_calculator/src/l10n/app_localizations.dart';
-import 'package:ph_fare_calculator/src/models/accuracy_level.dart';
-import 'package:ph_fare_calculator/src/models/map_region.dart';
-import 'package:ph_fare_calculator/src/presentation/screens/splash_screen.dart';
-import 'package:ph_fare_calculator/src/services/geocoding/geocoding_cache_service.dart';
-import 'package:ph_fare_calculator/src/services/offline/offline_mode_service.dart';
-import 'package:ph_fare_calculator/src/services/settings_service.dart';
-import 'package:ph_fare_calculator/src/core/di/injection.dart';
+import 'package:pasahe/src/core/theme/app_theme.dart';
+import 'package:pasahe/src/l10n/app_localizations.dart';
+import 'package:pasahe/src/models/accuracy_level.dart';
+import 'package:pasahe/src/models/map_region.dart';
+import 'package:pasahe/src/presentation/screens/splash_screen.dart';
+import 'package:pasahe/src/services/geocoding/geocoding_cache_service.dart';
+import 'package:pasahe/src/services/offline/offline_mode_service.dart';
+import 'package:pasahe/src/services/settings_service.dart';
+import 'package:pasahe/src/core/di/injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
@@ -71,7 +71,7 @@ class MyApp extends StatelessWidget {
           valueListenable: SettingsService.localeNotifier,
           builder: (context, locale, child) {
             return MaterialApp(
-              title: 'PH Fare Calculator',
+              title: 'Pasahe',
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,
               themeMode: _getThemeMode(themeMode),

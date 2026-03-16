@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get welcomeTitle => 'Welcome to PH Fare Calculator';
+  String get welcomeTitle => 'Welcome to Pasahe';
 
   @override
   String get selectLanguage => 'Select Language';
@@ -22,7 +22,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Disclaimer: All fare calculations are estimates only and may not reflect real-time prices.';
 
   @override
-  String get fareEstimatorTitle => 'PH Fare Calculator';
+  String get fareEstimatorTitle => 'Pasahe';
 
   @override
   String get originLabel => 'Origin';

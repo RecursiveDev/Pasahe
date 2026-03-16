@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
-import 'package:ph_fare_calculator/src/l10n/app_localizations.dart';
-import 'package:ph_fare_calculator/src/models/fare_formula.dart';
-import 'package:ph_fare_calculator/src/presentation/screens/settings_screen.dart';
-import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
-import 'package:ph_fare_calculator/src/services/offline/offline_map_service.dart';
-import 'package:ph_fare_calculator/src/services/offline/offline_mode_service.dart';
-import 'package:ph_fare_calculator/src/services/settings_service.dart';
+import 'package:pasahe/src/l10n/app_localizations.dart';
+import 'package:pasahe/src/models/fare_formula.dart';
+import 'package:pasahe/src/presentation/screens/settings_screen.dart';
+import 'package:pasahe/src/repositories/fare_repository.dart';
+import 'package:pasahe/src/services/offline/offline_map_service.dart';
+import 'package:pasahe/src/services/offline/offline_mode_service.dart';
+import 'package:pasahe/src/services/settings_service.dart';
 
 
 import '../helpers/mocks.dart';

@@ -1,7 +1,3 @@
-# GitHub Actions Workflow: Continuous Integration
-# Validates pull requests with formatting, linting, tests, and build verification
-# Runs on: PR to main, push to any branch, manual trigger
-
 name: CI
 
 on:
@@ -19,11 +15,10 @@ on:
     inputs:
       debug_enabled:
         type: boolean
-        description: 'Run with debug logging'
+        description: Run with debug logging
         required: false
         default: false
 
-# Cancel outdated runs for the same PR/branch
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -32,145 +27,122 @@ env:
   FLUTTER_CHANNEL: stable
 
 jobs:
-  # ============================================
-  # FORMAT CHECK
-  # ============================================
   format:
-    name: 📝 Format Check
+    name: Format
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Flutter SDK
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: ${{ env.FLUTTER_CHANNEL }}
           cache: true
 
-      - name: Get Flutter dependencies
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Check code formatting
+      - name: Check formatting
         id: format_check
         run: |
-          echo "## 📝 Format Check Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Run dart format and capture output
+          echo "## Format" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
           if dart format --set-exit-if-changed --output=none . 2>&1 | tee format_output.txt; then
-            echo "✅ All files are properly formatted!" >> $GITHUB_STEP_SUMMARY
-            echo "format_status=success" >> $GITHUB_OUTPUT
+            echo "Formatting is valid." >> "$GITHUB_STEP_SUMMARY"
+            echo "format_status=success" >> "$GITHUB_OUTPUT"
           else
-            echo "❌ **Formatting issues found!**" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "The following files need formatting:" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            # Find files that would be changed
-            dart format --set-exit-if-changed . 2>&1 | grep -E "^Changed|^Would change" >> $GITHUB_STEP_SUMMARY || true
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Fix:** Run \`dart format .\` locally and commit the changes." >> $GITHUB_STEP_SUMMARY
-            echo "format_status=failure" >> $GITHUB_OUTPUT
+            echo "Formatting issues were found." >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            dart format --set-exit-if-changed . 2>&1 | grep -E "^Changed|^Would change" >> "$GITHUB_STEP_SUMMARY" || true
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "format_status=failure" >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
-  # ============================================
-  # STATIC ANALYSIS (LINTING)
-  # ============================================
   analyze:
-    name: 🔍 Static Analysis
+    name: Analyze
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Flutter SDK
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: ${{ env.FLUTTER_CHANNEL }}
           cache: true
 
-      - name: Get Flutter dependencies
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Run Flutter analyze
+      - name: Run analyzer
         id: analyze
         run: |
-          echo "## 🔍 Static Analysis Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Run flutter analyze and capture output
+          echo "## Analyze" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
           if flutter analyze --no-fatal-infos 2>&1 | tee analyze_output.txt; then
-            echo "✅ No analysis issues found!" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat analyze_output.txt >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            echo "analyze_status=success" >> $GITHUB_OUTPUT
+            echo "No analysis issues found." >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat analyze_output.txt >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "analyze_status=success" >> "$GITHUB_OUTPUT"
           else
-            echo "❌ **Analysis issues found!**" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat analyze_output.txt >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Fix:** Address the issues listed above and commit the changes." >> $GITHUB_STEP_SUMMARY
-            echo "analyze_status=failure" >> $GITHUB_OUTPUT
+            echo "Analysis issues were found." >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat analyze_output.txt >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "analyze_status=failure" >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
-  # ============================================
-  # UNIT TESTS
-  # ============================================
   test:
-    name: 🧪 Unit Tests
+    name: Test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Flutter SDK
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: ${{ env.FLUTTER_CHANNEL }}
           cache: true
 
-      - name: Get Flutter dependencies
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Create .env file for tests
-        run: |
-          # Create minimal .env file required by the app
-          echo "# Test environment" > .env
+      - name: Create test environment file
+        run: echo "# Test environment" > .env
 
-      - name: Run Flutter tests
+      - name: Run tests
         id: test
         run: |
-          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Run tests with coverage
+          echo "## Test" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
           if flutter test --coverage 2>&1 | tee test_output.txt; then
-            echo "✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            tail -20 test_output.txt >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            echo "test_status=success" >> $GITHUB_OUTPUT
+            echo "Tests passed." >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            tail -20 test_output.txt >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "test_status=success" >> "$GITHUB_OUTPUT"
           else
-            echo "❌ **Some tests failed!**" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat test_output.txt >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Fix:** Review the failing tests and fix the issues." >> $GITHUB_STEP_SUMMARY
-            echo "test_status=failure" >> $GITHUB_OUTPUT
+            echo "Tests failed." >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat test_output.txt >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "test_status=failure" >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
@@ -183,130 +155,110 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-  # ============================================
-  # BUILD VERIFICATION
-  # ============================================
   build:
-    name: 🔨 Build Verification
+    name: Build
     runs-on: ubuntu-latest
     needs: [format, analyze, test]
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java JDK 17
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
-          cache: 'gradle'
+          cache: gradle
 
-      - name: Set up Flutter SDK
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: ${{ env.FLUTTER_CHANNEL }}
           cache: true
 
-      - name: Get Flutter dependencies
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Create .env file for build
-        run: |
-          # Create minimal .env file required by the app
-          echo "# Build environment" > .env
+      - name: Create build environment file
+        run: echo "# Build environment" > .env
 
       - name: Build debug APK
         id: build
         run: |
-          echo "## 🔨 Build Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
+          echo "## Build" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
           if flutter build apk --debug 2>&1 | tee build_output.txt; then
-            echo "✅ Debug APK built successfully!" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            # Get APK size
+            echo "Debug APK build succeeded." >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+
             APK_PATH="build/app/outputs/flutter-apk/app-debug.apk"
             if [ -f "$APK_PATH" ]; then
               APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
-              echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
-              echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-              echo "| **APK Size** | $APK_SIZE |" >> $GITHUB_STEP_SUMMARY
-              echo "| **Build Type** | Debug |" >> $GITHUB_STEP_SUMMARY
+              echo "| Property | Value |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| --- | --- |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| APK Size | $APK_SIZE |" >> "$GITHUB_STEP_SUMMARY"
+              echo "| Build Type | Debug |" >> "$GITHUB_STEP_SUMMARY"
             fi
-            
-            echo "build_status=success" >> $GITHUB_OUTPUT
+
+            echo "build_status=success" >> "$GITHUB_OUTPUT"
           else
-            echo "❌ **Build failed!**" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            tail -50 build_output.txt >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Fix:** Review the build errors above and fix the issues." >> $GITHUB_STEP_SUMMARY
-            echo "build_status=failure" >> $GITHUB_OUTPUT
+            echo "Build failed." >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            tail -50 build_output.txt >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "build_status=failure" >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
-  # ============================================
-  # CI STATUS SUMMARY
-  # ============================================
-  ci-status:
-    name: ✅ CI Status
+  status:
+    name: Status
     runs-on: ubuntu-latest
     needs: [format, analyze, test, build]
     if: always()
-    
+
     steps:
-      - name: Check CI status
+      - name: Summarize pipeline status
         run: |
-          echo "## 📊 CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          
-          # Check format job
-          if [ "${{ needs.format.result }}" == "success" ]; then
-            echo "| 📝 Format | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "## CI Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Check | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| --- | --- |" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "${{ needs.format.result }}" = "success" ]; then
+            echo "| Format | Passed |" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "| 📝 Format | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+            echo "| Format | Failed |" >> "$GITHUB_STEP_SUMMARY"
           fi
-          
-          # Check analyze job
-          if [ "${{ needs.analyze.result }}" == "success" ]; then
-            echo "| 🔍 Analysis | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.analyze.result }}" = "success" ]; then
+            echo "| Analyze | Passed |" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "| 🔍 Analysis | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+            echo "| Analyze | Failed |" >> "$GITHUB_STEP_SUMMARY"
           fi
-          
-          # Check test job
-          if [ "${{ needs.test.result }}" == "success" ]; then
-            echo "| 🧪 Tests | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.test.result }}" = "success" ]; then
+            echo "| Test | Passed |" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "| 🧪 Tests | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+            echo "| Test | Failed |" >> "$GITHUB_STEP_SUMMARY"
           fi
-          
-          # Check build job
-          if [ "${{ needs.build.result }}" == "success" ]; then
-            echo "| 🔨 Build | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.build.result }}" = "success" ]; then
+            echo "| Build | Passed |" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "| 🔨 Build | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+            echo "| Build | Failed |" >> "$GITHUB_STEP_SUMMARY"
           fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Overall status
-          if [ "${{ needs.format.result }}" == "success" ] && \
-             [ "${{ needs.analyze.result }}" == "success" ] && \
-             [ "${{ needs.test.result }}" == "success" ] && \
-             [ "${{ needs.build.result }}" == "success" ]; then
-            echo "### 🎉 All CI checks passed!" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "This PR is ready for review and merge." >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.format.result }}" = "success" ] && \
+             [ "${{ needs.analyze.result }}" = "success" ] && \
+             [ "${{ needs.test.result }}" = "success" ] && \
+             [ "${{ needs.build.result }}" = "success" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "All CI checks passed." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "### ⚠️ Some CI checks failed" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Please fix the failing checks before merging." >> $GITHUB_STEP_SUMMARY
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "One or more CI checks failed." >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi

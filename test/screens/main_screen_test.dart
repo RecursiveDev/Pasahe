@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:ph_fare_calculator/src/core/constants/region_constants.dart';
-import 'package:ph_fare_calculator/src/core/hybrid_engine.dart';
-import 'package:ph_fare_calculator/src/l10n/app_localizations.dart';
-import 'package:ph_fare_calculator/src/models/fare_formula.dart';
-import 'package:ph_fare_calculator/src/models/fare_result.dart';
-import 'package:ph_fare_calculator/src/models/location.dart';
-import 'package:ph_fare_calculator/src/models/transport_mode.dart';
-import 'package:ph_fare_calculator/src/presentation/controllers/main_screen_controller.dart';
-import 'package:ph_fare_calculator/src/presentation/screens/main_screen.dart';
-import 'package:ph_fare_calculator/src/presentation/widgets/fare_result_card.dart';
-import 'package:ph_fare_calculator/src/repositories/fare_repository.dart';
-import 'package:ph_fare_calculator/src/repositories/routing_repository.dart';
-import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
-import 'package:ph_fare_calculator/src/services/fare_comparison_service.dart';
-import 'package:ph_fare_calculator/src/services/geocoding/geocoding_service.dart';
-import 'package:ph_fare_calculator/src/services/offline/offline_map_service.dart';
-import 'package:ph_fare_calculator/src/services/offline/offline_mode_service.dart';
-import 'package:ph_fare_calculator/src/services/settings_service.dart';
+import 'package:pasahe/src/core/constants/region_constants.dart';
+import 'package:pasahe/src/core/hybrid_engine.dart';
+import 'package:pasahe/src/l10n/app_localizations.dart';
+import 'package:pasahe/src/models/fare_formula.dart';
+import 'package:pasahe/src/models/fare_result.dart';
+import 'package:pasahe/src/models/location.dart';
+import 'package:pasahe/src/models/transport_mode.dart';
+import 'package:pasahe/src/presentation/controllers/main_screen_controller.dart';
+import 'package:pasahe/src/presentation/screens/main_screen.dart';
+import 'package:pasahe/src/presentation/widgets/fare_result_card.dart';
+import 'package:pasahe/src/repositories/fare_repository.dart';
+import 'package:pasahe/src/repositories/routing_repository.dart';
+import 'package:pasahe/src/services/connectivity/connectivity_service.dart';
+import 'package:pasahe/src/services/fare_comparison_service.dart';
+import 'package:pasahe/src/services/geocoding/geocoding_service.dart';
+import 'package:pasahe/src/services/offline/offline_map_service.dart';
+import 'package:pasahe/src/services/offline/offline_mode_service.dart';
+import 'package:pasahe/src/services/settings_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/mocks.dart';
@@ -150,12 +150,12 @@ void main() {
     await tester.pumpAndSettle();
 
     // Dismiss the dialog by selecting Regular
-    if (find.text('Welcome to PH Fare Calculator').evaluate().isNotEmpty) {
+    if (find.text('Welcome to Pasahe').evaluate().isNotEmpty) {
       await tester.tap(find.text('Regular'));
       await tester.pumpAndSettle();
     }
 
-    expect(find.text('PH Fare Calculator'), findsOneWidget);
+    expect(find.text('Pasahe'), findsOneWidget);
     expect(find.text('Origin'), findsOneWidget);
     expect(find.text('Destination'), findsOneWidget);
     // New UI uses chip-based passenger selector
@@ -190,7 +190,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Dismiss the dialog by selecting Regular
-    if (find.text('Welcome to PH Fare Calculator').evaluate().isNotEmpty) {
+    if (find.text('Welcome to Pasahe').evaluate().isNotEmpty) {
       await tester.tap(find.text('Regular'));
       await tester.pumpAndSettle();
     }

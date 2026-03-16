@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/services/transport_mode_filter_service.dart';
-import 'package:ph_fare_calculator/src/core/constants/region_constants.dart';
-import 'package:ph_fare_calculator/src/models/transport_mode.dart';
-import 'package:ph_fare_calculator/src/models/region_config.dart';
+import 'package:pasahe/src/services/transport_mode_filter_service.dart';
+import 'package:pasahe/src/core/constants/region_constants.dart';
+import 'package:pasahe/src/models/transport_mode.dart';
+import 'package:pasahe/src/models/region_config.dart';
 
 void main() {
   late TransportModeFilterService service;

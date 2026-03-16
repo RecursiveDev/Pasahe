@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/models/connectivity_status.dart';
-import 'package:ph_fare_calculator/src/models/route_result.dart';
-import 'package:ph_fare_calculator/src/repositories/routing_repository.dart';
+import 'package:pasahe/src/models/connectivity_status.dart';
+import 'package:pasahe/src/models/route_result.dart';
+import 'package:pasahe/src/repositories/routing_repository.dart';
 
 import '../helpers/mocks.dart';
 

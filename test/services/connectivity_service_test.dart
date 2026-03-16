@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/models/connectivity_status.dart';
-import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
+import 'package:pasahe/src/models/connectivity_status.dart';
+import 'package:pasahe/src/services/connectivity/connectivity_service.dart';
 
 /// Mock implementation of [Connectivity] for testing.
 class MockConnectivity implements Connectivity {

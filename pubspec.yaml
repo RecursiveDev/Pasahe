@@ -1,5 +1,5 @@
-name: ph_fare_calculator
-description: "PH Fare Calculator - Estimate public transport costs across the Philippines."
+name: pasahe
+description: "Pasahe - Estimate public transport costs across the Philippines."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -135,14 +135,14 @@ flutter_launcher_icons:
   ios: true
   
   # Path to the source icon (1024x1024 recommended)
-  image_path: "assets/icons/PHFareCalculatorLogo/icon-1024x1024.png"
+  image_path: "assets/icons/PasaheLogo/icon-1024x1024.png"
   
   # Remove alpha channel for iOS (required for App Store)
   remove_alpha_ios: true
   
   # Android adaptive icon configuration
   adaptive_icon_background: "#0038A8"  # Philippine flag blue
-  adaptive_icon_foreground: "assets/icons/PHFareCalculatorLogo/icon-512x512.png"
+  adaptive_icon_foreground: "assets/icons/PasaheLogo/icon-512x512.png"
   
   # Minimum SDK version for adaptive icons
   min_sdk_android: 21

@@ -1,9 +1,9 @@
 {
-  "welcomeTitle": "Welcome to PH Fare Calculator",
+  "welcomeTitle": "Welcome to Pasahe",
   "selectLanguage": "Select Language",
   "continueButton": "Continue",
   "disclaimer": "Disclaimer: All fare calculations are estimates only and may not reflect real-time prices.",
-  "fareEstimatorTitle": "PH Fare Calculator",
+  "fareEstimatorTitle": "Pasahe",
   "originLabel": "Origin",
   "destinationLabel": "Destination",
   "calculateFareButton": "Calculate Fare",

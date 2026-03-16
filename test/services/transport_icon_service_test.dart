@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/core/constants/transport_icons.dart';
-import 'package:ph_fare_calculator/src/core/constants/transport_icon_style.dart';
-import 'package:ph_fare_calculator/src/models/transport_mode.dart';
+import 'package:pasahe/src/core/constants/transport_icons.dart';
+import 'package:pasahe/src/core/constants/transport_icon_style.dart';
+import 'package:pasahe/src/models/transport_mode.dart';
 
 void main() {
   group('TransportIconService', () {

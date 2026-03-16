@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
-import 'package:ph_fare_calculator/src/models/location.dart';
-import 'package:ph_fare_calculator/src/services/geocoding/geocoding_cache_service.dart';
+import 'package:pasahe/src/models/location.dart';
+import 'package:pasahe/src/services/geocoding/geocoding_cache_service.dart';
 import 'package:path/path.dart' as path;
 
 void main() {

@@ -12,7 +12,7 @@ enum AppLogoSize {
   large,
 }
 
-/// A reusable logo widget that displays the PH Fare Calculator bus icon
+/// A reusable logo widget that displays the Pasahe bus icon
 /// with a circular gradient container matching the splash/onboarding screens.
 ///
 /// The widget supports different sizes through [AppLogoSize] and maintains
@@ -41,7 +41,7 @@ class AppLogoWidget extends StatelessWidget {
     final brandColor = colorScheme.primary;
 
     return Semantics(
-      label: 'PH Fare Calculator logo',
+      label: 'Pasahe logo',
       child: Container(
         width: dimensions.outerSize,
         height: dimensions.outerSize,

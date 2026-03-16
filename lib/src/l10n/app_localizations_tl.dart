@@ -9,7 +9,7 @@ class AppLocalizationsTl extends AppLocalizations {
   AppLocalizationsTl([String locale = 'tl']) : super(locale);
 
   @override
-  String get welcomeTitle => 'Maligayang pagdating sa PH Fare Calculator';
+  String get welcomeTitle => 'Maligayang pagdating sa Pasahe';
 
   @override
   String get selectLanguage => 'Pumili ng Wika';
@@ -22,7 +22,7 @@ class AppLocalizationsTl extends AppLocalizations {
       'Paunawa: Ang lahat ng kalkulasyon ng pamasahe ay mga taya lamang at maaaring hindi sumasalamin sa kasalukuyang presyo.';
 
   @override
-  String get fareEstimatorTitle => 'PH Fare Calculator';
+  String get fareEstimatorTitle => 'Pasahe';
 
   @override
   String get originLabel => 'Pinagmulan';

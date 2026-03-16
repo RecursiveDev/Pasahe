@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/core/constants/region_constants.dart';
-import 'package:ph_fare_calculator/src/models/accuracy_level.dart';
-import 'package:ph_fare_calculator/src/models/fare_result.dart';
-import 'package:ph_fare_calculator/src/models/route_result.dart';
-import 'package:ph_fare_calculator/src/models/transport_mode.dart';
-import 'package:ph_fare_calculator/src/presentation/widgets/main_screen/fare_results_list.dart';
-import 'package:ph_fare_calculator/src/services/fare_comparison_service.dart';
-import 'package:ph_fare_calculator/src/services/transport_mode_filter_service.dart';
+import 'package:pasahe/src/core/constants/region_constants.dart';
+import 'package:pasahe/src/models/accuracy_level.dart';
+import 'package:pasahe/src/models/fare_result.dart';
+import 'package:pasahe/src/models/route_result.dart';
+import 'package:pasahe/src/models/transport_mode.dart';
+import 'package:pasahe/src/presentation/widgets/main_screen/fare_results_list.dart';
+import 'package:pasahe/src/services/fare_comparison_service.dart';
+import 'package:pasahe/src/services/transport_mode_filter_service.dart';
 
 /// Regression test for BUG-001: Accuracy inconsistency in sort options
 ///

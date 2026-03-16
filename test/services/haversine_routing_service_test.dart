@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/models/route_result.dart';
-import 'package:ph_fare_calculator/src/services/routing/haversine_routing_service.dart';
+import 'package:pasahe/src/models/route_result.dart';
+import 'package:pasahe/src/services/routing/haversine_routing_service.dart';
 
 void main() {
   late HaversineRoutingService service;

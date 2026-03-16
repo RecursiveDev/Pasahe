@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_print
 
-// WCAG 2.1 Contrast Checker Tool for PH Fare Calculator
+// WCAG 2.1 Contrast Checker Tool for Pasahe
 // Run with: dart run tool/wcag_contrast_checker.dart
 //
 // This tool audits color contrast ratios for accessibility compliance.
@@ -690,7 +690,7 @@ String generateMarkdownReport(List<ContrastResult> results) {
 }
 
 void main() {
-  print('🎨 WCAG 2.1 Contrast Checker for PH Fare Calculator');
+  print('🎨 WCAG 2.1 Contrast Checker for Pasahe');
   print('=' * 60);
   print('');
 

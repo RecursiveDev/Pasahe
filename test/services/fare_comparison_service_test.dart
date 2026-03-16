@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/services/fare_comparison_service.dart';
-import 'package:ph_fare_calculator/src/services/transport_mode_filter_service.dart';
-import 'package:ph_fare_calculator/src/models/transport_mode.dart';
+import 'package:pasahe/src/services/fare_comparison_service.dart';
+import 'package:pasahe/src/services/transport_mode_filter_service.dart';
+import 'package:pasahe/src/models/transport_mode.dart';
 
 void main() {
   late FareComparisonService service;

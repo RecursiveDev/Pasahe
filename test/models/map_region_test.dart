@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/models/map_region.dart';
+import 'package:pasahe/src/models/map_region.dart';
 
 void main() {
   group('DownloadStatus', () {

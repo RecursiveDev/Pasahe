@@ -49,7 +49,7 @@ class OfflineMapService {
   List<MapRegion> _allRegions = [];
 
   /// Store name for the tile cache.
-  static const String _storeName = 'ph_fare_calculator_tiles';
+  static const String _storeName = 'pasahe_tiles';
 
   /// Store name for the regions Hive box.
   static const String _regionsBoxName = 'offline_maps';
@@ -212,7 +212,7 @@ class OfflineMapService {
           maxZoom: region.maxZoom,
           options: TileLayer(
             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.ph_fare_calculator',
+            userAgentPackageName: 'com.pasahe',
           ),
         );
 
@@ -612,7 +612,7 @@ class OfflineMapService {
     return TileLayer(
       urlTemplate: _voyagerTileUrl,
       subdomains: _cartoSubdomains,
-      userAgentPackageName: 'com.ph_fare_calculator',
+      userAgentPackageName: 'com.pasahe',
       maxZoom: 20, // Voyager supports up to zoom 20
       tileProvider: fmtc.FMTCTileProvider(
         stores: {
@@ -635,7 +635,7 @@ class OfflineMapService {
     return TileLayer(
       urlTemplate: _voyagerTileUrl,
       subdomains: _cartoSubdomains,
-      userAgentPackageName: 'com.ph_fare_calculator',
+      userAgentPackageName: 'com.pasahe',
       maxZoom: 20, // Voyager supports up to zoom 20
     );
   }

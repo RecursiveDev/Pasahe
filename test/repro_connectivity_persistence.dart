@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:mockito/mockito.dart';
-import 'package:ph_fare_calculator/src/services/connectivity/connectivity_service.dart';
-import 'package:ph_fare_calculator/src/models/connectivity_status.dart';
+import 'package:pasahe/src/services/connectivity/connectivity_service.dart';
+import 'package:pasahe/src/models/connectivity_status.dart';
 
 // Mock class for Connectivity
 class MockConnectivity extends Mock implements Connectivity {

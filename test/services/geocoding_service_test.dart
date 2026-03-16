@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ph_fare_calculator/src/core/errors/failures.dart';
-import 'package:ph_fare_calculator/src/models/location.dart';
-import 'package:ph_fare_calculator/src/services/geocoding/geocoding_service.dart';
+import 'package:pasahe/src/core/errors/failures.dart';
+import 'package:pasahe/src/models/location.dart';
+import 'package:pasahe/src/services/geocoding/geocoding_service.dart';
 import '../helpers/mocks.dart';
 
 void main() {
