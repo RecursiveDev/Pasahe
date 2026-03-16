@@ -33,6 +33,7 @@ offline_maps/
 
 # Secrets and Environment files
 lib/config/api_keys.dart
+lib/src/core/constants/app_constants.dart
 .env
 .env.*
 !.env.example
@@ -69,6 +70,9 @@ android/app/google-services.json
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
 ios/Runner/GoogleService-Info.plist
+
+# Claude Code
+.claude/
 
 # Miscellaneous
 *.class
