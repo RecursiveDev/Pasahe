@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    // Flutter & Dart — required
+    "Dart-Code.flutter",
+    "Dart-Code.dart-code",
+    // Flutter snippets
+    "Nash.awesome-flutter-snippets",
+    // Code quality
+    "usernamehw.errorlens",
+    "streetsidesoftware.code-spell-checker",
+    "aaron-bond.better-comments",
+    // Dependency version management (pubspec.yaml)
+    "pflannery.vscode-versionlens",
+    // Git
+    "eamodio.gitlens",
+    "mhutchie.git-graph"
+  ]
+}
